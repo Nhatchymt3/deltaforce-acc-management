@@ -30,15 +30,33 @@ Deno.serve(async (request) => {
   for (const row of rows ?? []) {
     if (!row.image_url) continue;
 
-    // 1. Remove storage object
-    const { error: removeError } = await supabase.storage
+    // 1. Remove every stored object for this account (multiple result images
+    //    can be uploaded per account, all living under `${accountId}/`).
+    const accountId = String(row.image_url).split('/')[0] || row.id;
+    const { data: files, error: listError } = await supabase.storage
       .from('account-results')
-      .remove([row.image_url]);
+      .list(accountId);
 
-    if (removeError) {
-      console.warn(`[expire-account-images] storage.remove failed for "${row.image_url}":`, removeError.message);
+    if (listError) {
+      console.warn(`[expire-account-images] storage.list failed for "${accountId}":`, listError.message);
       skipped.push(row.image_url);
-      continue; // skip this row – do NOT call clear_account_image
+      continue;
+    }
+
+    const paths = (files ?? [])
+      .filter((f: { name?: string }) => f.name && !f.name.startsWith('.'))
+      .map((f: { name: string }) => `${accountId}/${f.name}`);
+
+    if (paths.length > 0) {
+      const { error: removeError } = await supabase.storage
+        .from('account-results')
+        .remove(paths);
+
+      if (removeError) {
+        console.warn(`[expire-account-images] storage.remove failed for "${accountId}":`, removeError.message);
+        skipped.push(row.image_url);
+        continue; // skip this row – do NOT call clear_account_image
+      }
     }
 
     // 2. Clear the DB column via RPC (idempotent; retries once on version_conflict)

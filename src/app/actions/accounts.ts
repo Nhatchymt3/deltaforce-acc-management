@@ -151,7 +151,151 @@ export async function uploadAccountImage(
   return serializeAccount(data);
 }
 
+// Upload multiple result images for an account in one call. Files are stored
+// under the per-account storage folder; `image_url` is set (via RPC) to the
+// most-recent path so the expiry cron and any single-image consumers keep
+// working. Returns the refreshed account (version bumped once).
+export async function uploadAccountImages(
+  accountId: string,
+  knownVersion: number,
+  formData: FormData
+): Promise<Account> {
+  const files = formData.getAll('files').filter((f): f is File => f instanceof File);
+  if (files.length === 0) throw new Error('No file provided');
+
+  for (const file of files) {
+    if (file.size > MAX_IMAGE_SIZE) {
+      throw new Error(`"${file.name}" quá lớn – tối đa 5 MB`);
+    }
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      throw new Error(`"${file.name}" không phải ảnh hợp lệ`);
+    }
+  }
+
+  const admin = createAdminClient();
+  const uploadedPaths: string[] = [];
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const ext = file.name.split('.').pop() ?? 'jpg';
+    const path = `${accountId}/${Date.now()}-${i}.${ext}`;
+    const { error: uploadError } = await admin.storage
+      .from('account-results')
+      .upload(path, buffer, { contentType: file.type, upsert: false });
+    if (uploadError) {
+      // best-effort cleanup of anything already uploaded in this batch
+      if (uploadedPaths.length > 0) {
+        await admin.storage.from('account-results').remove(uploadedPaths);
+      }
+      throw new Error(uploadError.message);
+    }
+    uploadedPaths.push(path);
+  }
+
+  // Point image_url at the latest upload (bumps version once) so the row still
+  // signals "has image" to the expiry cron and legacy consumers.
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('upload_account_image', {
+    p_account_id: accountId,
+    p_path: uploadedPaths[uploadedPaths.length - 1],
+    p_known_version: knownVersion,
+  });
+  if (error) {
+    await admin.storage.from('account-results').remove(uploadedPaths);
+    throw new Error(error.message);
+  }
+  revalidatePath('/');
+  return serializeAccount(data);
+}
+
+// List every stored result image for an account, newest first, with a short-
+// lived signed URL for each. Paths are relative to the `account-results` bucket.
+export async function listAccountImages(
+  accountId: string
+): Promise<Array<{ path: string; url: string }>> {
+  const admin = createAdminClient();
+  const { data: files, error } = await admin.storage
+    .from('account-results')
+    .list(accountId, { sortBy: { column: 'name', order: 'desc' } });
+  if (error) throw new Error(error.message);
+
+  const paths = (files ?? [])
+    .filter((f) => f.name && !f.name.startsWith('.'))
+    .map((f) => `${accountId}/${f.name}`);
+  if (paths.length === 0) return [];
+
+  const { data: signed, error: signErr } = await admin.storage
+    .from('account-results')
+    .createSignedUrls(paths, 300);
+  if (signErr) throw new Error(signErr.message);
+
+  return (signed ?? [])
+    .filter((s) => s.signedUrl && s.path)
+    .map((s) => ({ path: s.path as string, url: s.signedUrl }));
+}
+
+// Remove one specific image from storage. Afterwards `image_url` is repointed
+// to a remaining image, or cleared if none remain. Returns refreshed account.
+export async function removeAccountImage(
+  accountId: string,
+  knownVersion: number,
+  path: string
+): Promise<Account> {
+  if (!path.startsWith(`${accountId}/`)) {
+    throw new Error('Đường dẫn ảnh không hợp lệ');
+  }
+
+  const admin = createAdminClient();
+  const { error: removeError } = await admin.storage
+    .from('account-results')
+    .remove([path]);
+  if (removeError) throw new Error(removeError.message);
+
+  const { data: files } = await admin.storage
+    .from('account-results')
+    .list(accountId, { sortBy: { column: 'name', order: 'desc' } });
+  const remaining = (files ?? [])
+    .filter((f) => f.name && !f.name.startsWith('.'))
+    .map((f) => `${accountId}/${f.name}`);
+
+  const supabase = await createClient();
+  if (remaining.length === 0) {
+    const { data, error } = await supabase.rpc('clear_account_image', {
+      p_account_id: accountId,
+      p_known_version: knownVersion,
+    });
+    if (error) throw new Error(error.message);
+    revalidatePath('/');
+    return serializeAccount(data);
+  }
+
+  const { data, error } = await supabase.rpc('upload_account_image', {
+    p_account_id: accountId,
+    p_path: remaining[0],
+    p_known_version: knownVersion,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath('/');
+  return serializeAccount(data);
+}
+
 export async function clearAccountImage(accountId: string, knownVersion: number) {
+  // Remove all stored images for the account, then clear the DB pointer.
+  const admin = createAdminClient();
+  try {
+    const { data: files } = await admin.storage
+      .from('account-results')
+      .list(accountId);
+    if (files && files.length > 0) {
+      await admin.storage
+        .from('account-results')
+        .remove(files.map((f) => `${accountId}/${f.name}`));
+    }
+  } catch {
+    // ignore storage cleanup errors; still clear the DB pointer below
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('clear_account_image', {
     p_account_id: accountId,
@@ -160,6 +304,34 @@ export async function clearAccountImage(accountId: string, knownVersion: number)
   if (error) throw new Error(error.message);
   revalidatePath('/');
   return serializeAccount(data);
+}
+
+export async function deleteAccount(accountId: string) {
+  const supabase = await createClient();
+
+  // Best-effort cleanup of any uploaded result images for this account.
+  // Storage removal uses the admin client; failure here must not block the
+  // row delete, so it is intentionally swallowed.
+  try {
+    const admin = createAdminClient();
+    const { data: files } = await admin.storage
+      .from('account-results')
+      .list(accountId);
+    if (files && files.length > 0) {
+      await admin.storage
+        .from('account-results')
+        .remove(files.map((f) => `${accountId}/${f.name}`));
+    }
+  } catch {
+    // ignore storage cleanup errors
+  }
+
+  // Milestones and holder_sessions are removed automatically via
+  // ON DELETE CASCADE foreign keys.
+  const { error } = await supabase.from('accounts').delete().eq('id', accountId);
+  if (error) throw new Error(error.message);
+  revalidatePath('/');
+  revalidatePath('/finance');
 }
 
 export async function getSignedImageUrl(path: string): Promise<string> {

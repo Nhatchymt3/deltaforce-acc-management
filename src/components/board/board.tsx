@@ -477,9 +477,13 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     return () => cleanup?.();
   }, []);
 
-  // Filtered accounts
+  // Filtered accounts. Accounts that have received money are archived and no
+  // longer belong on the working board (see /archive), so drop them here — this
+  // covers initial load, realtime "pay" updates, and drag alike.
   const filtered = accounts.filter(
-    (a) => filter === 'Tất cả' || (a.sourceName ?? sourceMap[a.source] ?? a.source) === filter
+    (a) =>
+      a.status !== 'da_nhan_tien' &&
+      (filter === 'Tất cả' || (a.sourceName ?? sourceMap[a.source] ?? a.source) === filter)
   );
 
   const khoAccounts = filtered.filter((a) => a.status === 'kho' && !a.current_holder);
@@ -585,6 +589,17 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </Link>
+
+          {/* Archive link */}
+          <Link
+            href="/archive"
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all"
+            title="Kho lưu trữ (đã nhận tiền)"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
             </svg>
           </Link>
 

@@ -66,6 +66,12 @@ export function BoardWrapper({
     void refreshSessions(updated.id);
   }, [refreshSessions]);
 
+  const handleDeleted = useCallback((accountId: string) => {
+    setAccounts((prev) => prev.filter((a) => a.id !== accountId));
+    setSessions((prev) => prev.filter((s) => s.account_id !== accountId));
+    setModalAccount(null);
+  }, []);
+
   const handleCreateSuccess = useCallback(() => {
     setShowCreate(false);
     window.location.reload();
@@ -96,6 +102,7 @@ export function BoardWrapper({
           sessions={accountSessions}
           onClose={handleCloseModal}
           onUpdated={handleUpdated}
+          onDeleted={handleDeleted}
         />
       )}
 

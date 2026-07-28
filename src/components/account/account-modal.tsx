@@ -3,12 +3,15 @@
 import { useState, useEffect } from 'react';
 import {
   transitionAccount,
-  uploadAccountImage,
-  clearAccountImage,
-  getSignedImageUrl,
+  uploadAccountImages,
+  listAccountImages,
+  removeAccountImage,
+  deleteAccount,
 } from '@/app/actions/accounts';
 import type { Account, Milestone, HolderSession } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
+
+type StagedImage = { id: string; file: File; preview: string };
 
 const STATUS_LABELS: Record<Account['status'], string> = {
   kho: 'Kho',
@@ -47,6 +50,43 @@ function formatDate(iso: string | null): string {
 // Milestone display: lv${level}-${price}
 function formatMilestone(m: Milestone): string {
   return `lv${m.level}-${m.price}`;
+}
+
+// ─── Timeline Row (status timestamps in history tab) ─────────────────────────
+const TIMELINE_COLORS = {
+  blue: { dot: 'bg-blue-500/20 text-blue-300 border-blue-400/30', line: 'text-blue-300' },
+  orange: { dot: 'bg-orange-500/20 text-orange-300 border-orange-400/30', line: 'text-orange-300' },
+  green: { dot: 'bg-green-500/20 text-green-300 border-green-400/30', line: 'text-green-300' },
+} as const;
+
+function TimelineRow({
+  label,
+  time,
+  color,
+  icon,
+}: {
+  label: string;
+  time: string | null;
+  color: keyof typeof TIMELINE_COLORS;
+  icon: string;
+}) {
+  const c = TIMELINE_COLORS[color];
+  const done = !!time;
+  return (
+    <div className={`flex items-center gap-3 ${done ? '' : 'opacity-40'}`}>
+      <div className={`w-8 h-8 shrink-0 rounded-full border flex items-center justify-center ${done ? c.dot : 'bg-white/5 text-slate-500 border-white/10'}`}>
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon} />
+        </svg>
+      </div>
+      <div className="flex-1 flex items-center justify-between">
+        <span className={`text-sm font-medium ${done ? 'text-white' : 'text-slate-500'}`}>{label}</span>
+        <span className={`text-xs ${done ? c.line : 'text-slate-600'}`}>
+          {done ? formatDate(time) : 'Chưa có'}
+        </span>
+      </div>
+    </div>
+  );
 }
 
 // ─── Toast Component ──────────────────────────────────────────────────────────
@@ -212,20 +252,24 @@ interface AccountModalProps {
   sessions: HolderSession[];
   onClose: () => void;
   onUpdated: (updated: Account) => void;
+  onDeleted: (accountId: string) => void;
 }
 
-export function AccountModal({ account, milestones, sessions, onClose, onUpdated }: AccountModalProps) {
+export function AccountModal({ account, milestones, sessions, onClose, onUpdated, onDeleted }: AccountModalProps) {
   const [tab, setTab] = useState<Tab>('detail');
-  const [editingLevel, setEditingLevel] = useState(false);
-  const [levelValue, setLevelValue] = useState(String(account.current_level));
   const [payAmount, setPayAmount] = useState('');
   const [selectedMilestoneId, setSelectedMilestoneId] = useState(account.target_milestone_id ?? '');
-  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  const [images, setImages] = useState<Array<{ path: string; url: string }>>([]);
+  const [imagesLoading, setImagesLoading] = useState(true);
+  const [staged, setStaged] = useState<StagedImage[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [removingPath, setRemovingPath] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   function showToast(message: string) {
     setToastMessage(message);
@@ -233,19 +277,26 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
     setTimeout(() => setToastVisible(false), 2000);
   }
 
-  // ─── Fetch signed URL for image ──────────────────────────────────────────────
+  // ─── Load stored result images (the storage folder is the source of truth) ───
   useEffect(() => {
-    if (!account.image_url) return;
     let cancelled = false;
-    getSignedImageUrl(account.image_url)
-      .then((url) => { if (!cancelled) setSignedUrl(url); })
-      .catch(() => { if (!cancelled) setSignedUrl(null); });
+    setImagesLoading(true);
+    listAccountImages(account.id)
+      .then((imgs) => { if (!cancelled) setImages(imgs); })
+      .catch(() => { if (!cancelled) setImages([]); })
+      .finally(() => { if (!cancelled) setImagesLoading(false); });
     return () => { cancelled = true; };
-  }, [account.image_url]);
+    // account.version changes whenever an image is added/removed via RPC.
+  }, [account.id, account.version]);
+
+  // Revoke object URLs for staged previews when they change / on unmount.
+  useEffect(() => {
+    return () => { staged.forEach((s) => URL.revokeObjectURL(s.preview)); };
+  }, [staged]);
 
   // ─── Action helpers ───────────────────────────────────────────────────────────
   async function performAction(
-    action: 'done' | 'deliver' | 'pay' | 'update_level',
+    action: 'done' | 'deliver' | 'pay',
     extra?: Record<string, unknown>
   ) {
     setError(null);
@@ -275,33 +326,46 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
     void performAction('pay', { amountReceived: payAmount });
   }
 
-  async function handleLevelSave() {
-    const lvl = parseInt(levelValue, 10);
-    if (isNaN(lvl) || lvl < 0) { setError('Level không hợp lệ'); return; }
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
+  function handleStageFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
     setError(null);
-    setActionLoading('update_level');
-    try {
-      const result = await transitionAccount({
-        accountId: account.id,
-        action: 'update_level',
-        knownVersion: account.version,
-        currentLevel: lvl,
-      });
-      onUpdated(result as Account);
-      setEditingLevel(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Cập nhật thất bại');
-    } finally {
-      setActionLoading(null);
+    const next: StagedImage[] = [];
+    for (const file of Array.from(fileList)) {
+      if (!file.type.startsWith('image/')) {
+        setError(`"${file.name}" không phải ảnh`);
+        continue;
+      }
+      if (file.size > MAX_IMAGE_SIZE) {
+        setError(`"${file.name}" quá lớn – tối đa 5 MB`);
+        continue;
+      }
+      next.push({ id: `${file.name}-${file.size}-${crypto.randomUUID()}`, file, preview: URL.createObjectURL(file) });
     }
+    if (next.length > 0) setStaged((prev) => [...prev, ...next]);
   }
 
-  async function handleImageUpload(formData: FormData) {
+  function handleUnstage(id: string) {
+    setStaged((prev) => {
+      const target = prev.find((s) => s.id === id);
+      if (target) URL.revokeObjectURL(target.preview);
+      return prev.filter((s) => s.id !== id);
+    });
+  }
+
+  async function handleConfirmUpload() {
+    if (staged.length === 0) return;
     setError(null);
     setUploading(true);
     try {
-      const result = await uploadAccountImage(account.id, account.version, formData);
+      const fd = new FormData();
+      staged.forEach((s) => fd.append('files', s.file));
+      const result = await uploadAccountImages(account.id, account.version, fd);
+      staged.forEach((s) => URL.revokeObjectURL(s.preview));
+      setStaged([]);
       onUpdated(result as Account);
+      showToast(`Đã tải lên ${staged.length} ảnh!`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload thất bại');
     } finally {
@@ -309,16 +373,29 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
     }
   }
 
-  async function handleClearImage() {
+  async function handleRemoveImage(path: string) {
     setError(null);
-    setUploading(true);
+    setRemovingPath(path);
     try {
-      const result = await clearAccountImage(account.id, account.version);
+      const result = await removeAccountImage(account.id, account.version, path);
       onUpdated(result as Account);
+      showToast('Đã xóa ảnh!');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Xóa ảnh thất bại');
     } finally {
-      setUploading(false);
+      setRemovingPath(null);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setError(null);
+    setDeleting(true);
+    try {
+      await deleteAccount(account.id);
+      onDeleted(account.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Xóa tài khoản thất bại');
+      setDeleting(false);
     }
   }
 
@@ -339,11 +416,52 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
         <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
 
         {/* Modal */}
-        <div className="relative z-10 w-full max-w-lg animate-[scaleIn_0.2s_ease-out]">
+        <div className="relative z-10 w-full max-w-2xl animate-[scaleIn_0.2s_ease-out]">
           {/* Glow */}
           <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-40" />
 
           <div className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
+            {/* Delete confirmation overlay */}
+            {confirmDelete && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-black/70 backdrop-blur-sm p-6">
+                <div className="w-full max-w-sm rounded-2xl border border-red-500/30 bg-gradient-to-b from-red-950/60 to-slate-950/80 p-6 shadow-2xl">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-400/20 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-bold text-white">Xóa tài khoản?</h3>
+                  </div>
+                  <p className="text-sm text-slate-400 mb-5">
+                    Tài khoản <span className="font-semibold text-slate-200">{account.username}</span> cùng toàn bộ mốc level, lịch sử và ảnh sẽ bị xóa vĩnh viễn. Không thể hoàn tác.
+                  </p>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => setConfirmDelete(false)}
+                      disabled={deleting}
+                      className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 hover:bg-white/5 disabled:opacity-50 transition-all"
+                    >
+                      Hủy
+                    </button>
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={deleting}
+                      className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-red-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-red-500/20 hover:from-red-500 hover:to-red-400 disabled:opacity-50 transition-all"
+                    >
+                      {deleting && (
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                      )}
+                      {deleting ? 'Đang xóa...' : 'Xóa'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
               <div className="flex items-center gap-3">
@@ -365,15 +483,27 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                   </div>
                 </div>
               </div>
-              <button
-                onClick={onClose}
-                className="rounded-lg p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-                aria-label="Đóng"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  className="rounded-lg p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                  aria-label="Xóa tài khoản"
+                  title="Xóa tài khoản"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+                <button
+                  onClick={onClose}
+                  className="rounded-lg p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                  aria-label="Đóng"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* Error banner */}
@@ -409,9 +539,9 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
             {/* Content */}
             <div className="max-h-[60vh] overflow-y-auto p-6 scrollbar-thin">
               {tab === 'detail' ? (
-                <div className="space-y-5">
+                <div className="space-y-4">
                   {/* Credentials Section */}
-                  <section className="space-y-3">
+                  <section className={`grid gap-3 ${account.password ? 'sm:grid-cols-2' : 'grid-cols-1'}`}>
                     <CredentialField
                       label="Tài khoản"
                       value={account.username}
@@ -427,60 +557,6 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                     )}
                   </section>
 
-                  {/* Current level */}
-                  <section>
-                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                      Level hiện tại
-                    </h3>
-                    {editingLevel && account.status === 'dang_cay' ? (
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          min={0}
-                          value={levelValue}
-                          onChange={(e) => setLevelValue(e.target.value)}
-                          className="flex-1 rounded-xl border border-cyan-400/30 bg-white/5 backdrop-blur px-3 py-2 text-white focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all"
-                          autoFocus
-                        />
-                        <button
-                          onClick={handleLevelSave}
-                          disabled={!!actionLoading}
-                          className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2 text-sm font-medium text-white hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 transition-all"
-                        >
-                          Lưu
-                        </button>
-                        <button
-                          onClick={() => { setEditingLevel(false); setLevelValue(String(account.current_level)); }}
-                          className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-400 hover:bg-white/5 transition-all"
-                        >
-                          Hủy
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
-                          <span className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
-                            {account.current_level}
-                          </span>
-                        </div>
-                        {account.status === 'dang_cay' && (
-                          <button
-                            onClick={() => setEditingLevel(true)}
-                            className="flex items-center gap-1.5 rounded-lg bg-cyan-500/10 border border-cyan-400/20 px-3 py-1.5 text-sm text-cyan-400 hover:bg-cyan-500/20 transition-all"
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            Đổi
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </section>
-
                   {/* Milestones */}
                   <section>
                     <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
@@ -492,7 +568,7 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                     {sortedMilestones.length === 0 ? (
                       <p className="text-sm text-slate-600 py-4 text-center">Chưa có mốc nào.</p>
                     ) : (
-                      <div className="space-y-2">
+                      <div className="grid gap-2 sm:grid-cols-2">
                         {sortedMilestones.map((m) => (
                           <MilestoneBadge
                             key={m.id}
@@ -504,56 +580,123 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                     )}
                   </section>
 
-                  {/* Image */}
+                  {/* Images */}
                   <section>
                     <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       Ảnh kết quả
+                      {images.length > 0 && (
+                        <span className="rounded-full bg-cyan-500/15 border border-cyan-400/20 px-2 py-0.5 text-[10px] font-semibold text-cyan-300">
+                          {images.length}
+                        </span>
+                      )}
                     </h3>
-                    {signedUrl ? (
-                      <div className="relative rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={signedUrl}
-                          alt="Kết quả"
-                          className="max-h-48 w-full object-contain"
-                        />
-                        <button
-                          onClick={handleClearImage}
-                          disabled={uploading}
-                          className="absolute top-2 right-2 rounded-lg bg-black/50 backdrop-blur-sm p-2 text-red-400 hover:bg-red-500/20 transition-all"
-                          title="Xóa ảnh"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
+
+                    {/* Uploaded gallery */}
+                    {imagesLoading ? (
+                      <p className="text-sm text-slate-600 py-4 text-center">Đang tải ảnh…</p>
+                    ) : images.length > 0 ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+                        {images.map((img) => (
+                          <div key={img.path} className="relative group rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden aspect-square">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={img.url} alt="Kết quả" className="h-full w-full object-cover" />
+                            <a
+                              href={img.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute inset-0"
+                              aria-label="Xem ảnh đầy đủ"
+                            />
+                            <button
+                              onClick={() => handleRemoveImage(img.path)}
+                              disabled={removingPath === img.path}
+                              className="absolute top-1.5 right-1.5 rounded-lg bg-black/60 backdrop-blur-sm p-1.5 text-red-400 hover:bg-red-500/30 disabled:opacity-50 transition-all"
+                              title="Xóa ảnh"
+                            >
+                              {removingPath === img.path ? (
+                                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                              ) : (
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                    ) : (
-                      <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/10 bg-white/[0.02] p-8 cursor-pointer hover:border-cyan-400/30 hover:bg-white/[0.04] transition-all group">
-                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3 group-hover:bg-cyan-500/10 transition-colors">
-                          <svg className="w-6 h-6 text-slate-500 group-hover:text-cyan-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
+                    ) : staged.length === 0 ? (
+                      <p className="text-sm text-slate-600 py-2">Chưa có ảnh nào.</p>
+                    ) : null}
+
+                    {/* Staged previews (not yet uploaded) */}
+                    {staged.length > 0 && (
+                      <div className="mb-3 rounded-xl border border-cyan-400/20 bg-cyan-950/20 p-3">
+                        <p className="mb-2 text-xs font-medium text-cyan-300">
+                          {staged.length} ảnh chờ tải lên
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {staged.map((s) => (
+                            <div key={s.id} className="relative rounded-xl border border-white/10 overflow-hidden aspect-square">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={s.preview} alt={s.file.name} className="h-full w-full object-cover" />
+                              <button
+                                onClick={() => handleUnstage(s.id)}
+                                disabled={uploading}
+                                className="absolute top-1.5 right-1.5 rounded-lg bg-black/60 backdrop-blur-sm p-1.5 text-slate-200 hover:bg-red-500/30 hover:text-red-300 disabled:opacity-50 transition-all"
+                                title="Bỏ ảnh này"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          ))}
                         </div>
-                        <span className="text-sm text-slate-500 group-hover:text-slate-400 transition-colors">Tải lên ảnh (≤5 MB)</span>
+                      </div>
+                    )}
+
+                    {/* Actions: add + confirm */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2 text-sm text-slate-400 cursor-pointer hover:border-cyan-400/30 hover:text-cyan-300 hover:bg-white/[0.04] transition-all">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        Thêm ảnh (≤5 MB)
                         <input
-                          name="file"
                           type="file"
                           accept="image/*"
+                          multiple
                           className="hidden"
-                          onChange={(e) => {
-                            if (e.target.files?.[0]) {
-                              const fd = new FormData();
-                              fd.append('file', e.target.files[0]);
-                              void handleImageUpload(fd);
-                            }
-                          }}
+                          disabled={uploading}
+                          onChange={(e) => { handleStageFiles(e.target.files); e.target.value = ''; }}
                         />
                       </label>
-                    )}
+                      {staged.length > 0 && (
+                        <button
+                          onClick={handleConfirmUpload}
+                          disabled={uploading}
+                          className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-cyan-500/20 hover:from-cyan-500 hover:to-blue-400 disabled:opacity-50 transition-all"
+                        >
+                          {uploading ? (
+                            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                          Xác nhận tải lên
+                        </button>
+                      )}
+                    </div>
                   </section>
 
                   {/* Action buttons */}
@@ -655,6 +798,35 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                 </div>
               ) : (
                 <div className="space-y-3">
+                  {/* Status timeline: mốc thời gian chuyển trạng thái */}
+                  {(account.completed_at || account.delivered_at || account.paid_at) && (
+                    <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Mốc thời gian
+                      </h3>
+                      <div className="space-y-3">
+                        <TimelineRow
+                          label="Bấm Done"
+                          time={account.completed_at}
+                          color="blue"
+                          icon="M5 13l4 4L19 7"
+                        />
+                        <TimelineRow
+                          label="Đã giao"
+                          time={account.delivered_at}
+                          color="orange"
+                          icon="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                        />
+                        <TimelineRow
+                          label="Nhận tiền"
+                          time={account.paid_at}
+                          color="green"
+                          icon="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   {sortedSessions.length === 0 ? (
                     <p className="text-sm text-slate-600 py-8 text-center">Chưa có lịch sử.</p>
                   ) : (

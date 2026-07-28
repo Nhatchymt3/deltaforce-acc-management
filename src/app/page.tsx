@@ -10,6 +10,7 @@ export default async function HomePage() {
       supabase
         .from('accounts')
         .select('*')
+        .neq('status', 'da_nhan_tien')
         .order('position'),
       supabase
         .from('holder_sessions')
