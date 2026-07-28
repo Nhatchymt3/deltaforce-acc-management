@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { Board } from '@/components/board/board';
 import { AccountModal } from '@/components/account/account-modal';
 import { CreateAccountForm } from '@/components/account/create-account-form';
+import { getAccountSessions } from '@/app/actions/accounts';
 import type { Account, Milestone, HolderSession, Source } from '@/lib/types';
 
 interface BoardWrapperProps {
@@ -21,7 +22,7 @@ export function BoardWrapper({
 }: BoardWrapperProps) {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [milestones] = useState<Milestone[]>(initialMilestones);
-  const [sessions] = useState<HolderSession[]>(initialSessions);
+  const [sessions, setSessions] = useState<HolderSession[]>(initialSessions);
   const [sources] = useState<Source[]>(initialSources);
 
   const [modalAccount, setModalAccount] = useState<Account | null>(null);
@@ -35,9 +36,23 @@ export function BoardWrapper({
     ? sessions.filter((s) => s.account_id === modalAccount.id)
     : [];
 
+  // Replace all cached sessions for one account with a freshly-fetched set.
+  const refreshSessions = useCallback(async (accountId: string) => {
+    try {
+      const fresh = await getAccountSessions(accountId);
+      setSessions((prev) => [
+        ...prev.filter((s) => s.account_id !== accountId),
+        ...fresh,
+      ]);
+    } catch {
+      // keep stale data on failure rather than blanking the history
+    }
+  }, []);
+
   const handleOpenAccount = useCallback((account: Account) => {
     setModalAccount(account);
-  }, []);
+    void refreshSessions(account.id);
+  }, [refreshSessions]);
 
   const handleCloseModal = useCallback(() => {
     setModalAccount(null);
@@ -48,7 +63,8 @@ export function BoardWrapper({
       prev.map((a) => (a.id === updated.id ? updated : a))
     );
     setModalAccount(updated);
-  }, []);
+    void refreshSessions(updated.id);
+  }, [refreshSessions]);
 
   const handleCreateSuccess = useCallback(() => {
     setShowCreate(false);

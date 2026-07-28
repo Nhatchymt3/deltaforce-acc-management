@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import type { Account } from '@/lib/types';
+import type { Account, HolderSession } from '@/lib/types';
 
 type Action = 'update_level' | 'done' | 'deliver' | 'pay';
 
@@ -35,6 +35,24 @@ export async function moveAccount(
   revalidatePath('/');
   revalidatePath('/finance');
   return serializeAccount(data);
+}
+
+// Fetch the current holder-session history for a single account. The board
+// loads all sessions once on the initial render; after a move/done the rows
+// change server-side, so the client refetches this to keep the "Lịch sử" tab
+// (and running time per AE) in sync without a full page reload.
+export async function getAccountSessions(accountId: string): Promise<HolderSession[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('holder_sessions')
+    .select('*')
+    .eq('account_id', accountId)
+    .order('started_at');
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((s) => ({
+    ...s,
+    duration_seconds: s.duration_seconds != null ? Number(s.duration_seconds) : null,
+  })) as HolderSession[];
 }
 
 export async function transitionAccount(input: {

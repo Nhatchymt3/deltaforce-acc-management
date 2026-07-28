@@ -8,6 +8,7 @@ import {
   getSignedImageUrl,
 } from '@/app/actions/accounts';
 import type { Account, Milestone, HolderSession } from '@/lib/types';
+import { Dropdown } from '@/components/ui/dropdown';
 
 const STATUS_LABELS: Record<Account['status'], string> = {
   kho: 'Kho',
@@ -585,25 +586,16 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                       )}
                       {account.status === 'done' && (
                         <>
-                          <div className="relative group">
+                          <div className="relative group min-w-[180px]">
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none" />
-                            <select
+                            <Dropdown
                               value={selectedMilestoneId}
-                              onChange={(e) => setSelectedMilestoneId(e.target.value)}
-                              className="relative rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-white appearance-none cursor-pointer hover:border-cyan-400/30 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all pr-8"
-                            >
-                              <option value="">Chọn mốc giao</option>
-                              {sortedMilestones.map((m) => (
-                                <option key={m.id} value={m.id}>
-                                  {formatMilestone(m)}
-                                </option>
-                              ))}
-                            </select>
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                              <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                              </svg>
-                            </div>
+                              onChange={setSelectedMilestoneId}
+                              placeholder="Chọn mốc giao"
+                              options={sortedMilestones.map((m) => ({ value: m.id, label: formatMilestone(m) }))}
+                              size="sm"
+                              ariaLabel="Chọn mốc giao"
+                            />
                           </div>
                           <button
                             onClick={handleDeliver}

@@ -23,6 +23,7 @@ import Link from 'next/link';
 import { moveAccount } from '@/app/actions/accounts';
 import { signOut } from '@/app/actions/auth';
 import type { Account, HolderSession, Milestone, Source } from '@/lib/types';
+import { Dropdown } from '@/components/ui/dropdown';
 
 const KHO_SENTINEL = '__kho__';
 const LOCKED_STATUSES = ['done', 'da_giao_cho_ben_thu', 'da_nhan_tien'] as const;
@@ -507,22 +508,15 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {/* Source filter */}
-          <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity" />
-            <select
+          <div className="relative group min-w-[160px]">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity pointer-events-none" />
+            <Dropdown
               value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="relative rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-4 py-2.5 text-sm text-white appearance-none cursor-pointer hover:border-cyan-400/30 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all pr-10"
-            >
-              {availableSources.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
+              onChange={setFilter}
+              options={availableSources.map((s) => ({ value: s, label: s }))}
+              size="sm"
+              ariaLabel="Lọc theo nguồn"
+            />
           </div>
 
           {/* AE input */}

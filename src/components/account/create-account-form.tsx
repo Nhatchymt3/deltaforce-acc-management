@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createAccountWithMilestones } from '@/app/actions/accounts';
 import type { Source } from '@/lib/types';
+import { Dropdown } from '@/components/ui/dropdown';
 
 interface ParsedAccount {
   username: string;
@@ -286,22 +287,13 @@ export function CreateAccountForm({ sources, onSuccess, onCancel }: CreateAccoun
                 <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400">Nguồn</span>
                 <div className="relative group">
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none" />
-                  <select
+                  <Dropdown
                     value={source}
-                    onChange={(e) => setSource(e.target.value)}
-                    required
-                    className="relative w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-white appearance-none cursor-pointer hover:border-cyan-400/30 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all pr-10"
-                  >
-                    {sources.length === 0 && <option value="">Chưa có nguồn nào</option>}
-                    {sources.map((s) => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
+                    onChange={setSource}
+                    placeholder={sources.length === 0 ? 'Chưa có nguồn nào' : 'Chọn nguồn'}
+                    options={sources.map((s) => ({ value: s.id, label: s.name }))}
+                    ariaLabel="Nguồn"
+                  />
                 </div>
               </label>
 
