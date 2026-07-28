@@ -4,7 +4,6 @@ import {
   useState,
   useRef,
   useEffect,
-  useLayoutEffect,
   useId,
 } from 'react';
 import { createPortal } from 'react-dom';
@@ -57,7 +56,7 @@ export function Dropdown({
     setCoords({ top: r.bottom + 6, left: r.left, width: r.width });
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!open) return;
     updateCoords();
     const idx = options.findIndex((o) => o.value === value);
