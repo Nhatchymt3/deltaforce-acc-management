@@ -264,6 +264,7 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
   const [staged, setStaged] = useState<StagedImage[]>([]);
   const [uploading, setUploading] = useState(false);
   const [removingPath, setRemovingPath] = useState<string | null>(null);
+  const [downloadingAll, setDownloadingAll] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
@@ -416,6 +417,37 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
       setError(err instanceof Error ? err.message : 'Xóa ảnh thất bại');
     } finally {
       setRemovingPath(null);
+    }
+  }
+
+  async function handleDownloadAll() {
+    if (images.length === 0 || downloadingAll) return;
+    setError(null);
+    setDownloadingAll(true);
+    try {
+      let i = 0;
+      for (const img of images) {
+        i++;
+        // Fetch the signed URL as a blob so the browser saves the file instead
+        // of navigating to it, then trigger a download with a stable filename.
+        const res = await fetch(img.url);
+        if (!res.ok) throw new Error('Không tải được ảnh');
+        const blob = await res.blob();
+        const ext = img.path.split('.').pop() || 'jpg';
+        const objectUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = `${account.username}-${i}.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(objectUrl);
+      }
+      showToast(`Đã tải ${images.length} ảnh!`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Tải ảnh thất bại');
+    } finally {
+      setDownloadingAll(false);
     }
   }
 
@@ -623,6 +655,26 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                         <span className="rounded-full bg-cyan-500/15 border border-cyan-400/20 px-2 py-0.5 text-[10px] font-semibold text-cyan-300">
                           {images.length}
                         </span>
+                      )}
+                      {images.length > 0 && (
+                        <button
+                          onClick={handleDownloadAll}
+                          disabled={downloadingAll}
+                          className="ml-auto flex items-center gap-1.5 rounded-lg border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-medium normal-case tracking-normal text-cyan-300 hover:bg-cyan-500/20 disabled:opacity-50 transition-all"
+                          title="Tải toàn bộ ảnh"
+                        >
+                          {downloadingAll ? (
+                            <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                          ) : (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                          )}
+                          {downloadingAll ? 'Đang tải…' : 'Tải tất cả'}
+                        </button>
                       )}
                     </h3>
 
