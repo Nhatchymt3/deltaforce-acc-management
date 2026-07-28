@@ -58,7 +58,7 @@ alter table accounts rename column source_id to source;
 
 -- 3. Change account_milestones.price: bigint → text
 --    Keep the data as-is (people entered VND numbers as bigint, now stored as text)
-alter table accounts
+alter table account_milestones
   add column if not exists price_text text;
 
 update account_milestones
@@ -76,7 +76,6 @@ create or replace function create_account_with_milestones(
   p_initial_holder  text default null
 ) returns accounts
 language plpgsql security definer set search_path = public
-set deltaforce.rpc_call = 'true'
 as $$
 declare
   new_account_id uuid;
@@ -132,7 +131,7 @@ begin
     OLD.amount_received is distinct from NEW.amount_received or
     OLD.current_level is distinct from NEW.current_level
   then
-    if current_setting('deltaforce.rpc_call', true) != 'true' then
+    if current_user NOT IN ('postgres', 'supabase_admin') then
       raise exception 'Protected columns may only be modified via DeltaForce RPCs'
         using errcode = 'P0003';
     end if;

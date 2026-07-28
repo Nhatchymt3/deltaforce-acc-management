@@ -57,10 +57,9 @@ export function CreateAccountForm({ sources, onSuccess, onCancel }: CreateAccoun
   const invalidLines = parsedAccounts.filter(a => !a.isValid);
 
   useEffect(() => {
-    if (showSuccessToast) {
-      const timer = setTimeout(() => setShowSuccessToast(false), 3000);
-      return () => clearTimeout(timer);
-    }
+    if (!showSuccessToast) return;
+    const timer = setTimeout(() => setShowSuccessToast(false), 3000);
+    return () => clearTimeout(timer);
   }, [showSuccessToast]);
 
   function addMilestone() {
