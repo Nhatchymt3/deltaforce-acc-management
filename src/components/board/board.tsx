@@ -100,7 +100,6 @@ function Card({ account, onOpen, index }: CardProps) {
   return (
     <div
       ref={setNodeRef}
-      style={style}
       {...(disabled ? {} : { ...listeners, ...attributes })}
       onClick={() => onOpen(account)}
       onKeyDown={(e) => e.key === 'Enter' && onOpen(account)}
