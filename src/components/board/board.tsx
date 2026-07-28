@@ -469,6 +469,9 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               setAccounts((prev) =>
                 prev.some((a) => a.id === inserted.id) ? prev : [...prev, inserted]
               );
+            } else if (payload.eventType === 'DELETE') {
+              const removed = payload.old as { id: string };
+              setAccounts((prev) => prev.filter((a) => a.id !== removed.id));
             }
           }
         )
