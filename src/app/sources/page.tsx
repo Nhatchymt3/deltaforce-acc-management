@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { SourceManager } from '@/components/sources/source-manager';
+import { signOut } from '@/app/actions/auth';
 import type { Source } from '@/lib/types';
 import Link from 'next/link';
 
@@ -43,6 +44,17 @@ export default async function SourcesPage() {
               Thêm, sửa, xóa nguồn tài khoản
             </p>
           </div>
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all"
+              title="Đăng xuất"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </form>
         </div>
 
         <SourceManager initialSources={(sources ?? []) as Source[]} />

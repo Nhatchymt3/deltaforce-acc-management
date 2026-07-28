@@ -21,6 +21,7 @@ import {
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { moveAccount } from '@/app/actions/accounts';
+import { signOut } from '@/app/actions/auth';
 import type { Account, HolderSession, Source } from '@/lib/types';
 
 const KHO_SENTINEL = '__kho__';
@@ -244,13 +245,8 @@ export function Board({ initialAccounts, initialSessions, initialSources, onOpen
 
   // Derive sources for filter dropdown
   const availableSources = useMemo(() => {
-    const names = new Set<string>();
-    accounts.forEach((a) => {
-      const name = a.sourceName ?? sourceMap[a.source] ?? a.source;
-      if (name !== a.source) names.add(name); // only if denormalised
-    });
-    return ['Tất cả', ...Array.from(names).sort()];
-  }, [accounts, sourceMap]);
+    return ['Tất cả', ...initialSources.map((s) => s.name)];
+  }, [initialSources]);
 
   // Derive holders
   const allHolders = useMemo(() => {
@@ -477,6 +473,17 @@ export function Board({ initialAccounts, initialSessions, initialSources, onOpen
             </button>
           </div>
 
+          {/* Finance link */}
+          <Link
+            href="/finance"
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all"
+            title="Tài chính"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </Link>
+
           {/* Settings link */}
           <Link
             href="/sources"
@@ -488,6 +495,19 @@ export function Board({ initialAccounts, initialSessions, initialSources, onOpen
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </Link>
+
+          {/* Logout button */}
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all"
+              title="Đăng xuất"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </form>
         </div>
       </header>
 

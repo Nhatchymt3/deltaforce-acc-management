@@ -4,3 +4,7 @@ out/
 .env
 .env.local
 .vercel/
+
+# Local QA tooling & artifacts
+.tools/
+test-artifacts/

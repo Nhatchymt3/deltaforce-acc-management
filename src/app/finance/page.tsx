@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { calculateFinance, formatVnd, formatHolders } from '@/lib/finance';
+import { signOut } from '@/app/actions/auth';
+import Link from 'next/link';
 import type { Account, HolderSession } from '@/lib/types';
 
 export default async function FinancePage() {
@@ -39,12 +41,36 @@ export default async function FinancePage() {
 
       <main className="relative mx-auto max-w-5xl px-6 py-10 text-white">
         {/* Header */}
-        <div className="mb-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400 mb-1">DeltaForce</p>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-cyan-100 to-violet-200 bg-clip-text text-transparent">
-            Tài chính
-          </h1>
-          <p className="mt-1 text-sm text-slate-400">Theo dõi thu nhập và chia tiền AE</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <Link
+                href="/"
+                className="rounded-lg border border-white/10 bg-white/5 p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                title="Quay lại board"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+              </Link>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">DeltaForce</p>
+            </div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-cyan-100 to-violet-200 bg-clip-text text-transparent">
+              Tài chính
+            </h1>
+            <p className="mt-1 text-sm text-slate-400">Theo dõi thu nhập và chia tiền AE</p>
+          </div>
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all"
+              title="Đăng xuất"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </form>
         </div>
 
         {/* Per-account breakdown */}
