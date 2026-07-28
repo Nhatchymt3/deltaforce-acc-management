@@ -4,6 +4,7 @@ export type AccountStatus = 'kho' | 'dang_cay' | 'done' | 'da_giao_cho_ben_thu' 
 export type Account = {
   id: string;
   username: string;
+  password?: string | null; // stored account password
   source: string; // uuid FK to sources
   sourceName?: string; // denormalised for display
   status: AccountStatus;

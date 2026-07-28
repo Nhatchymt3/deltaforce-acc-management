@@ -2,7 +2,7 @@
 -- 002_hardening.sql
 -- DeltaForce Acc Management – Security & Correctness Hardening
 -- ============================================================
--- Mechanism: AFTER-UPDATE trigger guard
+-- Mechanism: BEFORE UPDATE trigger guard + current_user check
 -- Protected columns (write-once via RPC only):
 --   status, position, current_holder, completed_at, delivered_at,
 --   paid_at, image_url, image_expires_at, target_milestone_id,
@@ -12,25 +12,23 @@
 --   All legitimate writers are SECURITY DEFINER functions
 --   (move_account, transition_account, upload_account_image,
 --    clear_account_image, create_account_with_milestones).
---   Within those functions current_setting('deltaforce.rpc_call', true)
---   is set to 'true'.  The trigger checks this setting; if absent or
---   false the update is rejected.  Regular authenticated UPDATE via
---   the RLS policy is therefore blocked for protected columns because
---   the RLS policy grants access but the BEFORE UPDATE trigger fires
---   after RBAC-check and catches the violation.
+--   The trigger checks current_user; if not postgres/supabase_admin
+--   and not in security definer context, the update is rejected.
 -- ============================================================
 
--- 1. Remove the broken composite FK that lets target_milestone_id
---    point to any account's milestone (schema bug from 001).
-alter table accounts drop constraint if exists target_milestone_same_account;
+-- Drop existing functions first (to avoid parameter name conflicts)
+-- These use signature-only syntax (no parameter names)
+DROP FUNCTION IF EXISTS move_account(uuid, text, integer, integer) CASCADE;
+DROP FUNCTION IF EXISTS transition_account(uuid, text, integer, integer, uuid, bigint, text);
+DROP FUNCTION IF EXISTS upload_account_image(uuid, text, integer);
+DROP FUNCTION IF EXISTS clear_account_image(uuid, integer);
+DROP FUNCTION IF EXISTS create_account_with_milestones(text, text, text, jsonb, text);
+DROP FUNCTION IF EXISTS deltaforce_protect_accounts();
+DROP FUNCTION IF EXISTS deltaforce_protect_holder_sessions();
 
--- 2. Storage bucket policies – PRIVATE, authenticated only, no anon.
+-- 1. Storage bucket policies – PRIVATE, authenticated only, no anon.
 -- The 'account-results' bucket must be created in the Supabase dashboard
 -- (Storage > New Bucket > Name: account-results > Private).
--- These RLS policies restrict access to the authenticated role only.
--- Note: by default Supabase Storage already creates storage.objects policies
--- when a bucket is made private; these statements are idempotent and ensure
--- explicit coverage for the account-results bucket.
 create policy "storage_authenticated_select_account_results"
   on storage.objects for select
   to authenticated
@@ -51,14 +49,14 @@ create policy "storage_authenticated_delete_account_results"
   to authenticated
   using ( bucket_id = 'account-results' );
 
--- 3. BEFORE UPDATE guard on accounts
---    Allows writes only when inside a DeltaForce RPC (identified by
---    the session setting 'deltaforce.rpc_call' = 'true').
+-- 2. BEFORE UPDATE guard on accounts
+--    Allows writes only when current_user is postgres/supabase_admin
+--    (i.e., running inside a SECURITY DEFINER RPC called by service_role)
 create or replace function deltaforce_protect_accounts() returns trigger
 language plpgsql
 as $$
 begin
-  -- Coarse-grained: if any protected column changed, require RPC path.
+  -- Coarse-grained: if any protected column changed, require elevated access
   if
     OLD.status is distinct from NEW.status or
     OLD.position is distinct from NEW.position or
@@ -72,8 +70,8 @@ begin
     OLD.amount_received is distinct from NEW.amount_received or
     OLD.current_level is distinct from NEW.current_level
   then
-    -- Allow only when running inside a SECURITY DEFINER RPC that sets this.
-    if current_setting('deltaforce.rpc_call', true) != 'true' then
+    -- Allow only for postgres/supabase_admin (service_role uses these internally)
+    if current_user NOT IN ('postgres', 'supabase_admin') then
       raise exception 'Protected columns may only be modified via DeltaForce RPCs'
         using errcode = 'P0003';
     end if;
@@ -90,7 +88,7 @@ create trigger deltaforce_accounts_protect
   before update on accounts
   for each row execute function deltaforce_protect_accounts();
 
--- 4. BEFORE INSERT guard on holder_sessions
+-- 3. BEFORE INSERT guard on holder_sessions
 --    Enforces no open session exists for the same account
 --    (supplements the partial unique index which only prevents race
 --     conditions within a single transaction).
@@ -114,9 +112,8 @@ create trigger deltaforce_holder_sessions_protect
   before insert on holder_sessions
   for each row execute function deltaforce_protect_holder_sessions();
 
--- 5. Transition RPCs – update to atomically set all relevant columns
---    and use SET LOCAL so the trigger can detect the RPC path.
---    Also fix the deliver branch: milestone must exist for the same account.
+-- 4. Transition RPCs – atomically set all relevant columns
+--    SECURITY DEFINER functions run as table owner, bypassing RLS
 
 create or replace function move_account(
   p_account_id    uuid,
@@ -125,7 +122,6 @@ create or replace function move_account(
   p_known_version  integer
 ) returns accounts
 language plpgsql security definer set search_path = public
-set deltaforce.rpc_call = 'true'
 as $$
 declare a accounts;
 begin
@@ -175,7 +171,6 @@ create or replace function transition_account(
   p_note                text     default null
 ) returns accounts
 language plpgsql security definer set search_path = public
-set deltaforce.rpc_call = 'true'
 as $$
 declare a accounts;
 begin
@@ -260,7 +255,6 @@ create or replace function upload_account_image(
   p_known_version integer
 ) returns accounts
 language plpgsql security definer set search_path = public
-set deltaforce.rpc_call = 'true'
 as $$
 declare a accounts;
 begin
@@ -282,7 +276,6 @@ create or replace function clear_account_image(
   p_known_version integer
 ) returns accounts
 language plpgsql security definer set search_path = public
-set deltaforce.rpc_call = 'true'
 as $$
 declare a accounts;
 begin
@@ -300,16 +293,15 @@ begin
 end;
 $$;
 
--- 6. Create account with milestones (idempotent, SECURITY DEFINER only)
+-- 5. Create account with milestones (idempotent, SECURITY DEFINER only)
 create or replace function create_account_with_milestones(
   p_source          text,
   p_username        text,
-  p_password        text,  -- reserved for future; stored accounts use shared auth
+  p_password        text,  -- stored accounts password
   p_milestones      jsonb,  -- [{level: number, price: number, note?: string}, ...]
   p_initial_holder  text   default null  -- if set, opens a holder session
 ) returns accounts
 language plpgsql security definer set search_path = public
-set deltaforce.rpc_call = 'true'
 as $$
 declare
   new_account_id uuid;
@@ -319,8 +311,8 @@ declare
   note_val       text;
   new_account    accounts;
 begin
-  insert into accounts (source, username, status)
-    values (p_source, p_username, 'kho')
+  insert into accounts (source, username, password, status)
+    values (p_source, p_username, nullif(p_password, ''), 'kho')
     returning id into new_account_id;
 
   -- Insert milestones

@@ -48,6 +48,126 @@ function formatMilestone(m: Milestone): string {
   return `lv${m.level}-${m.price}`;
 }
 
+// ─── Toast Component ──────────────────────────────────────────────────────────
+function CopyToast({ visible, message }: { visible: boolean; message: string }) {
+  return (
+    <div
+      className={`fixed top-6 right-6 z-[100] transform transition-all duration-300 ${
+        visible
+          ? 'translate-x-0 opacity-100'
+          : 'translate-x-full opacity-0 pointer-events-none'
+      }`}
+    >
+      <div className="flex items-center gap-3 rounded-xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/90 to-violet-950/90 backdrop-blur-xl px-5 py-4 shadow-xl shadow-cyan-500/10">
+        <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
+          <svg className="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+          </svg>
+        </div>
+        <span className="text-sm font-medium text-cyan-300">{message}</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Copy Button Component ───────────────────────────────────────────────────
+function CopyButton({ text, label, onCopy }: { text: string; label: string; onCopy: (message: string) => void }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      onCopy(`${label} đã được copy!`);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      onCopy('Copy thất bại');
+    }
+  }
+
+  return (
+    <button
+      onClick={handleCopy}
+      className={`rounded-lg p-1.5 transition-all duration-200 ${
+        copied
+          ? 'bg-cyan-500/20 text-cyan-400 scale-110'
+          : 'text-slate-500 hover:text-cyan-400 hover:bg-cyan-500/10'
+      }`}
+      title={`Copy ${label}`}
+    >
+      {copied ? (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
+      ) : (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
+// ─── Credential Field Component ──────────────────────────────────────────────
+interface CredentialFieldProps {
+  label: string;
+  value: string;
+  onCopy: (message: string) => void;
+  isPassword?: boolean;
+}
+
+function CredentialField({ label, value, isPassword = false }: CredentialFieldProps) {
+  const [visible, setVisible] = useState(false);
+  const displayValue = isPassword ? (visible ? value : '●●●●●●●●●●●') : value;
+
+  return (
+    <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2 flex items-center gap-1.5">
+        {isPassword ? (
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          </svg>
+        ) : (
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        )}
+        {label}
+      </div>
+      <div className="flex items-center justify-between gap-3">
+        <span className={`font-mono text-sm ${isPassword && !visible ? 'tracking-widest' : 'text-slate-200'} transition-all duration-200`}>
+          {displayValue || <span className="text-slate-600 italic">Không có</span>}
+        </span>
+        <div className="flex items-center gap-1">
+          <CopyButton text={value} label={label} onCopy={() => {}} />
+          {isPassword && value && (
+            <button
+              onClick={() => setVisible(!visible)}
+              className={`rounded-lg p-1.5 transition-all duration-200 ${
+                visible
+                  ? 'bg-cyan-500/20 text-cyan-400'
+                  : 'text-slate-500 hover:text-cyan-400 hover:bg-cyan-500/10'
+              }`}
+              title={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+            >
+              {visible ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Milestone level badge ───────────────────────────────────────────────────
 function MilestoneBadge({ milestone, isTarget }: { milestone: Milestone; isTarget: boolean }) {
   return (
@@ -103,6 +223,14 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
   const [uploading, setUploading] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  function showToast(message: string) {
+    setToastMessage(message);
+    setToastVisible(true);
+    setTimeout(() => setToastVisible(false), 2000);
+  }
 
   // ─── Fetch signed URL for image ──────────────────────────────────────────────
   useEffect(() => {
@@ -201,381 +329,403 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
   const colors = STATUS_COLORS[account.status];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Glassmorphism backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
+    <>
+      {/* Toast notification */}
+      <CopyToast visible={toastVisible} message={toastMessage} />
 
-      {/* Modal */}
-      <div className="relative z-10 w-full max-w-lg animate-[scaleIn_0.2s_ease-out]">
-        {/* Glow */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-40" />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Glassmorphism backdrop */}
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
 
-        <div className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 border border-cyan-400/20 flex items-center justify-center">
-                <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
-                  {account.username.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-white">{account.username}</h2>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs text-slate-500 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 inline-block" />
-                    {account.sourceName ?? account.source}
-                  </span>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors.bg} ${colors.border} ${colors.text}`}>
-                    {STATUS_LABELS[account.status]}
+        {/* Modal */}
+        <div className="relative z-10 w-full max-w-lg animate-[scaleIn_0.2s_ease-out]">
+          {/* Glow */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-40" />
+
+          <div className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 border border-cyan-400/20 flex items-center justify-center">
+                  <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
+                    {account.username.charAt(0).toUpperCase()}
                   </span>
                 </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">{account.username}</h2>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs text-slate-500 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 inline-block" />
+                      {account.sourceName ?? account.source}
+                    </span>
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors.bg} ${colors.border} ${colors.text}`}>
+                      {STATUS_LABELS[account.status]}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="rounded-lg p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-              aria-label="Đóng"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Error banner */}
-          {error && (
-            <div className="mx-6 mt-4 rounded-xl border border-red-500/30 bg-red-950/50 px-4 py-3 text-sm text-red-300 flex items-center gap-2">
-              <svg className="w-4 h-4 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {error}
-            </div>
-          )}
-
-          {/* Tabs */}
-          <div className="flex border-b border-white/10 px-6">
-            {(['detail', 'history'] as Tab[]).map((t) => (
               <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`px-4 py-3 text-sm font-medium transition-all relative ${
-                  tab === t
-                    ? 'text-cyan-400'
-                    : 'text-slate-500 hover:text-slate-300'
-                }`}
+                onClick={onClose}
+                className="rounded-lg p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                aria-label="Đóng"
               >
-                {tab === t && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-full" />
-                )}
-                {t === 'detail' ? 'Chi tiết' : 'Lịch sử'}
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
-            ))}
-          </div>
+            </div>
 
-          {/* Content */}
-          <div className="max-h-[60vh] overflow-y-auto p-6 scrollbar-thin">
-            {tab === 'detail' ? (
-              <div className="space-y-6">
-                {/* Current level */}
-                <section>
-                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    Level hiện tại
-                  </h3>
-                  {editingLevel && account.status === 'dang_cay' ? (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min={0}
-                        value={levelValue}
-                        onChange={(e) => setLevelValue(e.target.value)}
-                        className="flex-1 rounded-xl border border-cyan-400/30 bg-white/5 backdrop-blur px-3 py-2 text-white focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all"
-                        autoFocus
+            {/* Error banner */}
+            {error && (
+              <div className="mx-6 mt-4 rounded-xl border border-red-500/30 bg-red-950/50 px-4 py-3 text-sm text-red-300 flex items-center gap-2">
+                <svg className="w-4 h-4 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {error}
+              </div>
+            )}
+
+            {/* Tabs */}
+            <div className="flex border-b border-white/10 px-6">
+              {(['detail', 'history'] as Tab[]).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`px-4 py-3 text-sm font-medium transition-all relative ${
+                    tab === t
+                      ? 'text-cyan-400'
+                      : 'text-slate-500 hover:text-slate-300'
+                  }`}
+                >
+                  {tab === t && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-full" />
+                  )}
+                  {t === 'detail' ? 'Chi tiết' : 'Lịch sử'}
+                </button>
+              ))}
+            </div>
+
+            {/* Content */}
+            <div className="max-h-[60vh] overflow-y-auto p-6 scrollbar-thin">
+              {tab === 'detail' ? (
+                <div className="space-y-5">
+                  {/* Credentials Section */}
+                  <section className="space-y-3">
+                    <CredentialField
+                      label="Tài khoản"
+                      value={account.username}
+                      onCopy={showToast}
+                    />
+                    {account.password && (
+                      <CredentialField
+                        label="Mật khẩu"
+                        value={account.password}
+                        onCopy={showToast}
+                        isPassword
                       />
-                      <button
-                        onClick={handleLevelSave}
-                        disabled={!!actionLoading}
-                        className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2 text-sm font-medium text-white hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 transition-all"
-                      >
-                        Lưu
-                      </button>
-                      <button
-                        onClick={() => { setEditingLevel(false); setLevelValue(String(account.current_level)); }}
-                        className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-400 hover:bg-white/5 transition-all"
-                      >
-                        Hủy
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
-                        <span className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
-                          {account.current_level}
-                        </span>
+                    )}
+                  </section>
+
+                  {/* Current level */}
+                  <section>
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      Level hiện tại
+                    </h3>
+                    {editingLevel && account.status === 'dang_cay' ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min={0}
+                          value={levelValue}
+                          onChange={(e) => setLevelValue(e.target.value)}
+                          className="flex-1 rounded-xl border border-cyan-400/30 bg-white/5 backdrop-blur px-3 py-2 text-white focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all"
+                          autoFocus
+                        />
+                        <button
+                          onClick={handleLevelSave}
+                          disabled={!!actionLoading}
+                          className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2 text-sm font-medium text-white hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 transition-all"
+                        >
+                          Lưu
+                        </button>
+                        <button
+                          onClick={() => { setEditingLevel(false); setLevelValue(String(account.current_level)); }}
+                          className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-400 hover:bg-white/5 transition-all"
+                        >
+                          Hủy
+                        </button>
                       </div>
+                    ) : (
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3">
+                          <span className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
+                            {account.current_level}
+                          </span>
+                        </div>
+                        {account.status === 'dang_cay' && (
+                          <button
+                            onClick={() => setEditingLevel(true)}
+                            className="flex items-center gap-1.5 rounded-lg bg-cyan-500/10 border border-cyan-400/20 px-3 py-1.5 text-sm text-cyan-400 hover:bg-cyan-500/20 transition-all"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Đổi
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Milestones */}
+                  <section>
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      Mốc Level
+                    </h3>
+                    {sortedMilestones.length === 0 ? (
+                      <p className="text-sm text-slate-600 py-4 text-center">Chưa có mốc nào.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {sortedMilestones.map((m) => (
+                          <MilestoneBadge
+                            key={m.id}
+                            milestone={m}
+                            isTarget={m.id === account.target_milestone_id}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Image */}
+                  <section>
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      Ảnh kết quả
+                    </h3>
+                    {signedUrl ? (
+                      <div className="relative rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={signedUrl}
+                          alt="Kết quả"
+                          className="max-h-48 w-full object-contain"
+                        />
+                        <button
+                          onClick={handleClearImage}
+                          disabled={uploading}
+                          className="absolute top-2 right-2 rounded-lg bg-black/50 backdrop-blur-sm p-2 text-red-400 hover:bg-red-500/20 transition-all"
+                          title="Xóa ảnh"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/10 bg-white/[0.02] p-8 cursor-pointer hover:border-cyan-400/30 hover:bg-white/[0.04] transition-all group">
+                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3 group-hover:bg-cyan-500/10 transition-colors">
+                          <svg className="w-6 h-6 text-slate-500 group-hover:text-cyan-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <span className="text-sm text-slate-500 group-hover:text-slate-400 transition-colors">Tải lên ảnh (≤5 MB)</span>
+                        <input
+                          name="file"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files?.[0]) {
+                              const fd = new FormData();
+                              fd.append('file', e.target.files[0]);
+                              void handleImageUpload(fd);
+                            }
+                          }}
+                        />
+                      </label>
+                    )}
+                  </section>
+
+                  {/* Action buttons */}
+                  <section>
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      Thao tác
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
                       {account.status === 'dang_cay' && (
                         <button
-                          onClick={() => setEditingLevel(true)}
-                          className="flex items-center gap-1.5 rounded-lg bg-cyan-500/10 border border-cyan-400/20 px-3 py-1.5 text-sm text-cyan-400 hover:bg-cyan-500/20 transition-all"
+                          onClick={handleDone}
+                          disabled={!!actionLoading}
+                          className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-blue-500/20 hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 transition-all"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                          Đổi
+                          {actionLoading === 'done' ? (
+                            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                          Done
                         </button>
                       )}
-                    </div>
-                  )}
-                </section>
-
-                {/* Milestones */}
-                <section>
-                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    Mốc Level
-                  </h3>
-                  {sortedMilestones.length === 0 ? (
-                    <p className="text-sm text-slate-600 py-4 text-center">Chưa có mốc nào.</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {sortedMilestones.map((m) => (
-                        <MilestoneBadge
-                          key={m.id}
-                          milestone={m}
-                          isTarget={m.id === account.target_milestone_id}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </section>
-
-                {/* Image */}
-                <section>
-                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Ảnh kết quả
-                  </h3>
-                  {signedUrl ? (
-                    <div className="relative rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={signedUrl}
-                        alt="Kết quả"
-                        className="max-h-48 w-full object-contain"
-                      />
-                      <button
-                        onClick={handleClearImage}
-                        disabled={uploading}
-                        className="absolute top-2 right-2 rounded-lg bg-black/50 backdrop-blur-sm p-2 text-red-400 hover:bg-red-500/20 transition-all"
-                        title="Xóa ảnh"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/10 bg-white/[0.02] p-8 cursor-pointer hover:border-cyan-400/30 hover:bg-white/[0.04] transition-all group">
-                      <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3 group-hover:bg-cyan-500/10 transition-colors">
-                        <svg className="w-6 h-6 text-slate-500 group-hover:text-cyan-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <span className="text-sm text-slate-500 group-hover:text-slate-400 transition-colors">Tải lên ảnh (≤5 MB)</span>
-                      <input
-                        name="file"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          if (e.target.files?.[0]) {
-                            const fd = new FormData();
-                            fd.append('file', e.target.files[0]);
-                            void handleImageUpload(fd);
-                          }
-                        }}
-                      />
-                    </label>
-                  )}
-                </section>
-
-                {/* Action buttons */}
-                <section>
-                  <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    Thao tác
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {account.status === 'dang_cay' && (
-                      <button
-                        onClick={handleDone}
-                        disabled={!!actionLoading}
-                        className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-blue-500/20 hover:from-blue-500 hover:to-blue-400 disabled:opacity-50 transition-all"
-                      >
-                        {actionLoading === 'done' ? (
-                          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                        ) : (
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                        Done
-                      </button>
-                    )}
-                    {account.status === 'done' && (
-                      <>
-                        <div className="relative group">
-                          <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none" />
-                          <select
-                            value={selectedMilestoneId}
-                            onChange={(e) => setSelectedMilestoneId(e.target.value)}
-                            className="relative rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-white appearance-none cursor-pointer hover:border-cyan-400/30 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all pr-8"
+                      {account.status === 'done' && (
+                        <>
+                          <div className="relative group">
+                            <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none" />
+                            <select
+                              value={selectedMilestoneId}
+                              onChange={(e) => setSelectedMilestoneId(e.target.value)}
+                              className="relative rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-white appearance-none cursor-pointer hover:border-cyan-400/30 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all pr-8"
+                            >
+                              <option value="">Chọn mốc giao</option>
+                              {sortedMilestones.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                  {formatMilestone(m)}
+                                </option>
+                              ))}
+                            </select>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                              <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </div>
+                          </div>
+                          <button
+                            onClick={handleDeliver}
+                            disabled={!!actionLoading || !selectedMilestoneId}
+                            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 hover:from-orange-500 hover:to-orange-400 disabled:opacity-50 transition-all"
                           >
-                            <option value="">Chọn mốc giao</option>
-                            {sortedMilestones.map((m) => (
-                              <option key={m.id} value={m.id}>
-                                {formatMilestone(m)}
-                              </option>
-                            ))}
-                          </select>
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                             </svg>
+                            Đã giao
+                          </button>
+                        </>
+                      )}
+                      {account.status === 'da_giao_cho_ben_thu' && (
+                        <>
+                          <div className="relative group">
+                            <div className="absolute -inset-0.5 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none" />
+                            <input
+                              type="number"
+                              min={1}
+                              placeholder="Số tiền (VND)"
+                              value={payAmount}
+                              onChange={(e) => setPayAmount(e.target.value)}
+                              className="relative rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:border-green-400/30 focus:outline-none focus:ring-2 focus:ring-green-400/20 transition-all w-48"
+                            />
                           </div>
-                        </div>
-                        <button
-                          onClick={handleDeliver}
-                          disabled={!!actionLoading || !selectedMilestoneId}
-                          className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 hover:from-orange-500 hover:to-orange-400 disabled:opacity-50 transition-all"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                          <button
+                            onClick={handlePay}
+                            disabled={!!actionLoading || !payAmount}
+                            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-emerald-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-green-500/20 hover:from-green-500 hover:to-emerald-400 disabled:opacity-50 transition-all"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Đã nhận tiền
+                          </button>
+                        </>
+                      )}
+                      {account.status === 'da_nhan_tien' && (
+                        <div className="flex items-center gap-3 rounded-xl border border-green-500/20 bg-gradient-to-r from-green-950/60 to-emerald-950/60 px-4 py-2.5 shadow-lg shadow-green-500/10">
+                          <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          Đã giao
-                        </button>
-                      </>
-                    )}
-                    {account.status === 'da_giao_cho_ben_thu' && (
-                      <>
-                        <div className="relative group">
-                          <div className="absolute -inset-0.5 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none" />
-                          <input
-                            type="number"
-                            min={1}
-                            placeholder="Số tiền (VND)"
-                            value={payAmount}
-                            onChange={(e) => setPayAmount(e.target.value)}
-                            className="relative rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:border-green-400/30 focus:outline-none focus:ring-2 focus:ring-green-400/20 transition-all w-48"
-                          />
+                          <span className="text-sm font-medium text-green-300">Đã nhận tiền</span>
+                          {account.target_milestone_id && (() => {
+                            const target = milestones.find(m => m.id === account.target_milestone_id);
+                            return target ? (
+                              <span className="rounded-lg bg-green-500/20 border border-green-400/20 px-2 py-0.5 text-xs font-semibold text-green-300">
+                                {formatMilestone(target)}
+                              </span>
+                            ) : null;
+                          })()}
                         </div>
-                        <button
-                          onClick={handlePay}
-                          disabled={!!actionLoading || !payAmount}
-                          className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-emerald-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-green-500/20 hover:from-green-500 hover:to-emerald-400 disabled:opacity-50 transition-all"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          Đã nhận tiền
-                        </button>
-                      </>
-                    )}
-                    {account.status === 'da_nhan_tien' && (
-                      <div className="flex items-center gap-3 rounded-xl border border-green-500/20 bg-gradient-to-r from-green-950/60 to-emerald-950/60 px-4 py-2.5 shadow-lg shadow-green-500/10">
-                        <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-sm font-medium text-green-300">Đã nhận tiền</span>
-                        {account.target_milestone_id && (() => {
-                          const target = milestones.find(m => m.id === account.target_milestone_id);
-                          return target ? (
-                            <span className="rounded-lg bg-green-500/20 border border-green-400/20 px-2 py-0.5 text-xs font-semibold text-green-300">
-                              {formatMilestone(target)}
+                      )}
+                    </div>
+                  </section>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {sortedSessions.length === 0 ? (
+                    <p className="text-sm text-slate-600 py-8 text-center">Chưa có lịch sử.</p>
+                  ) : (
+                    sortedSessions.map((s) => (
+                      <div
+                        key={s.id}
+                        className={`rounded-xl border px-4 py-4 text-sm transition-all ${
+                          s.ended_at == null
+                            ? 'border-yellow-500/30 bg-gradient-to-r from-yellow-950/40 to-orange-950/40 shadow-lg shadow-yellow-500/5'
+                            : 'border-white/5 bg-white/[0.02]'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                              s.ended_at == null
+                                ? 'bg-yellow-500/20 text-yellow-300'
+                                : 'bg-white/10 text-slate-400'
+                            }`}>
+                              {s.holder_name.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="font-medium text-white">{s.holder_name}</span>
+                          </div>
+                          {s.ended_at == null && (
+                            <span className="rounded-full bg-yellow-500/20 border border-yellow-400/30 px-2.5 py-0.5 text-xs font-medium text-yellow-300 animate-pulse">
+                              Đang cầm
                             </span>
-                          ) : null;
-                        })()}
-                      </div>
-                    )}
-                  </div>
-                </section>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {sortedSessions.length === 0 ? (
-                  <p className="text-sm text-slate-600 py-8 text-center">Chưa có lịch sử.</p>
-                ) : (
-                  sortedSessions.map((s) => (
-                    <div
-                      key={s.id}
-                      className={`rounded-xl border px-4 py-4 text-sm transition-all ${
-                        s.ended_at == null
-                          ? 'border-yellow-500/30 bg-gradient-to-r from-yellow-950/40 to-orange-950/40 shadow-lg shadow-yellow-500/5'
-                          : 'border-white/5 bg-white/[0.02]'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                            s.ended_at == null
-                              ? 'bg-yellow-500/20 text-yellow-300'
-                              : 'bg-white/10 text-slate-400'
-                          }`}>
-                            {s.holder_name.charAt(0).toUpperCase()}
-                          </div>
-                          <span className="font-medium text-white">{s.holder_name}</span>
+                          )}
                         </div>
-                        {s.ended_at == null && (
-                          <span className="rounded-full bg-yellow-500/20 border border-yellow-400/30 px-2.5 py-0.5 text-xs font-medium text-yellow-300 animate-pulse">
-                            Đang cầm
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-slate-500">
-                        <span>{formatDate(s.started_at)}</span>
-                        {s.ended_at && (
-                          <>
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                            </svg>
-                            <span>{formatDate(s.ended_at)}</span>
-                          </>
-                        )}
-                      </div>
-                      {s.duration_seconds != null && (
-                        <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-500">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <span>Thời gian: <span className="text-slate-300">{formatDuration(s.duration_seconds)}</span></span>
-                          {s.handed_to && (
+                        <div className="flex items-center gap-4 text-xs text-slate-500">
+                          <span>{formatDate(s.started_at)}</span>
+                          {s.ended_at && (
                             <>
-                              <span>·</span>
-                              <span>Giao cho <span className="text-slate-300">{s.handed_to}</span></span>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                              </svg>
+                              <span>{formatDate(s.ended_at)}</span>
                             </>
                           )}
                         </div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
+                        {s.duration_seconds != null && (
+                          <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-500">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Thời gian: <span className="text-slate-300">{formatDuration(s.duration_seconds)}</span></span>
+                            {s.handed_to && (
+                              <>
+                                <span>·</span>
+                                <span>Giao cho <span className="text-slate-300">{s.handed_to}</span></span>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
