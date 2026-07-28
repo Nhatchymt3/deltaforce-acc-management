@@ -15,10 +15,10 @@ import {
   useSensors,
   useDraggable,
   useDroppable,
-  createPortal,
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core';
+import { createPortal } from 'react-dom';
 import { moveAccount } from '@/app/actions/accounts';
 import type { Account, HolderSession } from '@/lib/types';
 
