@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Board } from '@/components/board/board';
 import { AccountModal } from '@/components/account/account-modal';
 import { CreateAccountForm } from '@/components/account/create-account-form';
@@ -27,6 +27,12 @@ export function BoardWrapper({
 
   const [modalAccount, setModalAccount] = useState<Account | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+
+  const sourceMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    sources.forEach((s) => { map[s.id] = s.name; });
+    return map;
+  }, [sources]);
 
   const accountMilestones = modalAccount
     ? milestones.filter((m) => m.account_id === modalAccount.id)
@@ -59,12 +65,19 @@ export function BoardWrapper({
   }, []);
 
   const handleUpdated = useCallback((updated: Account) => {
+    // Server actions return the raw `accounts` row, which lacks the derived
+    // `sourceName` (source is a uuid FK). Preserve the name we already resolved
+    // so the modal / card don't fall back to showing the raw source uuid.
+    const sourceName = sourceMap[updated.source] ?? updated.sourceName;
+    const merged = { ...updated, sourceName };
     setAccounts((prev) =>
-      prev.map((a) => (a.id === updated.id ? updated : a))
+      prev.map((a) => (a.id === merged.id ? { ...a, ...merged } : a))
     );
-    setModalAccount(updated);
-    void refreshSessions(updated.id);
-  }, [refreshSessions]);
+    setModalAccount((prev) =>
+      prev && prev.id === merged.id ? { ...prev, ...merged } : merged
+    );
+    void refreshSessions(merged.id);
+  }, [refreshSessions, sourceMap]);
 
   // Keep the open modal's account (esp. its `version`) in sync with realtime
   // row updates. Without this, an image upload / status change made elsewhere
@@ -74,10 +87,10 @@ export function BoardWrapper({
   const handleRealtimeAccountUpdate = useCallback((updated: Account) => {
     setModalAccount((prev) =>
       prev && prev.id === updated.id
-        ? { ...prev, ...updated, sourceName: prev.sourceName }
+        ? { ...prev, ...updated, sourceName: sourceMap[updated.source] ?? prev.sourceName }
         : prev
     );
-  }, []);
+  }, [sourceMap]);
 
   const handleDeleted = useCallback((accountId: string) => {
     setAccounts((prev) => prev.filter((a) => a.id !== accountId));
