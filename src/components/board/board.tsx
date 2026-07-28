@@ -162,9 +162,10 @@ interface ColumnProps {
   accounts: Account[];
   onOpen: (account: Account) => void;
   isKho?: boolean;
+  onRemove?: () => void;
 }
 
-function Column({ id, label, accounts, onOpen, isKho }: ColumnProps) {
+function Column({ id, label, accounts, onOpen, isKho, onRemove }: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
@@ -195,9 +196,22 @@ function Column({ id, label, accounts, onOpen, isKho }: ColumnProps) {
           )}
           {label}
         </h2>
-        <span className="rounded-full bg-white/5 px-2 py-0.5 text-xs text-slate-500 font-medium">
-          {accounts.length}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-white/5 px-2 py-0.5 text-xs text-slate-500 font-medium">
+            {accounts.length}
+          </span>
+          {onRemove && accounts.length === 0 && (
+            <button
+              onClick={onRemove}
+              title="Xóa cột AE"
+              className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
       <div className="flex flex-col gap-3">
         {accounts.length === 0 && (
@@ -234,6 +248,8 @@ export function Board({ initialAccounts, initialSessions, initialSources, onOpen
   const [mounted, setMounted] = useState(false);
   const { toasts, addToast } = useToast();
 
+  const AE_STORAGE_KEY = 'deltaforce.aeColumns';
+
   const snapshotRef = useRef<Account[]>(initialAccounts);
 
   // Source names map
@@ -259,7 +275,29 @@ export function Board({ initialAccounts, initialSessions, initialSources, onOpen
     return Array.from(seen.values());
   }, [accounts, sessions, aeColumns]);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const stored = localStorage.getItem(AE_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setAeColumns(parsed.filter((x) => typeof x === 'string'));
+        }
+      }
+    } catch {
+      // ignore malformed storage
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    try {
+      localStorage.setItem(AE_STORAGE_KEY, JSON.stringify(aeColumns));
+    } catch {
+      // ignore storage write failures
+    }
+  }, [aeColumns, mounted]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
@@ -268,14 +306,30 @@ export function Board({ initialAccounts, initialSessions, initialSources, onOpen
 
   function addAeColumn() {
     const raw = aeInput.trim();
-    if (!raw) return;
+    if (!raw) {
+      addToast('Nhập tên AE trước khi thêm', 'error');
+      return;
+    }
     const norm = normaliseHolder(raw);
-    if (aeColumns.some((h) => normaliseHolder(h) === norm)) {
+    if (allHolders.some((h) => normaliseHolder(h) === norm)) {
       addToast('AE này đã tồn tại', 'error');
       return;
     }
     setAeColumns((prev) => [...prev, raw]);
     setAeInput('');
+    addToast(`Đã thêm cột AE "${raw}"`, 'success');
+  }
+
+  function removeAeColumn(holder: string) {
+    const norm = normaliseHolder(holder);
+    const hasAccounts = accounts.some(
+      (a) => a.current_holder && normaliseHolder(a.current_holder) === norm
+    );
+    if (hasAccounts) {
+      addToast('Không thể xóa cột AE đang có acc', 'error');
+      return;
+    }
+    setAeColumns((prev) => prev.filter((h) => normaliseHolder(h) !== norm));
   }
 
   function onDragStart({ active }: DragStartEvent) {
@@ -522,7 +576,18 @@ export function Board({ initialAccounts, initialSessions, initialSources, onOpen
         >
           <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} onOpen={onOpenAccount} isKho />
           {holderColumns.map((col) => (
-            <Column key={col.id} id={col.id} label={col.label} accounts={col.accounts} onOpen={onOpenAccount} />
+            <Column
+              key={col.id}
+              id={col.id}
+              label={col.label}
+              accounts={col.accounts}
+              onOpen={onOpenAccount}
+              onRemove={
+                aeColumns.some((h) => normaliseHolder(h) === normaliseHolder(col.id))
+                  ? () => removeAeColumn(col.id)
+                  : undefined
+              }
+            />
           ))}
         </section>
 
