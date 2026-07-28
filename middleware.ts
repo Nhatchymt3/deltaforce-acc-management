@@ -3,7 +3,8 @@ import { createEdgeClient } from '@/lib/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
   const { supabase, headers } = createEdgeClient(request);
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   const pathname = request.nextUrl.pathname;
   const isPublicRoute = pathname === '/login' || pathname.startsWith('/login/');
