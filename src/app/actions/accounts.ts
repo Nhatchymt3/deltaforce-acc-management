@@ -71,7 +71,7 @@ export async function transitionAccount(input: {
     p_known_version: input.knownVersion,
     p_current_level: input.currentLevel ?? null,
     p_target_milestone_id: input.targetMilestoneId ?? null,
-    p_amount_received: input.amountReceived ? BigInt(input.amountReceived) : null,
+    p_amount_received: input.amountReceived ? Number(input.amountReceived) : null,
     p_note: input.note ?? null,
   });
   if (error) throw new Error(error.message);

@@ -52,6 +52,19 @@ function isLocked(status: Account['status']): boolean {
   return (LOCKED_STATUSES as unknown as string[]).includes(status);
 }
 
+// Pick the farming milestone to display on a card. Prefer the explicitly
+// assigned target; otherwise the next milestone above the current level; if the
+// account is already past every milestone, show the highest one.
+function pickFarmingMilestone(account: Account, milestones: Milestone[] | undefined): Milestone | null {
+  if (!milestones || milestones.length === 0) return null;
+  if (account.target_milestone_id) {
+    const target = milestones.find((m) => m.id === account.target_milestone_id);
+    if (target) return target;
+  }
+  const next = milestones.find((m) => m.level > account.current_level);
+  return next ?? milestones[milestones.length - 1];
+}
+
 // ─── Toast ────────────────────────────────────────────────────────────────────
 type ToastEntry = { id: string; message: string; kind: 'error' | 'success'; progress: number };
 let toastCounter = 0;
@@ -164,13 +177,13 @@ interface ColumnProps {
   id: string;
   label: string;
   accounts: Account[];
-  milestoneMap: Record<string, Milestone>;
+  milestonesByAccount: Record<string, Milestone[]>;
   onOpen: (account: Account) => void;
   isKho?: boolean;
   onRemove?: () => void;
 }
 
-function Column({ id, label, accounts, milestoneMap, onOpen, isKho, onRemove }: ColumnProps) {
+function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRemove }: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
@@ -231,7 +244,7 @@ function Column({ id, label, accounts, milestoneMap, onOpen, isKho, onRemove }: 
           <Card
             key={a.id}
             account={a}
-            targetMilestone={a.target_milestone_id ? milestoneMap[a.target_milestone_id] ?? null : null}
+            targetMilestone={pickFarmingMilestone(a, milestonesByAccount[a.id])}
             onOpen={onOpen}
             index={i}
           />
@@ -271,10 +284,14 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     return map;
   }, [initialSources]);
 
-  // Milestone map: id → milestone (for showing farming target on cards)
-  const milestoneMap = useMemo(() => {
-    const map: Record<string, Milestone> = {};
-    initialMilestones.forEach((m) => { map[m.id] = m; });
+  // Milestones grouped by account id, sorted ascending by level. Used to pick
+  // the farming milestone shown on each card.
+  const milestonesByAccount = useMemo(() => {
+    const map: Record<string, Milestone[]> = {};
+    initialMilestones.forEach((m) => {
+      (map[m.account_id] ??= []).push(m);
+    });
+    Object.values(map).forEach((list) => list.sort((a, b) => a.level - b.level));
     return map;
   }, [initialMilestones]);
 
@@ -586,14 +603,14 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             gridTemplateColumns: `300px repeat(${Math.max(holderColumns.length, 1)}, minmax(270px, 1fr))`,
           }}
         >
-          <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestoneMap={milestoneMap} onOpen={onOpenAccount} isKho />
+          <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
           {holderColumns.map((col) => (
             <Column
               key={col.id}
               id={col.id}
               label={col.label}
               accounts={col.accounts}
-              milestoneMap={milestoneMap}
+              milestonesByAccount={milestonesByAccount}
               onOpen={onOpenAccount}
               onRemove={
                 aeColumns.some((h) => normaliseHolder(h) === normaliseHolder(col.id))
