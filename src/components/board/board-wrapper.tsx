@@ -66,6 +66,19 @@ export function BoardWrapper({
     void refreshSessions(updated.id);
   }, [refreshSessions]);
 
+  // Keep the open modal's account (esp. its `version`) in sync with realtime
+  // row updates. Without this, an image upload / status change made elsewhere
+  // leaves the modal holding a stale version and the next action would fail
+  // with `version_conflict`. Realtime payloads omit the derived `sourceName`,
+  // so preserve the one we already computed.
+  const handleRealtimeAccountUpdate = useCallback((updated: Account) => {
+    setModalAccount((prev) =>
+      prev && prev.id === updated.id
+        ? { ...prev, ...updated, sourceName: prev.sourceName }
+        : prev
+    );
+  }, []);
+
   const handleDeleted = useCallback((accountId: string) => {
     setAccounts((prev) => prev.filter((a) => a.id !== accountId));
     setSessions((prev) => prev.filter((s) => s.account_id !== accountId));
@@ -93,6 +106,7 @@ export function BoardWrapper({
         initialSources={sources}
         initialMilestones={milestones}
         onOpenAccount={handleOpenAccount}
+        onRealtimeAccountUpdate={handleRealtimeAccountUpdate}
       />
 
       {modalAccount && (

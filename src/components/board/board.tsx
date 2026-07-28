@@ -261,9 +261,10 @@ interface BoardProps {
   initialSources: Source[];
   initialMilestones: Milestone[];
   onOpenAccount: (account: Account) => void;
+  onRealtimeAccountUpdate?: (account: Account) => void;
 }
 
-export function Board({ initialAccounts, initialSessions, initialSources, initialMilestones, onOpenAccount }: BoardProps) {
+export function Board({ initialAccounts, initialSessions, initialSources, initialMilestones, onOpenAccount, onRealtimeAccountUpdate }: BoardProps) {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [sessions] = useState<HolderSession[]>(initialSessions);
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
@@ -277,6 +278,11 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const AE_STORAGE_KEY = 'deltaforce.aeColumns';
 
   const snapshotRef = useRef<Account[]>(initialAccounts);
+
+  // Keep the latest realtime callback in a ref so the subscription effect can
+  // stay mounted once (empty deps) without capturing a stale closure.
+  const realtimeUpdateRef = useRef(onRealtimeAccountUpdate);
+  realtimeUpdateRef.current = onRealtimeAccountUpdate;
 
   // Source names map
   const sourceMap = useMemo(() => {
@@ -440,6 +446,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
                 next[idx] = { ...next[idx], ...updated };
                 return next;
               });
+              realtimeUpdateRef.current?.(updated);
             } else if (payload.eventType === 'INSERT') {
               const inserted = payload.new as Account;
               setAccounts((prev) =>
