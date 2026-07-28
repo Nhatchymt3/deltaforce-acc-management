@@ -1,30 +1,43 @@
 import { createClient } from '@/lib/supabase/server';
 import { BoardWrapper } from '@/components/board/board-wrapper';
+import { calculateFinance } from '@/lib/finance';
 import type { Account, HolderSession, Milestone, Source } from '@/lib/types';
 
 export default async function HomePage() {
   const supabase = await createClient();
 
-  const [{ data: accounts }, { data: sessions }, { data: milestones }, { data: sources }] =
-    await Promise.all([
-      supabase
-        .from('accounts')
-        .select('*')
-        .neq('status', 'da_nhan_tien')
-        .order('position'),
-      supabase
-        .from('holder_sessions')
-        .select('*')
-        .order('started_at'),
-      supabase
-        .from('account_milestones')
-        .select('*')
-        .order('level'),
-      supabase
-        .from('sources')
-        .select('id, name')
-        .order('name'),
-    ]);
+  const [
+    { data: accounts },
+    { data: sessions },
+    { data: milestones },
+    { data: sources },
+    { data: paidAccounts },
+  ] = await Promise.all([
+    supabase
+      .from('accounts')
+      .select('*')
+      .neq('status', 'da_nhan_tien')
+      .order('position'),
+    supabase
+      .from('holder_sessions')
+      .select('*')
+      .order('started_at'),
+    supabase
+      .from('account_milestones')
+      .select('*')
+      .order('level'),
+    supabase
+      .from('sources')
+      .select('id, name')
+      .order('name'),
+    // Paid accounts carry the revenue (amount_received). They are excluded from
+    // the board itself, but we still need their per-holder split to order the
+    // AE columns by how much each person has earned.
+    supabase
+      .from('accounts')
+      .select('id, username, amount_received, holder_sessions(holder_name)')
+      .eq('status', 'da_nhan_tien'),
+  ]);
 
   // Serialize bigint fields to strings for JSON transport
   const serialisedAccounts = (accounts ?? []).map((a) => ({
@@ -45,6 +58,20 @@ export default async function HomePage() {
 
   const serialisedSources = (sources ?? []) as Source[];
 
+  // Per-holder revenue (VND string) from paid accounts, split equally among the
+  // holders that ever cầm each acc — same rule the finance page uses.
+  const paidForFinance = (paidAccounts ?? []).map((item) => ({
+    id: item.id,
+    username: item.username,
+    amount_received: String(item.amount_received ?? '0'),
+    holders: Array.from(
+      new Set(
+        (item.holder_sessions ?? []).map((s: { holder_name: string }) => s.holder_name)
+      )
+    ),
+  }));
+  const holderRevenue = calculateFinance(paidForFinance).byHolder;
+
   // Build source map: id → name
   const sourceMap: Record<string, string> = {};
   serialisedSources.forEach((s) => { sourceMap[s.id] = s.name; });
@@ -61,6 +88,7 @@ export default async function HomePage() {
       initialSessions={serialisedSessions}
       initialMilestones={serialisedMilestones}
       initialSources={serialisedSources}
+      holderRevenue={holderRevenue}
     />
   );
 }

@@ -12,6 +12,7 @@ interface BoardWrapperProps {
   initialSessions: HolderSession[];
   initialMilestones: Milestone[];
   initialSources: Source[];
+  holderRevenue: Record<string, string>;
 }
 
 export function BoardWrapper({
@@ -19,6 +20,7 @@ export function BoardWrapper({
   initialSessions,
   initialMilestones,
   initialSources,
+  holderRevenue,
 }: BoardWrapperProps) {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [milestones] = useState<Milestone[]>(initialMilestones);
@@ -118,6 +120,7 @@ export function BoardWrapper({
         initialSessions={sessions}
         initialSources={sources}
         initialMilestones={milestones}
+        holderRevenue={holderRevenue}
         onOpenAccount={handleOpenAccount}
         onRealtimeAccountUpdate={handleRealtimeAccountUpdate}
       />

@@ -260,11 +260,12 @@ interface BoardProps {
   initialSessions: HolderSession[];
   initialSources: Source[];
   initialMilestones: Milestone[];
+  holderRevenue: Record<string, string>;
   onOpenAccount: (account: Account) => void;
   onRealtimeAccountUpdate?: (account: Account) => void;
 }
 
-export function Board({ initialAccounts, initialSessions, initialSources, initialMilestones, onOpenAccount, onRealtimeAccountUpdate }: BoardProps) {
+export function Board({ initialAccounts, initialSessions, initialSources, initialMilestones, holderRevenue, onOpenAccount, onRealtimeAccountUpdate }: BoardProps) {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [sessions] = useState<HolderSession[]>(initialSessions);
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
@@ -307,7 +308,18 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     return ['Tất cả', ...initialSources.map((s) => s.name)];
   }, [initialSources]);
 
-  // Derive holders
+  // Per-holder revenue keyed by normalised name, so lookups line up with the
+  // deduped holder list regardless of stray whitespace differences.
+  const revenueByNormHolder = useMemo(() => {
+    const map: Record<string, number> = {};
+    Object.entries(holderRevenue).forEach(([holder, total]) => {
+      map[normaliseHolder(holder)] = Number(total);
+    });
+    return map;
+  }, [holderRevenue]);
+
+  // Derive holders, then order by revenue (desc); ties break alphabetically
+  // (a→z) using a locale-aware Vietnamese comparison.
   const allHolders = useMemo(() => {
     const seen = new Map<string, string>();
     aeColumns.forEach((h) => seen.set(normaliseHolder(h), h));
@@ -315,8 +327,13 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
       if (a.current_holder) seen.set(normaliseHolder(a.current_holder), a.current_holder);
     });
     sessions.forEach((s) => seen.set(normaliseHolder(s.holder_name), s.holder_name));
-    return Array.from(seen.values());
-  }, [accounts, sessions, aeColumns]);
+    return Array.from(seen.values()).sort((a, b) => {
+      const revA = revenueByNormHolder[normaliseHolder(a)] ?? 0;
+      const revB = revenueByNormHolder[normaliseHolder(b)] ?? 0;
+      if (revA !== revB) return revB - revA;
+      return a.localeCompare(b, 'vi', { sensitivity: 'base' });
+    });
+  }, [accounts, sessions, aeColumns, revenueByNormHolder]);
 
   useEffect(() => {
     setMounted(true);
