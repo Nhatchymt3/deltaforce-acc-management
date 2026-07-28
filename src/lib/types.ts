@@ -1,0 +1,36 @@
+export type AccountStatus = 'kho' | 'dang_cay' | 'done' | 'da_giao_cho_ben_thu' | 'da_nhan_tien';
+export type Account = {
+  id: string;
+  username: string;
+  source: string;
+  status: AccountStatus;
+  position: number;
+  current_holder: string | null;
+  version: number;
+  current_level: number;
+  image_url: string | null;
+  image_expires_at: string | null;
+  amount_received: string | null;
+  completed_at: string | null;
+  delivered_at: string | null;
+  paid_at: string | null;
+  target_milestone_id: string | null;
+};
+
+export type Milestone = {
+  id: string;
+  account_id: string;
+  level: number;
+  price: string; // bigint serialised as string
+  note: string | null;
+};
+
+export type HolderSession = {
+  id: string;
+  account_id: string;
+  holder_name: string;
+  started_at: string;
+  ended_at: string | null;
+  handed_to: string | null;
+  duration_seconds: number | null;
+};

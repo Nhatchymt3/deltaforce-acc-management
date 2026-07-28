@@ -1,0 +1,3 @@
+[functions.expire-account-images]
+verify_jwt = false
+schedule = "0 * * * *"

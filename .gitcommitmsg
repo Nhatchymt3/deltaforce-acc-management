@@ -1,0 +1,10 @@
+feat: initial DeltaForce Acc Management MVP
+
+- Next.js 14 App Router + TypeScript + Tailwind + dnd-kit
+- Supabase: 3 tables (accounts, account_milestones, holder_sessions)
+- FSM: kho → dang_cay → done → da_giao_cho_ben_thu → da_nhan_tien
+- Protected columns: BEFORE UPDATE trigger enforces RPC-only writes
+- Finance: Decimal.js splits, no floating-point arithmetic
+- Storage: bucket account-results private, signed URLs TTL 5 min
+- Edge Function: batched image expiry, never deletes DB rows
+- Tests: Vitest for finance and board column derivation
