@@ -368,6 +368,35 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     }
   }, [aeColumns, mounted]);
 
+  // Persist AEs that first appear via an assigned acc or a past session. Without
+  // this they only live as derived columns and vanish once their accounts leave
+  // (moved away or paid → filtered off the board). Merging them into the saved
+  // aeColumns list keeps every AE column sticky across reloads.
+  useEffect(() => {
+    if (!mounted) return;
+    setAeColumns((prev) => {
+      const known = new Set(prev.map((h) => normaliseHolder(h)));
+      const additions: string[] = [];
+      accounts.forEach((a) => {
+        if (a.current_holder) {
+          const norm = normaliseHolder(a.current_holder);
+          if (!known.has(norm)) {
+            known.add(norm);
+            additions.push(a.current_holder);
+          }
+        }
+      });
+      sessions.forEach((s) => {
+        const norm = normaliseHolder(s.holder_name);
+        if (!known.has(norm)) {
+          known.add(norm);
+          additions.push(s.holder_name);
+        }
+      });
+      return additions.length === 0 ? prev : [...prev, ...additions];
+    });
+  }, [accounts, sessions, mounted]);
+
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
