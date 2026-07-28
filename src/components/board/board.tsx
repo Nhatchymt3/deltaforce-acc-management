@@ -62,7 +62,7 @@ function pickFarmingMilestone(account: Account, milestones: Milestone[] | undefi
     if (target) return target;
   }
   const next = milestones.find((m) => m.level > account.current_level);
-  return next ?? milestones[milestones.length - 1];
+  return next ?? milestones[milestones.length - 1] ?? null;
 }
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
@@ -266,6 +266,7 @@ interface BoardProps {
 export function Board({ initialAccounts, initialSessions, initialSources, initialMilestones, onOpenAccount }: BoardProps) {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [sessions] = useState<HolderSession[]>(initialSessions);
+  const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
   const [filter, setFilter] = useState<string>('Tất cả');
   const [aeInput, setAeInput] = useState('');
   const [aeColumns, setAeColumns] = useState<string[]>([]);
@@ -288,12 +289,12 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   // the farming milestone shown on each card.
   const milestonesByAccount = useMemo(() => {
     const map: Record<string, Milestone[]> = {};
-    initialMilestones.forEach((m) => {
+    milestones.forEach((m) => {
       (map[m.account_id] ??= []).push(m);
     });
     Object.values(map).forEach((list) => list.sort((a, b) => a.level - b.level));
     return map;
-  }, [initialMilestones]);
+  }, [milestones]);
 
   // Derive sources for filter dropdown
   const availableSources = useMemo(() => {
@@ -444,6 +445,26 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               setAccounts((prev) =>
                 prev.some((a) => a.id === inserted.id) ? prev : [...prev, inserted]
               );
+            }
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'account_milestones' },
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              const inserted = { ...payload.new, price: String(payload.new.price) } as Milestone;
+              setMilestones((prev) =>
+                prev.some((m) => m.id === inserted.id) ? prev : [...prev, inserted]
+              );
+            } else if (payload.eventType === 'UPDATE') {
+              const updated = { ...payload.new, price: String(payload.new.price) } as Milestone;
+              setMilestones((prev) =>
+                prev.map((m) => (m.id === updated.id ? { ...m, ...updated } : m))
+              );
+            } else if (payload.eventType === 'DELETE') {
+              const removed = payload.old as { id: string };
+              setMilestones((prev) => prev.filter((m) => m.id !== removed.id));
             }
           }
         )
