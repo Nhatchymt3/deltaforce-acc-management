@@ -18,6 +18,42 @@ function serializeAccount(row: unknown): Account {
   } as Account;
 }
 
+function isVersionConflict(message: string | undefined): boolean {
+  return !!message && message.toLowerCase().includes('version_conflict');
+}
+
+// Fetch the account's current version straight from the DB. Used to recover
+// from a stale client `version` on image operations (which are not part of the
+// status state-machine, so optimistic-concurrency failures there are pure
+// friction rather than a real conflict to surface to the user).
+async function fetchCurrentVersion(accountId: string): Promise<number> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from('accounts')
+    .select('version')
+    .eq('id', accountId)
+    .single();
+  if (error) throw new Error(error.message);
+  return (data as { version: number }).version;
+}
+
+// Run an image RPC that takes a `p_known_version`, retrying once with the DB's
+// current version if the first attempt hits a version_conflict.
+async function runImageRpc(
+  accountId: string,
+  knownVersion: number,
+  run: (version: number) => Promise<{ data: unknown; error: { message: string } | null }>
+): Promise<Account> {
+  const first = await run(knownVersion);
+  if (!first.error) return serializeAccount(first.data);
+  if (!isVersionConflict(first.error.message)) throw new Error(first.error.message);
+
+  const fresh = await fetchCurrentVersion(accountId);
+  const second = await run(fresh);
+  if (second.error) throw new Error(second.error.message);
+  return serializeAccount(second.data);
+}
+
 export async function moveAccount(
   accountId: string,
   nextHolder: string | null,
@@ -197,19 +233,23 @@ export async function uploadAccountImages(
   }
 
   // Point image_url at the latest upload (bumps version once) so the row still
-  // signals "has image" to the expiry cron and legacy consumers.
+  // signals "has image" to the expiry cron and legacy consumers. Tolerate a
+  // stale client version: image uploads shouldn't fail on optimistic-concurrency.
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc('upload_account_image', {
-    p_account_id: accountId,
-    p_path: latestPath,
-    p_known_version: knownVersion,
-  });
-  if (error) {
+  try {
+    const account = await runImageRpc(accountId, knownVersion, async (version) =>
+      supabase.rpc('upload_account_image', {
+        p_account_id: accountId,
+        p_path: latestPath,
+        p_known_version: version,
+      })
+    );
+    revalidatePath('/');
+    return account;
+  } catch (err) {
     await admin.storage.from('account-results').remove(uploadedPaths);
-    throw new Error(error.message);
+    throw err;
   }
-  revalidatePath('/');
-  return serializeAccount(data);
 }
 
 // List every stored result image for an account, newest first, with a short-
@@ -265,23 +305,25 @@ export async function removeAccountImage(
   const supabase = await createClient();
   const nextPath = remaining[0];
   if (!nextPath) {
-    const { data, error } = await supabase.rpc('clear_account_image', {
-      p_account_id: accountId,
-      p_known_version: knownVersion,
-    });
-    if (error) throw new Error(error.message);
+    const account = await runImageRpc(accountId, knownVersion, async (version) =>
+      supabase.rpc('clear_account_image', {
+        p_account_id: accountId,
+        p_known_version: version,
+      })
+    );
     revalidatePath('/');
-    return serializeAccount(data);
+    return account;
   }
 
-  const { data, error } = await supabase.rpc('upload_account_image', {
-    p_account_id: accountId,
-    p_path: nextPath,
-    p_known_version: knownVersion,
-  });
-  if (error) throw new Error(error.message);
+  const account = await runImageRpc(accountId, knownVersion, async (version) =>
+    supabase.rpc('upload_account_image', {
+      p_account_id: accountId,
+      p_path: nextPath,
+      p_known_version: version,
+    })
+  );
   revalidatePath('/');
-  return serializeAccount(data);
+  return account;
 }
 
 export async function clearAccountImage(accountId: string, knownVersion: number) {
@@ -301,13 +343,14 @@ export async function clearAccountImage(accountId: string, knownVersion: number)
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc('clear_account_image', {
-    p_account_id: accountId,
-    p_known_version: knownVersion,
-  });
-  if (error) throw new Error(error.message);
+  const account = await runImageRpc(accountId, knownVersion, async (version) =>
+    supabase.rpc('clear_account_image', {
+      p_account_id: accountId,
+      p_known_version: version,
+    })
+  );
   revalidatePath('/');
-  return serializeAccount(data);
+  return account;
 }
 
 export async function deleteAccount(accountId: string) {
