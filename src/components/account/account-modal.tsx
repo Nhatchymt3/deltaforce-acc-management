@@ -294,6 +294,32 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
     return () => { staged.forEach((s) => URL.revokeObjectURL(s.preview)); };
   }, [staged]);
 
+  // Paste-to-stage: while the modal is open, a screenshot in the clipboard can
+  // be pasted (Ctrl/Cmd+V) to add it to the staged list, just like picking a
+  // file. Only acts on the detail tab, where the upload area lives.
+  useEffect(() => {
+    if (tab !== 'detail') return;
+    function onPaste(e: ClipboardEvent) {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      const pasted: File[] = [];
+      for (const item of Array.from(items)) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) pasted.push(file);
+        }
+      }
+      if (pasted.length > 0) {
+        e.preventDefault();
+        stageFiles(pasted);
+      }
+    }
+    window.addEventListener('paste', onPaste);
+    return () => window.removeEventListener('paste', onPaste);
+    // stageFiles is stable enough for this handler; re-bind only on tab change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
+
   // ─── Action helpers ───────────────────────────────────────────────────────────
   async function performAction(
     action: 'done' | 'deliver' | 'pay',
@@ -328,11 +354,11 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
 
   const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
-  function handleStageFiles(fileList: FileList | null) {
-    if (!fileList || fileList.length === 0) return;
+  function stageFiles(files: File[]) {
+    if (files.length === 0) return;
     setError(null);
     const next: StagedImage[] = [];
-    for (const file of Array.from(fileList)) {
+    for (const file of files) {
       if (!file.type.startsWith('image/')) {
         setError(`"${file.name}" không phải ảnh`);
         continue;
@@ -341,9 +367,15 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
         setError(`"${file.name}" quá lớn – tối đa 5 MB`);
         continue;
       }
-      next.push({ id: `${file.name}-${file.size}-${crypto.randomUUID()}`, file, preview: URL.createObjectURL(file) });
+      const safeName = file.name && file.name.trim() ? file.name : 'clipboard.png';
+      next.push({ id: `${safeName}-${file.size}-${crypto.randomUUID()}`, file, preview: URL.createObjectURL(file) });
     }
     if (next.length > 0) setStaged((prev) => [...prev, ...next]);
+  }
+
+  function handleStageFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    stageFiles(Array.from(fileList));
   }
 
   function handleUnstage(id: string) {
@@ -677,6 +709,12 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                           onChange={(e) => { handleStageFiles(e.target.files); e.target.value = ''; }}
                         />
                       </label>
+                      <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        hoặc dán ảnh (Ctrl+V)
+                      </span>
                       {staged.length > 0 && (
                         <button
                           onClick={handleConfirmUpload}
