@@ -7,6 +7,17 @@ import type { Account } from '@/lib/types';
 
 type Action = 'update_level' | 'done' | 'deliver' | 'pay';
 
+// The RPCs return the raw `accounts` row where bigint columns arrive as
+// BigInt values. Those cannot be JSON-serialised across the server/client
+// boundary, so normalise them to the string shape the client `Account` uses.
+function serializeAccount(row: unknown): Account {
+  const a = row as Record<string, unknown>;
+  return {
+    ...a,
+    amount_received: a.amount_received != null ? String(a.amount_received) : null,
+  } as Account;
+}
+
 export async function moveAccount(
   accountId: string,
   nextHolder: string | null,
@@ -23,7 +34,7 @@ export async function moveAccount(
   if (error) throw new Error(error.message);
   revalidatePath('/');
   revalidatePath('/finance');
-  return data as Account;
+  return serializeAccount(data);
 }
 
 export async function transitionAccount(input: {
@@ -48,7 +59,7 @@ export async function transitionAccount(input: {
   if (error) throw new Error(error.message);
   revalidatePath('/');
   revalidatePath('/finance');
-  return data as Account;
+  return serializeAccount(data);
 }
 
 export async function createAccountWithMilestones(input: {
@@ -73,7 +84,7 @@ export async function createAccountWithMilestones(input: {
   });
   if (error) throw new Error(error.message);
   revalidatePath('/');
-  return data as Account;
+  return serializeAccount(data);
 }
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -119,7 +130,7 @@ export async function uploadAccountImage(
     throw new Error(error.message);
   }
   revalidatePath('/');
-  return data as Account;
+  return serializeAccount(data);
 }
 
 export async function clearAccountImage(accountId: string, knownVersion: number) {
@@ -130,7 +141,7 @@ export async function clearAccountImage(accountId: string, knownVersion: number)
   });
   if (error) throw new Error(error.message);
   revalidatePath('/');
-  return data as Account;
+  return serializeAccount(data);
 }
 
 export async function getSignedImageUrl(path: string): Promise<string> {

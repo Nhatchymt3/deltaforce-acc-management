@@ -69,6 +69,7 @@ export function BoardWrapper({
         initialAccounts={accounts}
         initialSessions={sessions}
         initialSources={sources}
+        initialMilestones={milestones}
         onOpenAccount={handleOpenAccount}
       />
 

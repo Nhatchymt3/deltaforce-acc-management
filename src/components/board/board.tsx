@@ -22,7 +22,7 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { moveAccount } from '@/app/actions/accounts';
 import { signOut } from '@/app/actions/auth';
-import type { Account, HolderSession, Source } from '@/lib/types';
+import type { Account, HolderSession, Milestone, Source } from '@/lib/types';
 
 const KHO_SENTINEL = '__kho__';
 const LOCKED_STATUSES = ['done', 'da_giao_cho_ben_thu', 'da_nhan_tien'] as const;
@@ -78,11 +78,12 @@ function useToast() {
 // ─── Card ─────────────────────────────────────────────────────────────────────
 interface CardProps {
   account: Account;
+  targetMilestone: Milestone | null;
   onOpen: (account: Account) => void;
   index: number;
 }
 
-function Card({ account, onOpen, index }: CardProps) {
+function Card({ account, targetMilestone, onOpen, index }: CardProps) {
   const disabled = isLocked(account.status);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -149,7 +150,9 @@ function Card({ account, onOpen, index }: CardProps) {
         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
-        Level {account.current_level}
+        {targetMilestone
+          ? `lv${targetMilestone.level}-${targetMilestone.price}`
+          : 'Chưa có mốc'}
       </p>
     </div>
   );
@@ -160,12 +163,13 @@ interface ColumnProps {
   id: string;
   label: string;
   accounts: Account[];
+  milestoneMap: Record<string, Milestone>;
   onOpen: (account: Account) => void;
   isKho?: boolean;
   onRemove?: () => void;
 }
 
-function Column({ id, label, accounts, onOpen, isKho, onRemove }: ColumnProps) {
+function Column({ id, label, accounts, milestoneMap, onOpen, isKho, onRemove }: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
@@ -223,7 +227,13 @@ function Column({ id, label, accounts, onOpen, isKho, onRemove }: ColumnProps) {
           </div>
         )}
         {accounts.map((a, i) => (
-          <Card key={a.id} account={a} onOpen={onOpen} index={i} />
+          <Card
+            key={a.id}
+            account={a}
+            targetMilestone={a.target_milestone_id ? milestoneMap[a.target_milestone_id] ?? null : null}
+            onOpen={onOpen}
+            index={i}
+          />
         ))}
       </div>
     </div>
@@ -235,10 +245,11 @@ interface BoardProps {
   initialAccounts: Account[];
   initialSessions: HolderSession[];
   initialSources: Source[];
+  initialMilestones: Milestone[];
   onOpenAccount: (account: Account) => void;
 }
 
-export function Board({ initialAccounts, initialSessions, initialSources, onOpenAccount }: BoardProps) {
+export function Board({ initialAccounts, initialSessions, initialSources, initialMilestones, onOpenAccount }: BoardProps) {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [sessions] = useState<HolderSession[]>(initialSessions);
   const [filter, setFilter] = useState<string>('Tất cả');
@@ -258,6 +269,13 @@ export function Board({ initialAccounts, initialSessions, initialSources, onOpen
     initialSources.forEach((s) => { map[s.id] = s.name; });
     return map;
   }, [initialSources]);
+
+  // Milestone map: id → milestone (for showing farming target on cards)
+  const milestoneMap = useMemo(() => {
+    const map: Record<string, Milestone> = {};
+    initialMilestones.forEach((m) => { map[m.id] = m; });
+    return map;
+  }, [initialMilestones]);
 
   // Derive sources for filter dropdown
   const availableSources = useMemo(() => {
@@ -574,13 +592,14 @@ export function Board({ initialAccounts, initialSessions, initialSources, onOpen
             gridTemplateColumns: `300px repeat(${Math.max(holderColumns.length, 1)}, minmax(270px, 1fr))`,
           }}
         >
-          <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} onOpen={onOpenAccount} isKho />
+          <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestoneMap={milestoneMap} onOpen={onOpenAccount} isKho />
           {holderColumns.map((col) => (
             <Column
               key={col.id}
               id={col.id}
               label={col.label}
               accounts={col.accounts}
+              milestoneMap={milestoneMap}
               onOpen={onOpenAccount}
               onRemove={
                 aeColumns.some((h) => normaliseHolder(h) === normaliseHolder(col.id))
