@@ -37,9 +37,12 @@ async function fetchCurrentVersion(accountId: string): Promise<number> {
   return (data as { version: number }).version;
 }
 
-// Run an image RPC that takes a `p_known_version`, retrying once with the DB's
-// current version if the first attempt hits a version_conflict.
-async function runImageRpc(
+// Run a versioned RPC that takes a `p_known_version`, retrying once with the
+// DB's current version if the first attempt hits a version_conflict. Used for
+// operations where a stale client version is pure friction rather than a real
+// conflict to surface (image writes, and moving an acc between holders — none
+// of which are part of the status state-machine that concurrency must guard).
+async function runVersionTolerantRpc(
   accountId: string,
   knownVersion: number,
   run: (version: number) => Promise<{ data: unknown; error: { message: string } | null }>
@@ -61,16 +64,17 @@ export async function moveAccount(
   knownVersion: number
 ) {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc('move_account', {
-    p_account_id: accountId,
-    p_next_holder: nextHolder,
-    p_target_pos: position,
-    p_known_version: knownVersion,
-  });
-  if (error) throw new Error(error.message);
+  const account = await runVersionTolerantRpc(accountId, knownVersion, async (version) =>
+    supabase.rpc('move_account', {
+      p_account_id: accountId,
+      p_next_holder: nextHolder,
+      p_target_pos: position,
+      p_known_version: version,
+    })
+  );
   revalidatePath('/');
   revalidatePath('/finance');
-  return serializeAccount(data);
+  return account;
 }
 
 // Fetch the current holder-session history for a single account. The board
@@ -237,7 +241,7 @@ export async function uploadAccountImages(
   // stale client version: image uploads shouldn't fail on optimistic-concurrency.
   const supabase = await createClient();
   try {
-    const account = await runImageRpc(accountId, knownVersion, async (version) =>
+    const account = await runVersionTolerantRpc(accountId, knownVersion, async (version) =>
       supabase.rpc('upload_account_image', {
         p_account_id: accountId,
         p_path: latestPath,
@@ -305,7 +309,7 @@ export async function removeAccountImage(
   const supabase = await createClient();
   const nextPath = remaining[0];
   if (!nextPath) {
-    const account = await runImageRpc(accountId, knownVersion, async (version) =>
+    const account = await runVersionTolerantRpc(accountId, knownVersion, async (version) =>
       supabase.rpc('clear_account_image', {
         p_account_id: accountId,
         p_known_version: version,
@@ -315,7 +319,7 @@ export async function removeAccountImage(
     return account;
   }
 
-  const account = await runImageRpc(accountId, knownVersion, async (version) =>
+  const account = await runVersionTolerantRpc(accountId, knownVersion, async (version) =>
     supabase.rpc('upload_account_image', {
       p_account_id: accountId,
       p_path: nextPath,
@@ -343,7 +347,7 @@ export async function clearAccountImage(accountId: string, knownVersion: number)
   }
 
   const supabase = await createClient();
-  const account = await runImageRpc(accountId, knownVersion, async (version) =>
+  const account = await runVersionTolerantRpc(accountId, knownVersion, async (version) =>
     supabase.rpc('clear_account_image', {
       p_account_id: accountId,
       p_known_version: version,
