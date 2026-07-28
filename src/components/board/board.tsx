@@ -114,7 +114,7 @@ function Card({ account, onOpen, index }: CardProps) {
           ? 'border-cyan-400/60 bg-cyan-950/30 opacity-50 scale-105 rotate-1 shadow-cyan-500/30'
           : 'border-white/5 bg-white/[0.03] hover:border-cyan-400/30 hover:bg-white/[0.06] hover:shadow-xl hover:shadow-cyan-500/10 hover:scale-[1.02] cursor-grab active:cursor-grabbing'
       }`}
-      style={{ animationDelay: `${index * 60}ms` }}
+      style={{ ...style, animationDelay: `${index * 60}ms` }}
     >
       {/* Glow accent on hover */}
       <div className={`absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
