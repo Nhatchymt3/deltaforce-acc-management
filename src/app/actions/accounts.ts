@@ -52,7 +52,7 @@ export async function transitionAccount(input: {
 }
 
 export async function createAccountWithMilestones(input: {
-  source: string;
+  source: string; // uuid
   username: string;
   password?: string;
   milestones: Array<{ level: number; price: string; note?: string }>;
@@ -61,7 +61,7 @@ export async function createAccountWithMilestones(input: {
   const supabase = await createClient();
   const milestonesJsonb = input.milestones.map((m) => ({
     level: m.level,
-    price: m.price,
+    price: m.price, // text now
     note: m.note ?? null,
   }));
   const { data, error } = await supabase.rpc('create_account_with_milestones', {

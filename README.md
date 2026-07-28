@@ -26,6 +26,9 @@ từ client/server code:
   `paid_at`, `image_url`, `image_expires_at`, `target_milestone_id`,
   `amount_received`, `current_level`
 
+> **Lưu ý:** `source` đã **không còn** trong danh sách protected sau migration 004
+> (được phép update trực tiếp vì là uuid FK).
+
 Mọi thay đổi phải qua các RPC có `SECURITY DEFINER`:
 `move_account`, `transition_account`, `upload_account_image`,
 `clear_account_image`, `create_account_with_milestones`.
@@ -60,8 +63,23 @@ dùng `decimal.js` (`Decimal`). Không dùng `Number()` cho sums/splits.
 | `001_initial_schema.sql` | Bảng, RLS policies, RPC ban đầu |
 | `002_hardening.sql` | Trigger bảo vệ, Storage policies, FK fix, RPC nâng cao |
 | `003_rpc_tests.sql` | **Docstring-only** – manual verification only |
+| `004_sources_and_text_price.sql` | Bảng `sources` CRUD, `accounts.source` → uuid FK, `milestone.price` → text |
+
+### Migration 004 — Dynamic Sources + Text Price
+
+- Tạo bảng `sources (id uuid, name text UNIQUE, created_at timestamptz)`, seed 3 dòng mặc định (Bên A, Bên B, Bên C)
+- Đổi `accounts.source` từ `text check(...)` → `uuid REFERENCES sources(id)`, backfill data cũ
+- Đổi `account_milestones.price` từ `bigint` → `text` (lưu nguyên như người dùng nhập: '20m', '500k', '4.5m')
+- Cập nhật `create_account_with_milestones` để nhận `source uuid` và `price text`
+- Sửa trigger `deltaforce_accounts_protect`: bỏ `source` khỏi protected columns
+
+### Mốc Level — Định dạng hiển thị
+
+Mốc acc hiển thị dạng `lv${level}-${price}`, ví dụ: `lv30-20m`, `lv40-500k`. Không parse hay conversion giá tiền — price lưu nguyên text người dùng nhập.
 
 ## Server Actions (Next.js)
+
+### Account Actions
 
 | Action | RPC | Mô tả |
 |--------|-----|--------|
@@ -71,6 +89,19 @@ dùng `decimal.js` (`Decimal`). Không dùng `Number()` cho sums/splits.
 | `uploadAccountImage(...)` | `upload_account_image` | Upload ảnh, validate ≤5 MB, image/* |
 | `clearAccountImage(...)` | `clear_account_image` | Xóa signed URL khỏi DB |
 | `getSignedImageUrl(...)` | — | Tạo signed URL (TTL 5 min) |
+
+### Source Actions (`src/app/actions/sources.ts`)
+
+| Action | Mô tả |
+|--------|--------|
+| `getSources()` | Lấy danh sách nguồn (sắp xếp theo tên) |
+| `createSource(name)` | Thêm nguồn mới (throw nếu trùng tên) |
+| `updateSource(id, name)` | Cập nhật tên nguồn (throw nếu trùng) |
+| `deleteSource(id)` | Xóa nguồn (throw nếu còn tài khoản) |
+
+### Quản lý Nguồn
+
+Trang `/sources` cho phép CRUD nguồn tài khoản (glassmorphism UI). Filter nguồn trên board động theo `accounts.source`. Dropdown chọn nguồn trong form tạo acc được load từ DB.
 
 Tất cả actions gọi `revalidatePath('/')` và `revalidatePath('/finance')` sau thành công.
 

@@ -1,8 +1,11 @@
+export type Source = { id: string; name: string };
+
 export type AccountStatus = 'kho' | 'dang_cay' | 'done' | 'da_giao_cho_ben_thu' | 'da_nhan_tien';
 export type Account = {
   id: string;
   username: string;
-  source: string;
+  source: string; // uuid FK to sources
+  sourceName?: string; // denormalised for display
   status: AccountStatus;
   position: number;
   current_holder: string | null;

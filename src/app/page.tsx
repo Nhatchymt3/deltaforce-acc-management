@@ -1,11 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { BoardWrapper } from '@/components/board/board-wrapper';
-import type { Account, HolderSession, Milestone } from '@/lib/types';
+import type { Account, HolderSession, Milestone, Source } from '@/lib/types';
 
 export default async function HomePage() {
   const supabase = await createClient();
 
-  const [{ data: accounts }, { data: sessions }, { data: milestones }] =
+  const [{ data: accounts }, { data: sessions }, { data: milestones }, { data: sources }] =
     await Promise.all([
       supabase
         .from('accounts')
@@ -19,6 +19,10 @@ export default async function HomePage() {
         .from('account_milestones')
         .select('*')
         .order('level'),
+      supabase
+        .from('sources')
+        .select('id, name')
+        .order('name'),
     ]);
 
   // Serialize bigint fields to strings for JSON transport
@@ -38,11 +42,24 @@ export default async function HomePage() {
     price: String(m.price),
   })) as Milestone[];
 
+  const serialisedSources = (sources ?? []) as Source[];
+
+  // Build source map: id → name
+  const sourceMap: Record<string, string> = {};
+  serialisedSources.forEach((s) => { sourceMap[s.id] = s.name; });
+
+  // Attach sourceName to accounts for display
+  const accountsWithSourceName = serialisedAccounts.map((a) => ({
+    ...a,
+    sourceName: sourceMap[a.source] ?? a.source,
+  }));
+
   return (
     <BoardWrapper
-      initialAccounts={serialisedAccounts}
+      initialAccounts={accountsWithSourceName}
       initialSessions={serialisedSessions}
       initialMilestones={serialisedMilestones}
+      initialSources={serialisedSources}
     />
   );
 }

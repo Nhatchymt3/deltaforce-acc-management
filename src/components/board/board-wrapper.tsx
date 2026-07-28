@@ -4,18 +4,25 @@ import { useState, useCallback } from 'react';
 import { Board } from '@/components/board/board';
 import { AccountModal } from '@/components/account/account-modal';
 import { CreateAccountForm } from '@/components/account/create-account-form';
-import type { Account, Milestone, HolderSession } from '@/lib/types';
+import type { Account, Milestone, HolderSession, Source } from '@/lib/types';
 
 interface BoardWrapperProps {
   initialAccounts: Account[];
   initialSessions: HolderSession[];
   initialMilestones: Milestone[];
+  initialSources: Source[];
 }
 
-export function BoardWrapper({ initialAccounts, initialSessions, initialMilestones }: BoardWrapperProps) {
+export function BoardWrapper({
+  initialAccounts,
+  initialSessions,
+  initialMilestones,
+  initialSources,
+}: BoardWrapperProps) {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [milestones] = useState<Milestone[]>(initialMilestones);
   const [sessions] = useState<HolderSession[]>(initialSessions);
+  const [sources] = useState<Source[]>(initialSources);
 
   const [modalAccount, setModalAccount] = useState<Account | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -45,21 +52,15 @@ export function BoardWrapper({ initialAccounts, initialSessions, initialMileston
 
   const handleCreateSuccess = useCallback(() => {
     setShowCreate(false);
-    // revalidate will refresh the page via the server action
     window.location.reload();
   }, []);
-
-  // The "Thêm acc" button needs to be accessible from the board header.
-  // We expose this via a custom event / ref approach by rendering the
-  // button here and using CSS to position it in the board header.
-  // A simpler approach: render a floating action button below the header.
 
   return (
     <>
       {/* Floating "Thêm acc" FAB */}
       <button
         onClick={() => setShowCreate(true)}
-        className="fixed bottom-8 right-8 z-40 flex items-center gap-2 rounded-full bg-cyan-600 px-5 py-3 text-sm font-semibold text-white shadow-xl hover:bg-cyan-500 transition"
+        className="fixed bottom-8 right-8 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-5 py-3 text-sm font-semibold text-white shadow-xl shadow-cyan-500/30 hover:from-cyan-400 hover:to-blue-400 hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-110 active:scale-95"
       >
         <span className="text-xl">+</span> Thêm acc
       </button>
@@ -67,6 +68,7 @@ export function BoardWrapper({ initialAccounts, initialSessions, initialMileston
       <Board
         initialAccounts={accounts}
         initialSessions={sessions}
+        initialSources={sources}
         onOpenAccount={handleOpenAccount}
       />
 
@@ -82,6 +84,7 @@ export function BoardWrapper({ initialAccounts, initialSessions, initialMileston
 
       {showCreate && (
         <CreateAccountForm
+          sources={sources}
           onSuccess={handleCreateSuccess}
           onCancel={() => setShowCreate(false)}
         />
