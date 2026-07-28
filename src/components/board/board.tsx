@@ -261,11 +261,12 @@ interface BoardProps {
   initialSources: Source[];
   initialMilestones: Milestone[];
   holderRevenue: Record<string, string>;
+  deletedIds: string[];
   onOpenAccount: (account: Account) => void;
   onRealtimeAccountUpdate?: (account: Account) => void;
 }
 
-export function Board({ initialAccounts, initialSessions, initialSources, initialMilestones, holderRevenue, onOpenAccount, onRealtimeAccountUpdate }: BoardProps) {
+export function Board({ initialAccounts, initialSessions, initialSources, initialMilestones, holderRevenue, deletedIds, onOpenAccount, onRealtimeAccountUpdate }: BoardProps) {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [sessions] = useState<HolderSession[]>(initialSessions);
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
@@ -334,6 +335,14 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
       return a.localeCompare(b, 'vi', { sensitivity: 'base' });
     });
   }, [accounts, sessions, aeColumns, revenueByNormHolder]);
+
+  // Prune accounts deleted from the wrapper. Board keeps its own accounts
+  // state, so a delete performed in the modal must be bridged here explicitly.
+  useEffect(() => {
+    if (deletedIds.length === 0) return;
+    const gone = new Set(deletedIds);
+    setAccounts((prev) => (prev.some((a) => gone.has(a.id)) ? prev.filter((a) => !gone.has(a.id)) : prev));
+  }, [deletedIds]);
 
   useEffect(() => {
     setMounted(true);

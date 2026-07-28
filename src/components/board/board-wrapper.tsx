@@ -29,6 +29,10 @@ export function BoardWrapper({
 
   const [modalAccount, setModalAccount] = useState<Account | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  // Ids deleted locally. Board keeps its own accounts state, so we bridge
+  // deletions down explicitly instead of relying on realtime DELETE events
+  // (which require the accounts table to be in the realtime publication).
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
 
   const sourceMap = useMemo(() => {
     const map: Record<string, string> = {};
@@ -97,6 +101,7 @@ export function BoardWrapper({
   const handleDeleted = useCallback((accountId: string) => {
     setAccounts((prev) => prev.filter((a) => a.id !== accountId));
     setSessions((prev) => prev.filter((s) => s.account_id !== accountId));
+    setDeletedIds((prev) => (prev.includes(accountId) ? prev : [...prev, accountId]));
     setModalAccount(null);
   }, []);
 
@@ -121,6 +126,7 @@ export function BoardWrapper({
         initialSources={sources}
         initialMilestones={milestones}
         holderRevenue={holderRevenue}
+        deletedIds={deletedIds}
         onOpenAccount={handleOpenAccount}
         onRealtimeAccountUpdate={handleRealtimeAccountUpdate}
       />
