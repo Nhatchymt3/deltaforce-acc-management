@@ -135,7 +135,7 @@ export async function clearAccountImage(accountId: string, knownVersion: number)
 
 export async function getSignedImageUrl(path: string): Promise<string> {
   const admin = createAdminClient();
-  const { data, error } = admin.storage
+  const { data, error } = await admin.storage
     .from('account-results')
     .createSignedUrl(path, 300);
   if (error) throw new Error(error.message);
