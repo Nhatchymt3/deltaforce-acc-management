@@ -174,12 +174,14 @@ export async function uploadAccountImages(
 
   const admin = createAdminClient();
   const uploadedPaths: string[] = [];
+  let latestPath = '';
 
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
+  let i = 0;
+  for (const file of files) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const ext = file.name.split('.').pop() ?? 'jpg';
     const path = `${accountId}/${Date.now()}-${i}.${ext}`;
+    i++;
     const { error: uploadError } = await admin.storage
       .from('account-results')
       .upload(path, buffer, { contentType: file.type, upsert: false });
@@ -191,6 +193,7 @@ export async function uploadAccountImages(
       throw new Error(uploadError.message);
     }
     uploadedPaths.push(path);
+    latestPath = path;
   }
 
   // Point image_url at the latest upload (bumps version once) so the row still
@@ -198,7 +201,7 @@ export async function uploadAccountImages(
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('upload_account_image', {
     p_account_id: accountId,
-    p_path: uploadedPaths[uploadedPaths.length - 1],
+    p_path: latestPath,
     p_known_version: knownVersion,
   });
   if (error) {
@@ -260,7 +263,8 @@ export async function removeAccountImage(
     .map((f) => `${accountId}/${f.name}`);
 
   const supabase = await createClient();
-  if (remaining.length === 0) {
+  const nextPath = remaining[0];
+  if (!nextPath) {
     const { data, error } = await supabase.rpc('clear_account_image', {
       p_account_id: accountId,
       p_known_version: knownVersion,
@@ -272,7 +276,7 @@ export async function removeAccountImage(
 
   const { data, error } = await supabase.rpc('upload_account_image', {
     p_account_id: accountId,
-    p_path: remaining[0],
+    p_path: nextPath,
     p_known_version: knownVersion,
   });
   if (error) throw new Error(error.message);
