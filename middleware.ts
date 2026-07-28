@@ -1,27 +1,28 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-
-const publicRoutes = ['/login'];
+import { createEdgeClient } from '@/lib/supabase/middleware';
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request });
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => request.cookies.getAll(),
-        setAll: (values) => values.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
-      }
-    }
-  );
+  const { supabase, headers } = createEdgeClient(request);
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user && !publicRoutes.includes(request.nextUrl.pathname)) {
+
+  const pathname = request.nextUrl.pathname;
+  const isPublicRoute = pathname === '/login' || pathname.startsWith('/login/');
+
+  if (!user && !isPublicRoute) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
-  if (user && request.nextUrl.pathname === '/login') {
+
+  if (user && pathname === '/login') {
     return NextResponse.redirect(new URL('/', request.url));
   }
+
+  const response = NextResponse.next({ request });
+  headers.forEach((value, key) => {
+    if (key === 'set-cookie') {
+      response.headers.append(key, value);
+    }
+  });
+
   return response;
 }
 
