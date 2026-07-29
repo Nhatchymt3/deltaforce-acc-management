@@ -2,8 +2,10 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { Board } from '@/components/board/board';
-import { AccountModal } from '@/components/account/account-modal';
-import { CreateAccountForm } from '@/components/account/create-account-form';
+import dynamic from 'next/dynamic';
+
+const AccountModal = dynamic(() => import('@/components/account/account-modal').then(mod => mod.AccountModal), { ssr: false });
+const CreateAccountForm = dynamic(() => import('@/components/account/create-account-form').then(mod => mod.CreateAccountForm), { ssr: false });
 import { getAccountSessions } from '@/app/actions/accounts';
 import type { Account, Milestone, HolderSession, Source } from '@/lib/types';
 
