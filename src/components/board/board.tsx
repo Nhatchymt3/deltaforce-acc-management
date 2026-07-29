@@ -160,12 +160,12 @@ function Card({ account, targetMilestone, onOpen, index }: CardProps) {
           </p>
         </div>
       )}
-      <p className="mt-1.5 text-xs text-slate-600 flex items-center gap-1">
-        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <p className="mt-1.5 text-xs text-slate-600 flex items-center gap-1 font-mono tracking-tight">
+        <svg className="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
         {targetMilestone
-          ? `lv${targetMilestone.level}-${targetMilestone.price}`
+          ? <span className="text-slate-400 font-medium">lv{targetMilestone.level}-{targetMilestone.price}</span>
           : 'Chưa có mốc'}
       </p>
     </div>
@@ -231,7 +231,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
           )}
         </div>
       </div>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 max-h-[75vh] overflow-y-auto scrollbar-thin pb-8 [mask-image:linear-gradient(to_bottom,black_85%,transparent_100%)]">
         {accounts.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-slate-600">
             <svg className="w-8 h-8 mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -566,8 +566,9 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-cyan-500/8 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite]" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-violet-500/8 rounded-full blur-[120px] animate-[pulse_10s_ease-in-out_infinite]" style={{ animationDelay: '3s' }} />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[150px] animate-[pulse_12s_ease-in-out_infinite]" style={{ animationDelay: '6s' }} />
-        {/* Stars */}
+        {/* Stars & Noise */}
         <div className="stars-bg absolute inset-0" />
+        <div className="noise-overlay" />
       </div>
 
       {/* Toast notifications */}
