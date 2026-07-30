@@ -7,6 +7,7 @@ import {
   listAccountImages,
   removeAccountImage,
   deleteAccount,
+  ensureMilestone,
 } from '@/app/actions/accounts';
 import type { Account, Milestone, HolderSession } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
@@ -258,8 +259,19 @@ interface AccountModalProps {
 export function AccountModal({ account, milestones, sessions, onClose, onUpdated, onDeleted }: AccountModalProps) {
   const [tab, setTab] = useState<Tab>('detail');
   const [payAmount, setPayAmount] = useState('');
-  const [selectedMilestoneId, setSelectedMilestoneId] = useState(account.target_milestone_id ?? '');
+  const [deliverLevel, setDeliverLevel] = useState('');
+  const [deliverPrice, setDeliverPrice] = useState('');
   const [images, setImages] = useState<Array<{ path: string; url: string }>>([]);
+
+  useEffect(() => {
+    if (account.target_milestone_id) {
+      const target = milestones.find(m => m.id === account.target_milestone_id);
+      if (target) {
+        setDeliverLevel(String(target.level));
+        setDeliverPrice(target.price);
+      }
+    }
+  }, [account.target_milestone_id, milestones]);
   const [imagesLoading, setImagesLoading] = useState(true);
   const [staged, setStaged] = useState<StagedImage[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -344,9 +356,24 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
   }
 
   function handleDone() { void performAction('done'); }
-  function handleDeliver() {
-    if (!selectedMilestoneId) { setError('Chọn mốc trước khi giao'); return; }
-    void performAction('deliver', { targetMilestoneId: selectedMilestoneId });
+  async function handleDeliver() {
+    if (!deliverLevel || !deliverPrice) { setError('Nhập đủ Level và Tiền'); return; }
+    setError(null);
+    setActionLoading('deliver');
+    try {
+      const milestoneId = await ensureMilestone(account.id, parseInt(deliverLevel, 10), deliverPrice);
+      const result = await transitionAccount({
+        accountId: account.id,
+        action: 'deliver',
+        knownVersion: account.version,
+        targetMilestoneId: milestoneId,
+      });
+      onUpdated(result as Account);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Thao tác thất bại');
+    } finally {
+      setActionLoading(null);
+    }
   }
   function handlePay() {
     if (!payAmount || Number(payAmount) <= 0) { setError('Nhập số tiền hợp lệ'); return; }
@@ -819,20 +846,27 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                       )}
                       {account.status === 'done' && (
                         <>
-                          <div className="relative group min-w-[180px]">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none" />
-                            <Dropdown
-                              value={selectedMilestoneId}
-                              onChange={setSelectedMilestoneId}
-                              placeholder="Chọn mốc giao"
-                              options={sortedMilestones.map((m) => ({ value: m.id, label: formatMilestone(m) }))}
-                              size="sm"
-                              ariaLabel="Chọn mốc giao"
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              min="1"
+                              placeholder="Lv"
+                              value={deliverLevel}
+                              onChange={e => setDeliverLevel(e.target.value)}
+                              className="w-16 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-cyan-400/30 focus:outline-none focus:ring-1 focus:ring-cyan-400/20 transition-all"
+                            />
+                            <input
+                              type="number"
+                              step="any"
+                              placeholder="Tiền"
+                              value={deliverPrice}
+                              onChange={e => setDeliverPrice(e.target.value)}
+                              className="w-20 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-cyan-400/30 focus:outline-none focus:ring-1 focus:ring-cyan-400/20 transition-all"
                             />
                           </div>
                           <button
-                            onClick={handleDeliver}
-                            disabled={!!actionLoading || !selectedMilestoneId}
+                            onClick={() => void handleDeliver()}
+                            disabled={!!actionLoading || !deliverLevel || !deliverPrice}
                             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-orange-500/20 hover:from-orange-500 hover:to-orange-400 disabled:opacity-50 transition-all"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

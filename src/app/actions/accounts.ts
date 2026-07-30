@@ -393,3 +393,26 @@ export async function getSignedImageUrl(path: string): Promise<string> {
   if (error) throw new Error(error.message);
   return data.signedUrl;
 }
+
+export async function ensureMilestone(accountId: string, level: number, price: string): Promise<string> {
+  const supabase = await createClient();
+  const { data: existing, error: checkErr } = await supabase
+    .from('account_milestones')
+    .select('id')
+    .eq('account_id', accountId)
+    .eq('level', level)
+    .eq('price', price)
+    .maybeSingle();
+
+  if (checkErr) throw new Error(checkErr.message);
+  if (existing) return existing.id;
+
+  const { data: inserted, error: insertErr } = await supabase
+    .from('account_milestones')
+    .insert({ account_id: accountId, level, price })
+    .select('id')
+    .single();
+
+  if (insertErr) throw new Error(insertErr.message);
+  return inserted.id;
+}
