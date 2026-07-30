@@ -443,3 +443,15 @@ export async function deleteMilestone(id: string): Promise<void> {
   if (error) throw new Error(error.message);
   revalidatePath('/');
 }
+
+export async function getAccountMilestones(accountId: string): Promise<Milestone[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('account_milestones')
+    .select('*')
+    .eq('account_id', accountId)
+    .order('level', { ascending: true });
+
+  if (error) return [];
+  return (data ?? []).map((m) => ({ ...m, price: String(m.price) })) as Milestone[];
+}

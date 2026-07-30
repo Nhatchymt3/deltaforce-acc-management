@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 
 const AccountModal = dynamic(() => import('@/components/account/account-modal').then(mod => mod.AccountModal), { ssr: false });
 const CreateAccountForm = dynamic(() => import('@/components/account/create-account-form').then(mod => mod.CreateAccountForm), { ssr: false });
-import { getAccountSessions } from '@/app/actions/accounts';
+import { getAccountSessions, getAccountMilestones } from '@/app/actions/accounts';
 import type { Account, Milestone, HolderSession, Source, Farmer } from '@/lib/types';
 
 interface BoardWrapperProps {
@@ -28,7 +28,7 @@ export function BoardWrapper({
   holderRevenue,
 }: BoardWrapperProps) {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
-  const [milestones] = useState<Milestone[]>(initialMilestones);
+  const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
   const [sessions, setSessions] = useState<HolderSession[]>(initialSessions);
   const [sources] = useState<Source[]>(initialSources);
   const [farmers] = useState<Farmer[]>(initialFarmers);
@@ -38,11 +38,12 @@ export function BoardWrapper({
     setAccounts(initialAccounts);
   }, [initialAccounts]);
 
+  useEffect(() => {
+    setMilestones(initialMilestones);
+  }, [initialMilestones]);
+
   const [modalAccount, setModalAccount] = useState<Account | null>(null);
   const [showCreate, setShowCreate] = useState(false);
-  // Ids deleted locally. Board keeps its own accounts state, so we bridge
-  // deletions down explicitly instead of relying on realtime DELETE events
-  // (which require the accounts table to be in the realtime publication).
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
 
   const sourceMap = useMemo(() => {
@@ -68,14 +69,28 @@ export function BoardWrapper({
         ...fresh,
       ]);
     } catch {
-      // keep stale data on failure rather than blanking the history
+      // keep stale
+    }
+  }, []);
+
+  // Replace all cached milestones for one account with a freshly-fetched set.
+  const refreshMilestones = useCallback(async (accountId: string) => {
+    try {
+      const fresh = await getAccountMilestones(accountId);
+      setMilestones((prev) => [
+        ...prev.filter((m) => m.account_id !== accountId),
+        ...fresh,
+      ]);
+    } catch {
+      // keep stale
     }
   }, []);
 
   const handleOpenAccount = useCallback((account: Account) => {
     setModalAccount(account);
     void refreshSessions(account.id);
-  }, [refreshSessions]);
+    void refreshMilestones(account.id);
+  }, [refreshSessions, refreshMilestones]);
 
   const handleCloseModal = useCallback(() => {
     setModalAccount(null);
@@ -94,7 +109,8 @@ export function BoardWrapper({
       prev && prev.id === merged.id ? { ...prev, ...merged } : merged
     );
     void refreshSessions(merged.id);
-  }, [refreshSessions, sourceMap]);
+    void refreshMilestones(merged.id);
+  }, [refreshSessions, refreshMilestones, sourceMap]);
 
   // Keep the open modal's account (esp. its `version`) in sync with realtime
   // row updates. Without this, an image upload / status change made elsewhere
