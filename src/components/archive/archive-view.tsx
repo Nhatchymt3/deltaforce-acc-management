@@ -49,7 +49,7 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
 
   function handleUpdated(updated: Account) {
     setAccounts((prev) => prev.map((a) => (a.id === updated.id ? { ...a, ...updated } : a)));
-    setModalAccount(null);
+    setModalAccount((prev) => (prev && prev.id === updated.id ? { ...prev, ...updated } : prev));
   }
 
   function handleDeleted(id: string) {
