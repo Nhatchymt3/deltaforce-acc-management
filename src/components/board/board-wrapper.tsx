@@ -129,6 +129,7 @@ export function BoardWrapper({
         initialAccounts={accounts}
         initialSessions={sessions}
         initialSources={sources}
+        initialFarmers={farmers}
         initialMilestones={milestones}
         holderRevenue={holderRevenue}
         deletedIds={deletedIds}
