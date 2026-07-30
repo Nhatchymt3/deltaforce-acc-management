@@ -142,9 +142,12 @@ export function BoardWrapper({
       {/* Floating "Thêm acc" FAB */}
       <button
         onClick={() => setShowCreate(true)}
-        className="fixed bottom-8 right-8 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-5 py-3 text-sm font-semibold text-white shadow-xl shadow-cyan-500/30 hover:from-cyan-400 hover:to-blue-400 hover:shadow-cyan-500/50 transition-all duration-300 hover:scale-110 active:scale-95"
+        className="fixed bottom-8 right-8 z-40 flex items-center gap-2 rounded-lg border border-brass/40 bg-brass px-4 py-2.5 font-display text-sm font-bold text-midnight shadow-2xl shadow-brass/20 hover:bg-brass/90 transition-all duration-200 hover:scale-105 active:scale-95"
       >
-        <span className="text-xl">+</span> Thêm acc
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Thêm acc</span>
       </button>
 
       <Board
