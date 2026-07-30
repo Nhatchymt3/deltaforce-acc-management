@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import type { Account, HolderSession } from '@/lib/types';
+import type { Account, HolderSession, Milestone } from '@/lib/types';
 
 type Action = 'update_level' | 'done' | 'deliver' | 'pay';
 
