@@ -597,7 +597,7 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
         <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
 
         {/* Modal */}
-        <div className="relative z-10 w-full max-w-2xl">
+        <div className="relative z-10 w-full max-w-4xl">
           <div className="relative rounded-xl border border-white/[0.08] bg-gunmetal shadow-2xl">
             {/* Delete confirmation overlay */}
             {confirmDelete && (
@@ -725,7 +725,7 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
             </div>
 
             {/* Content */}
-            <div className="max-h-[60vh] overflow-y-auto p-6 scrollbar-thin">
+            <div className="max-h-[85vh] overflow-y-auto p-5 scrollbar-thin">
               {tab === 'detail' ? (
                 <div className="space-y-4">
                   {/* Credentials Section */}
