@@ -124,8 +124,17 @@ export function SourceManager({ initialSources }: { initialSources: Source[] }) 
         </div>
 
         {/* Sources list */}
-        <div className="space-y-2">
-          {sources.map((source, i) => (
+        {sources.length === 0 ? (
+          <div className="text-center py-10 rounded-xl border border-dashed border-white/10 bg-white/[0.01]">
+            <svg className="w-10 h-10 mx-auto text-slate-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <p className="text-sm font-medium text-slate-400">Chưa có nguồn nào trong hệ thống</p>
+            <p className="text-xs text-slate-500 mt-1">Nhập tên nguồn và nhấn "Thêm" để bắt đầu</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {sources.map((source, i) => (
             <div
               key={source.id}
               className="group flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 hover:border-cyan-400/20 hover:bg-white/[0.06] transition-all duration-200"
@@ -193,6 +202,7 @@ export function SourceManager({ initialSources }: { initialSources: Source[] }) 
             </div>
           ))}
         </div>
+        )}
       </div>
 
       {/* Delete confirmation modal */}
