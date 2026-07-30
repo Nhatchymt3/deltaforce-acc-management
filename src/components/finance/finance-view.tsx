@@ -12,6 +12,7 @@ export type FinanceAccount = {
 
 export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccount[] }) {
   const [selectedHolder, setSelectedHolder] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const summary = calculateFinance(initialAccounts);
   const holderRows = formatHolders(summary.byHolder);
@@ -19,6 +20,15 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
   const filteredAccounts = summary.accounts.filter((acc) => {
     if (!selectedHolder) return true;
     return acc.holders.includes(selectedHolder);
+  });
+
+  const searchedAccounts = filteredAccounts.filter((acc) => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.trim().toLowerCase();
+    return (
+      acc.username.toLowerCase().includes(term) ||
+      acc.holders.some((h) => h.toLowerCase().includes(term))
+    );
   });
 
   return (
@@ -84,11 +94,33 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
 
       {/* Per-account breakdown */}
       <section>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
           <h2 className="font-display text-base font-semibold text-white tracking-wide">
             Chi tiết từng acc {selectedHolder ? `(của ${selectedHolder})` : ''}
           </h2>
-          <span className="text-xs font-mono text-ash/60">Hiển thị {filteredAccounts.length} acc</span>
+          <div className="flex items-center gap-3">
+            <div className="relative min-w-[200px]">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Tìm username, AE..."
+                className="w-full rounded-lg border border-white/[0.06] bg-gunmetal px-3 py-1.5 pl-8 text-xs text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+              />
+              <svg className="w-3.5 h-3.5 absolute left-2.5 top-2 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-2 top-1.5 text-ash/50 hover:text-white text-xs"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            <span className="text-xs font-mono text-ash/60">Hiển thị {searchedAccounts.length} acc</span>
+          </div>
         </div>
 
         <div className="rounded-xl border border-white/[0.06] bg-gunmetal overflow-hidden">
@@ -103,14 +135,14 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
                 </tr>
               </thead>
               <tbody>
-                {filteredAccounts.length === 0 ? (
+                {searchedAccounts.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="py-8 text-center text-ash/50">
                       Không có acc nào phù hợp.
                     </td>
                   </tr>
                 ) : (
-                  filteredAccounts.map((row) => (
+                  searchedAccounts.map((row) => (
                     <tr
                       key={row.id}
                       className="border-b border-white/[0.04] text-gray-300 hover:bg-white/[0.03] transition-colors"
