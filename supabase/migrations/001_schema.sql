@@ -21,6 +21,12 @@ create table if not exists sources (
   created_at  timestamptz not null default now()
 );
 
+create table if not exists farmers (
+  id          uuid primary key default gen_random_uuid(),
+  name        text unique not null,
+  created_at  timestamptz not null default now()
+);
+
 create table if not exists accounts (
   id                  uuid primary key default gen_random_uuid(),
   username            text not null,
