@@ -410,7 +410,7 @@ export async function ensureMilestone(accountId: string, level: number, price: s
     if (exactMatch) return exactMatch.id;
 
     // Update the existing milestone directly
-    const targetId = existing[0].id;
+    const targetId = existing[0]!.id;
     const { error: updateErr } = await supabase
       .from('account_milestones')
       .update({ level, price })
