@@ -645,7 +645,8 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                       {account.sourceName ?? account.source}
                     </span>
                     {account.added_by && (
-                        • Thêm bởi: <strong className="text-slate-200 font-medium">{account.added_by}</strong>
+                      <span className="text-xs text-ash">
+                        • Thêm bởi: <strong className="text-gray-200 font-medium">{account.added_by}</strong>
                       </span>
                     )}
                     {account.created_at && (
