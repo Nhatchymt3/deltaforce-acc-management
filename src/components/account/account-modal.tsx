@@ -133,10 +133,10 @@ function CopyButton({ text, label, onCopy }: { text: string; label: string; onCo
   return (
     <button
       onClick={handleCopy}
-      className={`rounded-lg p-1.5 transition-all duration-200 ${
+      className={`rounded p-1 transition-all duration-200 ${
         copied
-          ? 'bg-cyan-500/20 text-cyan-400 scale-110'
-          : 'text-slate-500 hover:text-cyan-400 hover:bg-cyan-500/10'
+          ? 'bg-brass/20 text-brass'
+          : 'text-ash hover:text-white hover:bg-white/5'
       }`}
       title={`Copy ${label}`}
     >
@@ -166,8 +166,8 @@ function CredentialField({ label, value, isPassword = false }: CredentialFieldPr
   const displayValue = isPassword ? (visible ? value : '●●●●●●●●●●●') : value;
 
   return (
-    <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-      <div className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2 flex items-center gap-1.5">
+    <div className="rounded-lg border border-white/[0.04] bg-midnight/50 p-3">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-ash mb-1.5 flex items-center gap-1.5">
         {isPassword ? (
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
@@ -180,18 +180,18 @@ function CredentialField({ label, value, isPassword = false }: CredentialFieldPr
         {label}
       </div>
       <div className="flex items-center justify-between gap-3">
-        <span className={`font-mono text-sm ${isPassword && !visible ? 'tracking-widest' : 'text-slate-200'} transition-all duration-200`}>
-          {displayValue || <span className="text-slate-600 italic">Không có</span>}
+        <span className={`font-mono text-xs ${isPassword && !visible ? 'tracking-widest' : 'text-gray-200'} transition-all duration-200`}>
+          {displayValue || <span className="text-ash/40 italic">Không có</span>}
         </span>
         <div className="flex items-center gap-1">
           <CopyButton text={value} label={label} onCopy={() => {}} />
           {isPassword && value && (
             <button
               onClick={() => setVisible(!visible)}
-              className={`rounded-lg p-1.5 transition-all duration-200 ${
+              className={`rounded p-1 transition-all duration-200 ${
                 visible
-                  ? 'bg-cyan-500/20 text-cyan-400'
-                  : 'text-slate-500 hover:text-cyan-400 hover:bg-cyan-500/10'
+                  ? 'bg-brass/20 text-brass'
+                  : 'text-ash hover:text-white'
               }`}
               title={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
             >
@@ -230,13 +230,13 @@ function MilestoneBadge({
 
   if (editing) {
     return (
-      <div className="flex items-center gap-2 rounded-xl border border-cyan-400/40 bg-white/5 p-2 transition-all">
+      <div className="flex items-center gap-1.5 rounded-lg border border-brass/40 bg-midnight p-1.5">
         <input
           type="number"
           value={level}
           onChange={(e) => setLevel(e.target.value)}
           placeholder="Lv"
-          className="w-16 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-white focus:outline-none focus:border-cyan-400"
+          className="w-14 rounded border border-white/[0.06] bg-midnight px-2 py-0.5 text-xs text-white font-mono focus:outline-none"
         />
         <input
           type="number"
@@ -244,7 +244,7 @@ function MilestoneBadge({
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           placeholder="Tiền"
-          className="w-20 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-white focus:outline-none focus:border-cyan-400"
+          className="w-16 rounded border border-white/[0.06] bg-midnight px-2 py-0.5 text-xs text-white font-mono focus:outline-none"
         />
         <button
           onClick={async () => {
@@ -586,11 +586,8 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
         <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
 
         {/* Modal */}
-        <div className="relative z-10 w-full max-w-2xl animate-[scaleIn_0.2s_ease-out]">
-          {/* Glow */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/10 via-violet-500/10 to-cyan-500/10 rounded-3xl blur-xl opacity-40" />
-
-          <div className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
+        <div className="relative z-10 w-full max-w-2xl">
+          <div className="relative rounded-xl border border-white/[0.08] bg-gunmetal shadow-2xl">
             {/* Delete confirmation overlay */}
             {confirmDelete && (
               <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-black/70 backdrop-blur-sm p-6">
@@ -633,22 +630,21 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
             )}
 
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
+            <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 border border-cyan-400/20 flex items-center justify-center">
-                  <span className="text-lg font-bold bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
+                <div className="w-8 h-8 rounded bg-brass/20 border border-brass/30 flex items-center justify-center">
+                  <span className="text-base font-bold text-brass">
                     {account.username.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">{account.username}</h2>
+                  <h2 className="font-display text-base font-bold text-white tracking-wide">{account.username}</h2>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 inline-block" />
+                    <span className="text-xs text-ash flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brass inline-block" />
                       {account.sourceName ?? account.source}
                     </span>
                     {account.added_by && (
-                      <span className="text-xs text-slate-400">
                         • Thêm bởi: <strong className="text-slate-200 font-medium">{account.added_by}</strong>
                       </span>
                     )}
