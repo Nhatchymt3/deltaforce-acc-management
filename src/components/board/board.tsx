@@ -287,6 +287,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const [sessions] = useState<HolderSession[]>(initialSessions);
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
   const [filter, setFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<'default' | 'newest' | 'oldest'>('default');
   const [activeAccount, setActiveAccount] = useState<Account | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -484,12 +485,17 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   }, []);
 
   const sortedAccounts = useMemo(() => {
-    let list = accounts.filter(
-      (a) =>
-        a.status !== 'da_nhan_tien' &&
-        (filter === 'all' || a.source === filter)
-    );
-
+    let list = accounts.filter((a) => !deletedIds.includes(a.id));
+    if (filter !== 'all') {
+      list = list.filter((a) => a.source === filter);
+    }
+    if (searchTerm.trim()) {
+      const term = searchTerm.trim().toLowerCase();
+      list = list.filter((a) =>
+        a.username.toLowerCase().includes(term) ||
+        (a.current_holder && a.current_holder.toLowerCase().includes(term))
+      );
+    }
     if (sortBy === 'newest') {
       list = [...list].sort((a, b) => {
         const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
@@ -505,7 +511,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     }
 
     return list;
-  }, [accounts, filter, sortBy]);
+  }, [accounts, deletedIds, filter, searchTerm, sortBy]);
 
   const khoAccounts = sortedAccounts.filter((a) => a.status === 'kho' && !a.current_holder);
   const holderColumns = allFarmers.map((f) => ({
@@ -566,9 +572,34 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           <span className="text-xs font-display font-medium uppercase tracking-[0.2em] text-ash/60">
             Acc Management
           </span>
+          <span className="ml-2 font-mono text-xs text-brass/80 bg-brass/10 border border-brass/20 rounded px-2 py-0.5" title="Tổng số acc đang cày/trong kho">
+            {initialAccounts.length} ACC
+          </span>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="min-w-[150px]">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Quick Search */}
+          <div className="relative min-w-[180px]">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Tìm username, AE..."
+              className="w-full rounded-lg border border-white/[0.06] bg-gunmetal/80 px-3 py-2 pl-8 text-xs text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+            />
+            <svg className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-2 top-2 text-ash/50 hover:text-white text-xs"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <div className="min-w-[140px]">
             <Dropdown
               value={filter}
               onChange={setFilter}
