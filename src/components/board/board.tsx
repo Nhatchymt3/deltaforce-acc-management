@@ -330,17 +330,17 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   }, [initialFarmers]);
 
   const allFarmers = useMemo(() => {
-    if (initialFarmers && initialFarmers.length > 0) {
-      return initialFarmers;
-    }
-    const seen = new Map<string, { id: string; name: string }>();
+    const list = [...(initialFarmers ?? [])];
+    const farmerNorms = new Set(list.map((f) => normaliseHolder(f.name)));
+
     accounts.forEach((a) => {
-      if (a.current_holder) {
-        const norm = normaliseHolder(a.current_holder);
-        if (!seen.has(norm)) seen.set(norm, { id: a.current_holder, name: a.current_holder });
+      if (a.current_holder && !farmerNorms.has(normaliseHolder(a.current_holder))) {
+        list.push({ id: a.current_holder, name: a.current_holder });
+        farmerNorms.add(normaliseHolder(a.current_holder));
       }
     });
-    return Array.from(seen.values());
+
+    return list;
   }, [accounts, initialFarmers]);
 
   useEffect(() => {
