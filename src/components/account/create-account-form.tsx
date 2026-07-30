@@ -59,24 +59,7 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
     return () => clearTimeout(timer);
   }, [showSuccessToast]);
 
-  function addMilestone() {
-    setMilestones((prev) => [...prev, { level: '', price: '', note: '' }]);
-  }
 
-  function removeMilestone(i: number) {
-    setMilestones((prev) => prev.filter((_, idx) => idx !== i));
-  }
-
-  function updateMilestone(i: number, field: keyof MilestoneInput, value: string) {
-    setMilestones((prev) =>
-      prev.map((m, idx) => (idx === i ? { ...m, [field]: value } : m))
-    );
-  }
-
-  function getMilestonePreview(level: string, price: string): string {
-    if (!level && !price) return '';
-    return `LV${level || '?'}-${price ? price + 'M' : '?'}`;
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
