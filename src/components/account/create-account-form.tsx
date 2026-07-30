@@ -46,6 +46,7 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
   const [source, setSource] = useState(sources[0]?.id ?? '');
   const [initialHolder, setInitialHolder] = useState('');
   const [addedBy, setAddedBy] = useState('');
+  const [customAddedBy, setCustomAddedBy] = useState('');
   const [milestones, setMilestones] = useState<MilestoneInput[]>([
     { level: '', price: '', note: '' },
   ]);
@@ -110,6 +111,8 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
       return;
     }
 
+    const finalAddedBy = addedBy === '__custom__' ? customAddedBy.trim() : addedBy.trim();
+
     setLoading(true);
     let createdCount = 0;
     try {
@@ -120,7 +123,7 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
           password: account.password || undefined,
           milestones: parsedMilestones,
           initialHolder: initialHolder.trim() || undefined,
-          addedBy: addedBy.trim() || undefined,
+          addedBy: finalAddedBy || undefined,
         });
         createdCount++;
       }
@@ -306,10 +309,24 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
                   value={addedBy}
                   onChange={setAddedBy}
                   placeholder="Chọn AE người thêm..."
-                  options={[{ value: '', label: 'Chưa chọn' }, ...farmers.map((f) => ({ value: f.name, label: f.name }))]}
+                  options={[
+                    { value: '', label: 'Chưa chọn' },
+                    ...farmers.map((f) => ({ value: f.name, label: f.name })),
+                    { value: '__custom__', label: '✏️ Tự nhập tên khác (ngoài danh sách AE)...' },
+                  ]}
                   ariaLabel="Người thêm"
                   size="sm"
                 />
+                {addedBy === '__custom__' && (
+                  <input
+                    type="text"
+                    value={customAddedBy}
+                    onChange={(e) => setCustomAddedBy(e.target.value)}
+                    placeholder="Nhập tên người thêm..."
+                    autoFocus
+                    className="mt-2 w-full rounded-lg border border-brass/40 bg-midnight px-3 py-1.5 text-xs text-white placeholder-ash/40 focus:outline-none focus:ring-1 focus:ring-brass/20 font-medium"
+                  />
+                )}
               </label>
 
               {/* Milestones */}
