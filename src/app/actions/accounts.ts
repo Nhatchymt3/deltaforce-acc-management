@@ -400,14 +400,25 @@ export async function ensureMilestone(accountId: string, level: number, price: s
   const supabase = await createClient();
   const { data: existing, error: checkErr } = await supabase
     .from('account_milestones')
-    .select('id')
-    .eq('account_id', accountId)
-    .eq('level', level)
-    .eq('price', price)
-    .maybeSingle();
+    .select('id, level, price')
+    .eq('account_id', accountId);
 
   if (checkErr) throw new Error(checkErr.message);
-  if (existing) return existing.id;
+
+  if (existing && existing.length > 0) {
+    const exactMatch = existing.find((m) => m.level === level && String(m.price) === String(price));
+    if (exactMatch) return exactMatch.id;
+
+    // Update the existing milestone directly
+    const targetId = existing[0].id;
+    const { error: updateErr } = await supabase
+      .from('account_milestones')
+      .update({ level, price })
+      .eq('id', targetId);
+
+    if (updateErr) throw new Error(updateErr.message);
+    return targetId;
+  }
 
   const { data: inserted, error: insertErr } = await supabase
     .from('account_milestones')
