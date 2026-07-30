@@ -361,6 +361,7 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
   const [toastMessage, setToastMessage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [customTagDays, setCustomTagDays] = useState('');
 
   function showToast(message: string) {
     setToastMessage(message);
@@ -863,6 +864,55 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                             </button>
                           ))}
                         </div>
+                      </div>
+
+                      {/* Custom Days Input */}
+                      <div className="pt-2.5 border-t border-white/5 flex flex-wrap items-center gap-2">
+                        <span className="text-[11px] font-medium text-slate-400">Tùy chỉnh số ngày:</span>
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder="Số ngày..."
+                          value={customTagDays}
+                          onChange={(e) => setCustomTagDays(e.target.value)}
+                          className="w-24 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white placeholder-slate-500 focus:border-cyan-400/50 focus:outline-none transition-all"
+                        />
+                        <button
+                          onClick={async () => {
+                            const days = parseInt(customTagDays, 10);
+                            if (!days || days <= 0) return;
+                            try {
+                              const res = await setAccountTag(account.id, `Ban ${days} ngày`, days);
+                              onUpdated(res);
+                              showToast(`Đã gắn tag Ban ${days} ngày`);
+                              setCustomTagDays('');
+                            } catch (err) {
+                              setError(err instanceof Error ? err.message : 'Gắn tag thất bại');
+                            }
+                          }}
+                          disabled={!customTagDays || parseInt(customTagDays, 10) <= 0}
+                          className="rounded-lg border border-red-500/30 bg-red-600/60 px-2.5 py-1 text-xs font-medium text-white hover:bg-red-500 disabled:opacity-40 transition-all"
+                        >
+                          + Ban
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const days = parseInt(customTagDays, 10);
+                            if (!days || days <= 0) return;
+                            try {
+                              const res = await setAccountTag(account.id, `Cấm party ${days} ngày`, days);
+                              onUpdated(res);
+                              showToast(`Đã gắn tag Cấm party ${days} ngày`);
+                              setCustomTagDays('');
+                            } catch (err) {
+                              setError(err instanceof Error ? err.message : 'Gắn tag thất bại');
+                            }
+                          }}
+                          disabled={!customTagDays || parseInt(customTagDays, 10) <= 0}
+                          className="rounded-lg border border-amber-500/30 bg-amber-600/60 px-2.5 py-1 text-xs font-medium text-white hover:bg-amber-500 disabled:opacity-40 transition-all"
+                        >
+                          + Cấm party
+                        </button>
                       </div>
                     </div>
                   </section>
