@@ -416,3 +416,28 @@ export async function ensureMilestone(accountId: string, level: number, price: s
   if (insertErr) throw new Error(insertErr.message);
   return inserted.id;
 }
+
+export async function updateMilestone(id: string, level: number, price: string): Promise<Milestone> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('account_milestones')
+    .update({ level, price })
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  if (error) throw new Error(error.message);
+  revalidatePath('/');
+  return { ...data, price: String(data.price) } as Milestone;
+}
+
+export async function deleteMilestone(id: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('account_milestones')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw new Error(error.message);
+  revalidatePath('/');
+}

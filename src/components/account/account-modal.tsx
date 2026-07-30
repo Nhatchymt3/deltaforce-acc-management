@@ -8,6 +8,8 @@ import {
   removeAccountImage,
   deleteAccount,
   ensureMilestone,
+  updateMilestone,
+  deleteMilestone,
 } from '@/app/actions/accounts';
 import type { Account, Milestone, HolderSession } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
@@ -211,10 +213,73 @@ function CredentialField({ label, value, isPassword = false }: CredentialFieldPr
 }
 
 // ─── Milestone level badge ───────────────────────────────────────────────────
-function MilestoneBadge({ milestone, isTarget }: { milestone: Milestone; isTarget: boolean }) {
+function MilestoneBadge({
+  milestone,
+  isTarget,
+  onSave,
+}: {
+  milestone: Milestone;
+  isTarget: boolean;
+  onSave: (id: string, level: number, price: string) => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [level, setLevel] = useState(String(milestone.level));
+  const [price, setPrice] = useState(milestone.price);
+  const [loading, setLoading] = useState(false);
+
+  if (editing) {
+    return (
+      <div className="flex items-center gap-2 rounded-xl border border-cyan-400/40 bg-white/5 p-2 transition-all">
+        <input
+          type="number"
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
+          placeholder="Lv"
+          className="w-16 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-white focus:outline-none focus:border-cyan-400"
+        />
+        <input
+          type="number"
+          step="any"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="Tiền"
+          className="w-20 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-white focus:outline-none focus:border-cyan-400"
+        />
+        <button
+          onClick={async () => {
+            if (!level || !price) return;
+            setLoading(true);
+            try {
+              await onSave(milestone.id, parseInt(level, 10), price);
+              setEditing(false);
+            } catch {
+              // error handled outside
+            } finally {
+              setLoading(false);
+            }
+          }}
+          disabled={loading || !level || !price}
+          className="rounded-lg bg-green-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50 transition-colors"
+        >
+          {loading ? '...' : 'Lưu'}
+        </button>
+        <button
+          onClick={() => {
+            setLevel(String(milestone.level));
+            setPrice(milestone.price);
+            setEditing(false);
+          }}
+          className="rounded-lg border border-white/10 px-2 py-1 text-xs text-slate-400 hover:bg-white/5 transition-colors"
+        >
+          Hủy
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
-      className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm transition-all duration-200 ${
+      className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm transition-all duration-200 group/badge ${
         isTarget
           ? 'border-cyan-400/40 bg-gradient-to-r from-cyan-950/60 to-violet-950/60 shadow-lg shadow-cyan-500/10'
           : 'border-white/5 bg-white/[0.03]'
@@ -237,9 +302,20 @@ function MilestoneBadge({ milestone, isTarget }: { milestone: Milestone; isTarge
           )}
         </div>
       </div>
-      {isTarget && (
-        <span className="text-xs font-medium text-cyan-400/60">Mốc giao</span>
-      )}
+      <div className="flex items-center gap-2">
+        {isTarget && (
+          <span className="text-xs font-medium text-cyan-400/60">Mốc giao</span>
+        )}
+        <button
+          onClick={() => setEditing(true)}
+          className="rounded-lg p-1 text-slate-400 hover:text-cyan-400 hover:bg-white/10 opacity-60 group-hover/badge:opacity-100 transition-all"
+          title="Chỉnh sửa mốc"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }
@@ -666,6 +742,14 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                             key={m.id}
                             milestone={m}
                             isTarget={m.id === account.target_milestone_id}
+                            onSave={async (id, level, price) => {
+                              try {
+                                await updateMilestone(id, level, price);
+                                showToast('Đã cập nhật mốc');
+                              } catch (err) {
+                                setError(err instanceof Error ? err.message : 'Lỗi cập nhật mốc');
+                              }
+                            }}
                           />
                         ))}
                       </div>
