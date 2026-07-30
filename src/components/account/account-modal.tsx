@@ -310,11 +310,9 @@ function MilestoneBadge({
             {formatMilestone(milestone)}
           </span>
         </div>
-        {milestone.note && (
-          <span className="text-[11px] text-ash/80 truncate mt-0.5">
-            📝 {milestone.note}
-          </span>
-        )}
+        <span className={`text-[11px] mt-0.5 ${milestone.note ? 'text-amber-300/90 font-medium' : 'text-ash/40 italic'}`}>
+          {milestone.note ? `📝 ${milestone.note}` : '(Chưa có chú thích - bấm ✏️ để thêm)'}
+        </span>
       </div>
       <div className="flex items-center gap-1.5 flex-shrink-0">
         {isTarget && (
