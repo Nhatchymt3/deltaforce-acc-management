@@ -25,6 +25,7 @@ export type Account = {
   tag_label?: string | null;
   tag_expires_at?: string | null;
   created_at?: string | null;
+  game_uuid?: string | null;
 };
 
 export type Milestone = {

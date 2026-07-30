@@ -462,9 +462,25 @@ export async function getAccountMilestones(accountId: string): Promise<Milestone
     .select('*')
     .eq('account_id', accountId)
     .order('level', { ascending: true });
-
   if (error) return [];
   return (data ?? []).map((m) => ({ ...m, price: String(m.price) })) as Milestone[];
+}
+
+export async function updateGameUuid(accountId: string, gameUuid: string): Promise<Account> {
+  const admin = createAdminClient();
+  const trimmed = gameUuid.trim();
+
+  const { data, error } = await admin
+    .from('accounts')
+    .update({ game_uuid: trimmed || null })
+    .eq('id', accountId)
+    .select('*')
+    .single();
+
+  if (error) throw new Error(error.message);
+  revalidatePath('/');
+  revalidatePath('/archive');
+  return serializeAccount(data);
 }
 
 export async function setAccountTag(

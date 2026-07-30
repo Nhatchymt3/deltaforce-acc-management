@@ -11,6 +11,7 @@ import {
   updateMilestone,
   deleteMilestone,
   setAccountTag,
+  updateGameUuid,
 } from '@/app/actions/accounts';
 import type { Account, Milestone, HolderSession } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
@@ -159,29 +160,96 @@ interface CredentialFieldProps {
   value: string;
   onCopy: (message: string) => void;
   isPassword?: boolean;
+  onSave?: (newValue: string) => Promise<void>;
 }
 
-function CredentialField({ label, value, isPassword = false }: CredentialFieldProps) {
+function CredentialField({ label, value, isPassword = false, onSave }: CredentialFieldProps) {
   const [visible, setVisible] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editVal, setEditVal] = useState(value);
+  const [loading, setLoading] = useState(false);
+
   const displayValue = isPassword ? (visible ? value : '●●●●●●●●●●●') : value;
 
+  if (editing && onSave) {
+    return (
+      <div className="rounded-lg border border-brass/40 bg-midnight p-2.5">
+        <div className="text-[11px] font-medium uppercase tracking-wide text-ash mb-1">
+          {label}
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={editVal}
+            onChange={(e) => setEditVal(e.target.value)}
+            className="flex-1 rounded border border-white/[0.06] bg-midnight px-2.5 py-1 text-xs text-white font-mono focus:border-brass/40 focus:outline-none"
+            placeholder={`Nhập ${label.toLowerCase()}...`}
+            autoFocus
+          />
+          <button
+            onClick={async () => {
+              setLoading(true);
+              try {
+                await onSave(editVal);
+                setEditing(false);
+              } catch {
+                // error handled by parent
+              } finally {
+                setLoading(false);
+              }
+            }}
+            disabled={loading}
+            className="rounded bg-brass px-2.5 py-1 text-xs font-semibold text-midnight hover:bg-brass/90 disabled:opacity-50 transition-colors"
+          >
+            {loading ? '...' : 'Lưu'}
+          </button>
+          <button
+            onClick={() => {
+              setEditVal(value);
+              setEditing(false);
+            }}
+            className="rounded border border-white/[0.06] px-2 py-1 text-xs text-ash hover:text-white transition-colors"
+          >
+            Hủy
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-lg border border-white/[0.04] bg-midnight/50 p-3">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-ash mb-1.5 flex items-center gap-1.5">
-        {isPassword ? (
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-          </svg>
-        ) : (
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
+    <div className="rounded-lg border border-white/[0.04] bg-midnight/50 p-3 group/cred">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-ash mb-1.5 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          {isPassword ? (
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            </svg>
+          ) : (
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          )}
+          {label}
+        </div>
+        {onSave && (
+          <button
+            onClick={() => {
+              setEditVal(value);
+              setEditing(true);
+            }}
+            className="text-ash hover:text-brass opacity-60 group-hover/cred:opacity-100 transition-opacity p-0.5"
+            title={`Sửa ${label.toLowerCase()}`}
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          </button>
         )}
-        {label}
       </div>
       <div className="flex items-center justify-between gap-3">
         <span className={`font-mono text-xs ${isPassword && !visible ? 'tracking-widest' : 'text-gray-200'} transition-all duration-200`}>
-          {displayValue || <span className="text-ash/40 italic">Không có</span>}
+          {displayValue || <span className="text-ash/40 italic">Chưa nhập</span>}
         </span>
         <div className="flex items-center gap-1">
           <CopyButton text={value} label={label} onCopy={() => {}} />
@@ -373,8 +441,9 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [customTagDays, setCustomTagDays] = useState('');
+  const [showDoneModal, setShowDoneModal] = useState(false);
+  const [doneGameUuid, setDoneGameUuid] = useState('');
 
   function showToast(message: string) {
     setToastMessage(message);
@@ -447,7 +516,27 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
     }
   }
 
-  function handleDone() { void performAction('done'); }
+  function handleDone() {
+    setDoneGameUuid(account.game_uuid ?? '');
+    setShowDoneModal(true);
+  }
+
+  async function submitDoneWithUuid() {
+    if (!doneGameUuid.trim()) {
+      setError('Vui lòng nhập UUID Game trước khi hoàn tất');
+      return;
+    }
+    setError(null);
+    setActionLoading('done');
+    try {
+      await updateGameUuid(account.id, doneGameUuid.trim());
+      setShowDoneModal(false);
+      await performAction('done');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Thao tác thất bại');
+      setActionLoading(null);
+    }
+  }
   async function handleDeliver() {
     if (!deliverLevel || !deliverPrice) { setError('Nhập đủ Level và Tiền'); return; }
     setError(null);
@@ -642,6 +731,64 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
               </div>
             )}
 
+            {/* Done UUID Prompt Overlay */}
+            {showDoneModal && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-black/80 backdrop-blur-md p-6">
+                <div className="w-full max-w-sm rounded-2xl border border-brass/40 bg-gunmetal p-6 shadow-2xl space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-brass/20 border border-brass/30 flex items-center justify-center">
+                      <span className="text-brass text-lg font-bold">🎮</span>
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-white">Xác nhận Hoàn tất (Done)</h3>
+                      <p className="text-xs text-ash">Vui lòng nhập UUID Game của tài khoản</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block mb-1.5 text-xs font-medium uppercase tracking-wide text-ash">
+                      UUID Game <span className="text-signal-red">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={doneGameUuid}
+                      onChange={(e) => setDoneGameUuid(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && void submitDoneWithUuid()}
+                      placeholder="Dán UUID Game vào đây..."
+                      autoFocus
+                      className="w-full rounded-lg border border-brass/40 bg-midnight px-3 py-2 text-xs text-white placeholder-ash/40 font-mono focus:outline-none focus:ring-1 focus:ring-brass/30"
+                    />
+                  </div>
+
+                  {error && (
+                    <div className="rounded bg-signal-red/10 border border-signal-red/30 p-2 text-xs text-red-300">
+                      {error}
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-2 pt-2 border-t border-white/[0.06]">
+                    <button
+                      onClick={() => {
+                        setShowDoneModal(false);
+                        setError(null);
+                      }}
+                      disabled={actionLoading === 'done'}
+                      className="rounded-lg border border-white/[0.06] bg-midnight px-4 py-2 text-xs text-ash hover:text-white transition-colors"
+                    >
+                      Hủy
+                    </button>
+                    <button
+                      onClick={() => void submitDoneWithUuid()}
+                      disabled={actionLoading === 'done' || !doneGameUuid.trim()}
+                      className="flex items-center gap-1.5 rounded-lg bg-brass px-4 py-2 text-xs font-bold text-midnight hover:bg-brass/90 disabled:opacity-40 transition-all shadow-md shadow-brass/20"
+                    >
+                      {actionLoading === 'done' ? 'Đang lưu...' : 'Lưu & Bấm Done'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
               <div className="flex items-center gap-3">
@@ -731,20 +878,32 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
               {tab === 'detail' ? (
                 <div className="space-y-4">
                   {/* Credentials Section */}
-                  <section className={`grid gap-3 ${account.password ? 'sm:grid-cols-2' : 'grid-cols-1'}`}>
+                  <section className="grid gap-3 sm:grid-cols-3">
                     <CredentialField
                       label="Tài khoản"
                       value={account.username}
                       onCopy={showToast}
                     />
-                    {account.password && (
-                      <CredentialField
-                        label="Mật khẩu"
-                        value={account.password}
-                        onCopy={showToast}
-                        isPassword
-                      />
-                    )}
+                    <CredentialField
+                      label="Mật khẩu"
+                      value={account.password ?? ''}
+                      onCopy={showToast}
+                      isPassword
+                    />
+                    <CredentialField
+                      label="UUID Game"
+                      value={account.game_uuid ?? ''}
+                      onCopy={showToast}
+                      onSave={async (newUuid) => {
+                        try {
+                          const updated = await updateGameUuid(account.id, newUuid);
+                          onUpdated(updated);
+                          showToast('Đã cập nhật UUID Game');
+                        } catch (err) {
+                          setError(err instanceof Error ? err.message : 'Lỗi cập nhật UUID Game');
+                        }
+                      }}
+                    />
                   </section>
 
                   {/* Milestones */}
