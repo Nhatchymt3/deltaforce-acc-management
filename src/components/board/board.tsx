@@ -326,7 +326,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     accounts.forEach((a) => {
       if (a.current_holder) seen.set(normaliseHolder(a.current_holder), a.current_holder);
     });
-    sessions.forEach((s) => seen.set(normaliseHolder(s.holder_name), s.holder_name));
     
     return Array.from(seen.values()).sort((a, b) => {
       const revA = revenueByNormHolder[normaliseHolder(a)] ?? 0;
@@ -334,7 +333,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
       if (revA !== revB) return revB - revA;
       return a.localeCompare(b, 'vi', { sensitivity: 'base' });
     });
-  }, [accounts, sessions, initialFarmers, revenueByNormHolder]);
+  }, [accounts, initialFarmers, revenueByNormHolder]);
 
   useEffect(() => {
     if (deletedIds.length === 0) return;
