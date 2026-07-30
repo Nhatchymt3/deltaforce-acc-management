@@ -165,7 +165,7 @@ function Card({ account, targetMilestone, onOpen, index }: CardProps) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
         {targetMilestone
-          ? <span className="text-slate-400 font-medium">lv{targetMilestone.level}-{targetMilestone.price}</span>
+          ? <span className="text-slate-400 font-medium">LV{targetMilestone.level}-{targetMilestone.price}M</span>
           : 'Chưa có mốc'}
       </p>
     </div>

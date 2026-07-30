@@ -79,7 +79,7 @@ export function CreateAccountForm({ sources, onSuccess, onCancel }: CreateAccoun
 
   function getMilestonePreview(level: string, price: string): string {
     if (!level && !price) return '';
-    return `lv${level || '?'}-${price || '?'}`;
+    return `LV${level || '?'}-${price ? price + 'M' : '?'}`;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -347,7 +347,7 @@ export function CreateAccountForm({ sources, onSuccess, onCancel }: CreateAccoun
                           />
                         </div>
 
-                        {/* Price text input */}
+                        {/* Price numeric input */}
                         <div className="relative flex-1">
                           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 pointer-events-none">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -355,8 +355,9 @@ export function CreateAccountForm({ sources, onSuccess, onCancel }: CreateAccoun
                             </svg>
                           </div>
                           <input
-                            type="text"
-                            placeholder="Giá (VD: 20m, 500k)"
+                            type="number"
+                            step="any"
+                            placeholder="Tiền (VD: 1, 1.5)"
                             value={m.price}
                             onChange={(e) => updateMilestone(i, 'price', e.target.value)}
                             className="w-full rounded-lg border border-white/10 bg-white/5 pl-8 pr-2 py-1.5 text-sm text-white placeholder-slate-600 focus:border-cyan-400/30 focus:outline-none focus:ring-1 focus:ring-cyan-400/20 transition-all"

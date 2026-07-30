@@ -47,9 +47,9 @@ function formatDate(iso: string | null): string {
   }).format(new Date(iso));
 }
 
-// Milestone display: lv${level}-${price}
+// Milestone display: LV${level}-${price}M
 function formatMilestone(m: Milestone): string {
-  return `lv${m.level}-${m.price}`;
+  return `LV${m.level}-${m.price}M`;
 }
 
 // ─── Timeline Row (status timestamps in history tab) ─────────────────────────
