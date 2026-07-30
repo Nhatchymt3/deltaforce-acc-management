@@ -20,6 +20,7 @@ export type Account = {
   delivered_at: string | null;
   paid_at: string | null;
   target_milestone_id: string | null;
+  added_by?: string | null;
 };
 
 export type Milestone = {

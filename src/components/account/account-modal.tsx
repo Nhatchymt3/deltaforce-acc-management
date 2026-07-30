@@ -645,6 +645,11 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                       <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-violet-400 inline-block" />
                       {account.sourceName ?? account.source}
                     </span>
+                    {account.added_by && (
+                      <span className="text-xs text-slate-400">
+                        • Thêm bởi: <strong className="text-slate-200 font-medium">{account.added_by}</strong>
+                      </span>
+                    )}
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors.bg} ${colors.border} ${colors.text}`}>
                       {STATUS_LABELS[account.status]}
                     </span>

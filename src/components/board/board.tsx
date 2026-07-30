@@ -168,6 +168,11 @@ function Card({ account, targetMilestone, onOpen, index }: CardProps) {
           ? <span className="text-slate-400 font-medium">LV{targetMilestone.level}-{targetMilestone.price}M</span>
           : 'Chưa có mốc'}
       </p>
+      {account.added_by && (
+        <p className="mt-1 text-[11px] text-slate-500">
+          Người thêm: <span className="text-slate-400 font-medium">{account.added_by}</span>
+        </p>
+      )}
     </div>
   );
 }

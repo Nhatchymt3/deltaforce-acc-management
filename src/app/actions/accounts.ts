@@ -126,6 +126,7 @@ export async function createAccountWithMilestones(input: {
   password?: string;
   milestones: Array<{ level: number; price: string; note?: string }>;
   initialHolder?: string;
+  addedBy?: string;
 }) {
   const supabase = await createClient();
   const milestonesJsonb = input.milestones.map((m) => ({
@@ -139,6 +140,7 @@ export async function createAccountWithMilestones(input: {
     p_password: input.password ?? '',
     p_milestones: milestonesJsonb,
     p_initial_holder: input.initialHolder ?? null,
+    p_added_by: input.addedBy ?? null,
   });
   if (error) throw new Error(error.message);
   revalidatePath('/');

@@ -51,6 +51,7 @@ create table if not exists accounts (
   paid_at             timestamptz,
   image_url           text,
   image_expires_at    timestamptz,
+  added_by            text,
   version             integer not null default 0,
   updated_at          timestamptz not null default now()
 );
@@ -362,7 +363,8 @@ create or replace function create_account_with_milestones(
   p_username        text,
   p_password        text,
   p_milestones      jsonb,
-  p_initial_holder  text default null
+  p_initial_holder  text default null,
+  p_added_by        text default null
 ) returns accounts
 language plpgsql security definer set search_path = public
 as $$
@@ -374,8 +376,8 @@ declare
   note_val       text;
   new_account    accounts;
 begin
-  insert into accounts (source, username, password, status)
-    values (p_source, p_username, nullif(p_password, ''), 'kho')
+  insert into accounts (source, username, password, status, added_by)
+    values (p_source, p_username, nullif(p_password, ''), 'kho', nullif(trim(p_added_by), ''))
     returning id into new_account_id;
 
   for milestone_rec in select * from jsonb_array_elements(p_milestones)

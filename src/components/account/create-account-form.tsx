@@ -45,6 +45,7 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
   const [accountsInput, setAccountsInput] = useState('');
   const [source, setSource] = useState(sources[0]?.id ?? '');
   const [initialHolder, setInitialHolder] = useState('');
+  const [addedBy, setAddedBy] = useState('');
   const [milestones, setMilestones] = useState<MilestoneInput[]>([
     { level: '', price: '', note: '' },
   ]);
@@ -119,6 +120,7 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
           password: account.password || undefined,
           milestones: parsedMilestones,
           initialHolder: initialHolder.trim() || undefined,
+          addedBy: addedBy.trim() || undefined,
         });
         createdCount++;
       }
@@ -311,6 +313,23 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
                     placeholder="Bỏ trống = vào Kho chung"
                     options={[{ value: '', label: 'Vào Kho chung' }, ...farmers.map((f) => ({ value: f.name, label: f.name }))]}
                     ariaLabel="AE nhận"
+                  />
+                </div>
+              </label>
+
+              {/* Added by */}
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Người thêm <span className="text-slate-600 normal-case">(tùy chọn)</span>
+                </span>
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none" />
+                  <Dropdown
+                    value={addedBy}
+                    onChange={setAddedBy}
+                    placeholder="Chọn AE người thêm..."
+                    options={[{ value: '', label: 'Chưa chọn' }, ...farmers.map((f) => ({ value: f.name, label: f.name }))]}
+                    ariaLabel="Người thêm"
                   />
                 </div>
               </label>
