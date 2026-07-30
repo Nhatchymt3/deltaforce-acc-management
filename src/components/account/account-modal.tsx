@@ -898,7 +898,9 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                       onSave={async (newUuid) => {
                         try {
                           const updated = await updateGameUuid(account.id, newUuid);
-                          onUpdated(updated);
+                          if (updated) {
+                            onUpdated(updated);
+                          }
                           showToast('Đã cập nhật UUID Game');
                         } catch (err) {
                           setError(err instanceof Error ? err.message : 'Lỗi cập nhật UUID Game');

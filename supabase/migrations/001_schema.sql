@@ -14,6 +14,7 @@ do $$ begin
   alter table accounts add column if not exists tag_label text;
   alter table accounts add column if not exists tag_expires_at timestamptz;
   alter table accounts add column if not exists created_at timestamptz not null default now();
+  alter table accounts add column if not exists game_uuid text;
 exception when others then null; end $$;
 
 -- ─── Enums ────────────────────────────────────────────────────
