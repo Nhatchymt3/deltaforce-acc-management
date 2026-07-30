@@ -264,8 +264,9 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
   const [images, setImages] = useState<Array<{ path: string; url: string }>>([]);
 
   useEffect(() => {
-    if (account.target_milestone_id) {
-      const target = milestones.find(m => m.id === account.target_milestone_id);
+    if (milestones.length > 0) {
+      const sorted = [...milestones].sort((a, b) => a.level - b.level);
+      const target = sorted.find((m) => m.id === account.target_milestone_id) ?? sorted[sorted.length - 1];
       if (target) {
         setDeliverLevel(String(target.level));
         setDeliverPrice(target.price);
