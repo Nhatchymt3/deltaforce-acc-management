@@ -48,6 +48,27 @@ function normaliseHolder(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+function formatTimeAgo(iso: string | null | undefined): string {
+  if (!iso) return '';
+  const date = new Date(iso);
+  const diffMs = Date.now() - date.getTime();
+  if (diffMs < 0) return 'vừa xong';
+
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHour / 24);
+  const diffMonth = Math.floor(diffDay / 30);
+  const diffYear = Math.floor(diffDay / 365);
+
+  if (diffSec < 60) return 'vừa xong';
+  if (diffMin < 60) return `${diffMin}m trước`;
+  if (diffHour < 24) return `${diffHour}h trước`;
+  if (diffDay < 30) return `${diffDay}d trước`;
+  if (diffMonth < 12) return `${diffMonth} tháng trước`;
+  return `${diffYear} năm trước`;
+}
+
 function isLocked(status: Account['status']): boolean {
   return (LOCKED_STATUSES as unknown as string[]).includes(status);
 }
@@ -157,12 +178,19 @@ function Card({ account, targetMilestone, onOpen, index }: CardProps) {
             <span className="text-xs text-gray-400">{account.current_holder}</span>
           </div>
         )}
-        <div className="mt-1.5 flex items-center gap-3 text-[11px] text-ash font-mono">
-          {targetMilestone
-            ? <span className="text-brass/80">LV{targetMilestone.level}–{targetMilestone.price}M</span>
-            : <span className="text-ash/50">—</span>}
-          {account.added_by && (
-            <span className="text-ash/60">↳ {account.added_by}</span>
+        <div className="mt-[7px] flex items-center justify-between text-[11px] text-ash font-mono">
+          <div className="flex items-center gap-2">
+            {targetMilestone
+              ? <span className="text-brass/90 font-semibold">LV{targetMilestone.level}–{targetMilestone.price}M</span>
+              : <span className="text-ash/50">—</span>}
+            {account.added_by && (
+              <span className="text-ash/60 truncate max-w-[80px]">↳ {account.added_by}</span>
+            )}
+          </div>
+          {account.created_at && (
+            <span className="text-[10px] text-ash/50 font-sans font-medium flex-shrink-0" title={new Date(account.created_at).toLocaleString('vi-VN')}>
+              {formatTimeAgo(account.created_at)}
+            </span>
           )}
         </div>
         {(() => {
