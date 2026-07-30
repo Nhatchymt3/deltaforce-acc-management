@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { BoardWrapper } from '@/components/board/board-wrapper';
 import { calculateFinance } from '@/lib/finance';
 import type { Account, HolderSession, Milestone, Source } from '@/lib/types';
@@ -63,6 +64,29 @@ export default async function HomePage() {
 
   const serialisedSources = (sources ?? []) as Source[];
   const serialisedFarmers = (farmers ?? []) as { id: string; name: string }[];
+
+  // Auto-sync: If an account has a current_holder string not in valid farmers,
+  // sync it to the active farmer name so no account is left behind.
+  const validFarmerNames = new Set(serialisedFarmers.map((f) => f.name.trim().toLowerCase()));
+  if (serialisedFarmers.length > 0) {
+    const defaultFarmerName = serialisedFarmers[0].name;
+    const admin = createAdminClient();
+    let needsUpdate = false;
+
+    serialisedAccounts.forEach((acc) => {
+      if (acc.current_holder && !validFarmerNames.has(acc.current_holder.trim().toLowerCase())) {
+        acc.current_holder = defaultFarmerName;
+        needsUpdate = true;
+      }
+    });
+
+    if (needsUpdate) {
+      await admin
+        .from('accounts')
+        .update({ current_holder: defaultFarmerName })
+        .not('current_holder', 'is', null);
+    }
+  }
 
   // Per-holder revenue (VND string) from paid accounts, split equally among the
   // holders that ever cầm each acc — same rule the finance page uses.
