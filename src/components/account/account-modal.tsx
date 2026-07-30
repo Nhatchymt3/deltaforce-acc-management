@@ -217,12 +217,10 @@ function MilestoneBadge({
   milestone,
   isTarget,
   onSave,
-  onDelete,
 }: {
   milestone: Milestone;
   isTarget: boolean;
   onSave: (id: string, level: number, price: string) => Promise<void>;
-  onDelete?: (id: string) => Promise<void>;
 }) {
   const [editing, setEditing] = useState(false);
   const [level, setLevel] = useState(String(milestone.level));
@@ -317,17 +315,6 @@ function MilestoneBadge({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
         </button>
-        {onDelete && (
-          <button
-            onClick={() => void onDelete(milestone.id)}
-            className="rounded-lg p-1 text-slate-400 hover:text-red-400 hover:bg-red-500/10 opacity-60 group-hover/badge:opacity-100 transition-all"
-            title="Xóa mốc này"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
-        )}
       </div>
     </div>
   );
@@ -766,14 +753,6 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                                 showToast('Đã cập nhật mốc');
                               } catch (err) {
                                 setError(err instanceof Error ? err.message : 'Lỗi cập nhật mốc');
-                              }
-                            }}
-                            onDelete={async (id) => {
-                              try {
-                                await deleteMilestone(id);
-                                showToast('Đã xóa mốc');
-                              } catch (err) {
-                                setError(err instanceof Error ? err.message : 'Lỗi xóa mốc');
                               }
                             }}
                           />
