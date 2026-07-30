@@ -8,13 +8,13 @@
 -- 001–008 migration chain.
 -- ============================================================
 
--- ─── Clean Up Existing Data / Reset Database ──────────────────
-drop table if exists holder_sessions cascade;
-drop table if exists account_milestones cascade;
-drop table if exists accounts cascade;
-drop table if exists farmers cascade;
-drop table if exists sources cascade;
-drop type if exists account_status cascade;
+-- ─── Safe Add Columns (Non-destructive migration) ──────────────
+do $$ begin
+  alter table accounts add column if not exists added_by text;
+  alter table accounts add column if not exists tag_label text;
+  alter table accounts add column if not exists tag_expires_at timestamptz;
+  alter table accounts add column if not exists created_at timestamptz not null default now();
+exception when others then null; end $$;
 
 -- ─── Enums ────────────────────────────────────────────────────
 do $$ begin
