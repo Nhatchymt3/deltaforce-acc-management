@@ -601,10 +601,11 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <section
-          className="mx-auto mt-8 gap-4 px-6 pb-8"
+          className="mx-auto mt-8 gap-4 px-6 pb-8 overflow-x-auto"
           style={{
             display: 'grid',
-            gridTemplateColumns: `300px repeat(${Math.max(holderColumns.length, 1)}, minmax(270px, 1fr))`,
+            gridAutoFlow: 'column',
+            gridAutoColumns: '300px',
           }}
         >
           <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
