@@ -173,16 +173,16 @@ function CredentialField({ label, value, isPassword = false, onSave }: Credentia
 
   if (editing && onSave) {
     return (
-      <div className="rounded-lg border border-brass/40 bg-midnight p-2.5">
-        <div className="text-[11px] font-medium uppercase tracking-wide text-ash mb-1">
+      <div className="rounded-lg border border-brass/40 bg-midnight p-2.5 space-y-1.5 min-w-0">
+        <div className="text-[11px] font-medium uppercase tracking-wide text-ash">
           {label}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 min-w-0">
           <input
             type="text"
             value={editVal}
             onChange={(e) => setEditVal(e.target.value)}
-            className="flex-1 rounded border border-white/[0.06] bg-midnight px-2.5 py-1 text-xs text-white font-mono focus:border-brass/40 focus:outline-none"
+            className="w-full min-w-0 flex-1 rounded border border-white/[0.06] bg-gunmetal px-2 py-1 text-xs text-white font-mono focus:border-brass/40 focus:outline-none"
             placeholder={`Nhập ${label.toLowerCase()}...`}
             autoFocus
           />
@@ -199,7 +199,7 @@ function CredentialField({ label, value, isPassword = false, onSave }: Credentia
               }
             }}
             disabled={loading}
-            className="rounded bg-brass px-2.5 py-1 text-xs font-semibold text-midnight hover:bg-brass/90 disabled:opacity-50 transition-colors"
+            className="shrink-0 rounded bg-brass px-2 py-1 text-xs font-bold text-midnight hover:bg-brass/90 disabled:opacity-50 transition-colors"
           >
             {loading ? '...' : 'Lưu'}
           </button>
@@ -208,7 +208,7 @@ function CredentialField({ label, value, isPassword = false, onSave }: Credentia
               setEditVal(value);
               setEditing(false);
             }}
-            className="rounded border border-white/[0.06] px-2 py-1 text-xs text-ash hover:text-white transition-colors"
+            className="shrink-0 rounded border border-white/[0.06] bg-midnight px-1.5 py-1 text-xs text-ash hover:text-white transition-colors"
           >
             Hủy
           </button>
