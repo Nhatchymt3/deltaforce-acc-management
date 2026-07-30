@@ -276,7 +276,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [sessions] = useState<HolderSession[]>(initialSessions);
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
-  const [filter, setFilter] = useState<string>('Tất cả');
+  const [filter, setFilter] = useState<string>('all');
   const [activeAccount, setActiveAccount] = useState<Account | null>(null);
   const [mounted, setMounted] = useState(false);
   const { toasts, addToast } = useToast();
@@ -306,8 +306,11 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     return map;
   }, [milestones]);
 
-  const availableSources = useMemo(() => {
-    return ['Tất cả', ...initialSources.map((s) => s.name)];
+  const sourceFilterOptions = useMemo(() => {
+    return [
+      { value: 'all', label: 'Tất cả nguồn' },
+      ...initialSources.map((s) => ({ value: s.id, label: s.name })),
+    ];
   }, [initialSources]);
 
   const revenueByNormHolder = useMemo(() => {
@@ -472,7 +475,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const filtered = accounts.filter(
     (a) =>
       a.status !== 'da_nhan_tien' &&
-      (filter === 'Tất cả' || (a.sourceName ?? sourceMap[a.source] ?? a.source) === filter)
+      (filter === 'all' || a.source === filter)
   );
 
   const khoAccounts = filtered.filter((a) => a.status === 'kho' && !a.current_holder);
@@ -544,7 +547,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             <Dropdown
               value={filter}
               onChange={setFilter}
-              options={availableSources.map((s) => ({ value: s, label: s }))}
+              options={sourceFilterOptions}
               size="sm"
               ariaLabel="Lọc theo nguồn"
             />
