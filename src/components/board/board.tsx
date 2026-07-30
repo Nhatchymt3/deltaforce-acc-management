@@ -479,15 +479,17 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   );
 
   const khoAccounts = filtered.filter((a) => a.status === 'kho' && !a.current_holder);
-  const holderColumns = allFarmers.map((f) => ({
-    id: f.id,
-    label: farmerMap[f.id] ?? f.name,
-    accounts: filtered.filter(
-      (a) =>
-        a.current_holder &&
-        (a.current_holder === f.id || normaliseHolder(a.current_holder) === normaliseHolder(f.name))
-    ),
-  }));
+  const holderColumns = allFarmers
+    .map((f) => ({
+      id: f.id,
+      label: farmerMap[f.id] ?? f.name,
+      accounts: filtered.filter(
+        (a) =>
+          a.current_holder &&
+          (a.current_holder === f.id || normaliseHolder(a.current_holder) === normaliseHolder(f.name))
+      ),
+    }))
+    .filter((col) => col.accounts.length > 0);
 
   return (
     <div className={`relative min-h-screen text-white transition-all duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
