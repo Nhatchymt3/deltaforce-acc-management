@@ -11,6 +11,7 @@ export default async function HomePage() {
     { data: sessions },
     { data: milestones },
     { data: sources },
+    { data: farmers },
     { data: paidAccounts },
   ] = await Promise.all([
     supabase
@@ -28,6 +29,10 @@ export default async function HomePage() {
       .order('level'),
     supabase
       .from('sources')
+      .select('id, name')
+      .order('name'),
+    supabase
+      .from('farmers')
       .select('id, name')
       .order('name'),
     // Paid accounts carry the revenue (amount_received). They are excluded from
@@ -57,6 +62,7 @@ export default async function HomePage() {
   })) as Milestone[];
 
   const serialisedSources = (sources ?? []) as Source[];
+  const serialisedFarmers = (farmers ?? []) as { id: string; name: string }[];
 
   // Per-holder revenue (VND string) from paid accounts, split equally among the
   // holders that ever cầm each acc — same rule the finance page uses.
@@ -88,6 +94,7 @@ export default async function HomePage() {
       initialSessions={serialisedSessions}
       initialMilestones={serialisedMilestones}
       initialSources={serialisedSources}
+      initialFarmers={serialisedFarmers}
       holderRevenue={holderRevenue}
     />
   );

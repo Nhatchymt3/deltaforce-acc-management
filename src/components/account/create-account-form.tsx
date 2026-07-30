@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createAccountWithMilestones } from '@/app/actions/accounts';
-import type { Source } from '@/lib/types';
+import type { Source, Farmer } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
 
 interface ParsedAccount {
@@ -20,6 +20,7 @@ interface MilestoneInput {
 
 interface CreateAccountFormProps {
   sources: Source[];
+  farmers: Farmer[];
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -40,7 +41,7 @@ function parseAccountsInput(input: string): ParsedAccount[] {
   });
 }
 
-export function CreateAccountForm({ sources, onSuccess, onCancel }: CreateAccountFormProps) {
+export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: CreateAccountFormProps) {
   const [accountsInput, setAccountsInput] = useState('');
   const [source, setSource] = useState(sources[0]?.id ?? '');
   const [initialHolder, setInitialHolder] = useState('');
@@ -302,13 +303,16 @@ export function CreateAccountForm({ sources, onSuccess, onCancel }: CreateAccoun
                 <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400">
                   AE nhận ban đầu <span className="text-slate-600 normal-case">(tùy chọn)</span>
                 </span>
-                <input
-                  type="text"
-                  value={initialHolder}
-                  onChange={(e) => setInitialHolder(e.target.value)}
-                  placeholder="Bỏ trống = vào Kho chung"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-white placeholder-slate-500 focus:border-cyan-400/30 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all"
-                />
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none" />
+                  <Dropdown
+                    value={initialHolder}
+                    onChange={setInitialHolder}
+                    placeholder="Bỏ trống = vào Kho chung"
+                    options={[{ value: '', label: 'Vào Kho chung' }, ...farmers.map((f) => ({ value: f.name, label: f.name }))]}
+                    ariaLabel="AE nhận"
+                  />
+                </div>
               </label>
 
               {/* Milestones */}
