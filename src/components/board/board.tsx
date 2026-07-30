@@ -22,7 +22,7 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { moveAccount } from '@/app/actions/accounts';
 import { signOut } from '@/app/actions/auth';
-import type { Account, HolderSession, Milestone, Source } from '@/lib/types';
+import type { Account, HolderSession, Milestone, Source, Farmer } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
 
 const KHO_SENTINEL = '__kho__';
@@ -260,41 +260,33 @@ interface BoardProps {
   initialSessions: HolderSession[];
   initialSources: Source[];
   initialMilestones: Milestone[];
+  initialFarmers: Farmer[];
   holderRevenue: Record<string, string>;
   deletedIds: string[];
   onOpenAccount: (account: Account) => void;
   onRealtimeAccountUpdate?: (account: Account) => void;
 }
 
-export function Board({ initialAccounts, initialSessions, initialSources, initialMilestones, holderRevenue, deletedIds, onOpenAccount, onRealtimeAccountUpdate }: BoardProps) {
+export function Board({ initialAccounts, initialSessions, initialSources, initialMilestones, initialFarmers, holderRevenue, deletedIds, onOpenAccount, onRealtimeAccountUpdate }: BoardProps) {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [sessions] = useState<HolderSession[]>(initialSessions);
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
   const [filter, setFilter] = useState<string>('Tất cả');
-  const [aeInput, setAeInput] = useState('');
-  const [aeColumns, setAeColumns] = useState<string[]>([]);
   const [activeAccount, setActiveAccount] = useState<Account | null>(null);
   const [mounted, setMounted] = useState(false);
   const { toasts, addToast } = useToast();
 
-  const AE_STORAGE_KEY = 'deltaforce.aeColumns';
-
   const snapshotRef = useRef<Account[]>(initialAccounts);
 
-  // Keep the latest realtime callback in a ref so the subscription effect can
-  // stay mounted once (empty deps) without capturing a stale closure.
   const realtimeUpdateRef = useRef(onRealtimeAccountUpdate);
   realtimeUpdateRef.current = onRealtimeAccountUpdate;
 
-  // Source names map
   const sourceMap = useMemo(() => {
     const map: Record<string, string> = {};
     initialSources.forEach((s) => { map[s.id] = s.name; });
     return map;
   }, [initialSources]);
 
-  // Milestones grouped by account id, sorted ascending by level. Used to pick
-  // the farming milestone shown on each card.
   const milestonesByAccount = useMemo(() => {
     const map: Record<string, Milestone[]> = {};
     milestones.forEach((m) => {
@@ -304,13 +296,10 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     return map;
   }, [milestones]);
 
-  // Derive sources for filter dropdown
   const availableSources = useMemo(() => {
     return ['Tất cả', ...initialSources.map((s) => s.name)];
   }, [initialSources]);
 
-  // Per-holder revenue keyed by normalised name, so lookups line up with the
-  // deduped holder list regardless of stray whitespace differences.
   const revenueByNormHolder = useMemo(() => {
     const map: Record<string, number> = {};
     Object.entries(holderRevenue).forEach(([holder, total]) => {
@@ -319,25 +308,24 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     return map;
   }, [holderRevenue]);
 
-  // Derive holders, then order by revenue (desc); ties break alphabetically
-  // (a→z) using a locale-aware Vietnamese comparison.
   const allHolders = useMemo(() => {
     const seen = new Map<string, string>();
-    aeColumns.forEach((h) => seen.set(normaliseHolder(h), h));
+    if (initialFarmers) {
+      initialFarmers.forEach((f) => seen.set(normaliseHolder(f.name), f.name));
+    }
     accounts.forEach((a) => {
       if (a.current_holder) seen.set(normaliseHolder(a.current_holder), a.current_holder);
     });
     sessions.forEach((s) => seen.set(normaliseHolder(s.holder_name), s.holder_name));
+    
     return Array.from(seen.values()).sort((a, b) => {
       const revA = revenueByNormHolder[normaliseHolder(a)] ?? 0;
       const revB = revenueByNormHolder[normaliseHolder(b)] ?? 0;
       if (revA !== revB) return revB - revA;
       return a.localeCompare(b, 'vi', { sensitivity: 'base' });
     });
-  }, [accounts, sessions, aeColumns, revenueByNormHolder]);
+  }, [accounts, sessions, initialFarmers, revenueByNormHolder]);
 
-  // Prune accounts deleted from the wrapper. Board keeps its own accounts
-  // state, so a delete performed in the modal must be bridged here explicitly.
   useEffect(() => {
     if (deletedIds.length === 0) return;
     const gone = new Set(deletedIds);
@@ -346,89 +334,12 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
   useEffect(() => {
     setMounted(true);
-    try {
-      const stored = localStorage.getItem(AE_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          setAeColumns(parsed.filter((x) => typeof x === 'string'));
-        }
-      }
-    } catch {
-      // ignore malformed storage
-    }
   }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    try {
-      localStorage.setItem(AE_STORAGE_KEY, JSON.stringify(aeColumns));
-    } catch {
-      // ignore storage write failures
-    }
-  }, [aeColumns, mounted]);
-
-  // Persist AEs that first appear via an assigned acc or a past session. Without
-  // this they only live as derived columns and vanish once their accounts leave
-  // (moved away or paid → filtered off the board). Merging them into the saved
-  // aeColumns list keeps every AE column sticky across reloads.
-  useEffect(() => {
-    if (!mounted) return;
-    setAeColumns((prev) => {
-      const known = new Set(prev.map((h) => normaliseHolder(h)));
-      const additions: string[] = [];
-      accounts.forEach((a) => {
-        if (a.current_holder) {
-          const norm = normaliseHolder(a.current_holder);
-          if (!known.has(norm)) {
-            known.add(norm);
-            additions.push(a.current_holder);
-          }
-        }
-      });
-      sessions.forEach((s) => {
-        const norm = normaliseHolder(s.holder_name);
-        if (!known.has(norm)) {
-          known.add(norm);
-          additions.push(s.holder_name);
-        }
-      });
-      return additions.length === 0 ? prev : [...prev, ...additions];
-    });
-  }, [accounts, sessions, mounted]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
   );
-
-  function addAeColumn() {
-    const raw = aeInput.trim();
-    if (!raw) {
-      addToast('Nhập tên AE trước khi thêm', 'error');
-      return;
-    }
-    const norm = normaliseHolder(raw);
-    if (allHolders.some((h) => normaliseHolder(h) === norm)) {
-      addToast('AE này đã tồn tại', 'error');
-      return;
-    }
-    setAeColumns((prev) => [...prev, raw]);
-    setAeInput('');
-    addToast(`Đã thêm cột AE "${raw}"`, 'success');
-  }
-
-  function removeAeColumn(holder: string) {
-    const norm = normaliseHolder(holder);
-    const hasAccounts = accounts.some(
-      (a) => a.current_holder && normaliseHolder(a.current_holder) === norm
-    );
-    if (hasAccounts) {
-      addToast('Không thể xóa cột AE đang có acc', 'error');
-      return;
-    }
-    setAeColumns((prev) => prev.filter((h) => normaliseHolder(h) !== norm));
-  }
 
   function onDragStart({ active }: DragStartEvent) {
     snapshotRef.current = accounts;
@@ -478,7 +389,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     }
   }
 
-  // Realtime subscription
   useEffect(() => {
     let cleanup: (() => void) | undefined;
 
@@ -542,9 +452,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     return () => cleanup?.();
   }, []);
 
-  // Filtered accounts. Accounts that have received money are archived and no
-  // longer belong on the working board (see /archive), so drop them here — this
-  // covers initial load, realtime "pay" updates, and drag alike.
   const filtered = accounts.filter(
     (a) =>
       a.status !== 'da_nhan_tien' &&
@@ -560,18 +467,15 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
   return (
     <div className={`relative min-h-screen text-white transition-all duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-      {/* Animated gradient background */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/60 to-slate-950" />
         <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-cyan-500/8 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite]" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-violet-500/8 rounded-full blur-[120px] animate-[pulse_10s_ease-in-out_infinite]" style={{ animationDelay: '3s' }} />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[150px] animate-[pulse_12s_ease-in-out_infinite]" style={{ animationDelay: '6s' }} />
-        {/* Stars & Noise */}
         <div className="stars-bg absolute inset-0" />
         <div className="noise-overlay" />
       </div>
 
-      {/* Toast notifications */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
         {toasts.map((t) => (
           <div
@@ -604,7 +508,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         ))}
       </div>
 
-      {/* Header */}
       <header className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 pt-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">
@@ -615,7 +518,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           </h1>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          {/* Source filter */}
           <div className="relative group min-w-[160px]">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity pointer-events-none" />
             <Dropdown
@@ -627,27 +529,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             />
           </div>
 
-          {/* AE input */}
-          <div className="flex items-center gap-2">
-            <input
-              value={aeInput}
-              onChange={(e) => setAeInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && addAeColumn()}
-              placeholder="Tên AE mới"
-              className="w-40 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-cyan-400/30 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all"
-            />
-            <button
-              onClick={addAeColumn}
-              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 hover:from-cyan-400 hover:to-blue-400 hover:shadow-cyan-500/40 transition-all duration-200 hover:scale-105 active:scale-95"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
-              AE
-            </button>
-          </div>
-
-          {/* Finance link */}
           <Link
             href="/finance"
             className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all"
@@ -658,7 +539,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             </svg>
           </Link>
 
-          {/* Archive link */}
           <Link
             href="/archive"
             className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all"
@@ -669,7 +549,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             </svg>
           </Link>
 
-          {/* Farmers link */}
           <Link
             href="/farmers"
             className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all"
@@ -680,7 +559,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             </svg>
           </Link>
 
-          {/* Settings link */}
           <Link
             href="/sources"
             className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all"
@@ -692,7 +570,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             </svg>
           </Link>
 
-          {/* Logout button */}
           <form action={signOut}>
             <button
               type="submit"
@@ -707,7 +584,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         </div>
       </header>
 
-      {/* Kanban board */}
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <section
           className="mx-auto mt-8 gap-4 px-6 pb-8"
@@ -725,16 +601,10 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               accounts={col.accounts}
               milestonesByAccount={milestonesByAccount}
               onOpen={onOpenAccount}
-              onRemove={
-                aeColumns.some((h) => normaliseHolder(h) === normaliseHolder(col.id))
-                  ? () => removeAeColumn(col.id)
-                  : undefined
-              }
             />
           ))}
         </section>
 
-        {/* Drag overlay */}
         {typeof document !== 'undefined' &&
           createPortal(
             <DragOverlay>

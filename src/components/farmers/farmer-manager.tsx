@@ -49,9 +49,9 @@ export function FarmerManager({ initialFarmers }: { initialFarmers: Farmer[] }) 
       const created = await createFarmer(trimmed);
       setFarmers((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
       setNewName('');
-      addToast(`Đã thêm nguồn "${created.name}"`, 'success');
+      addToast(`Đã thêm AE "${created.name}"`, 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Lỗi khi thêm nguồn', 'error');
+      addToast(err instanceof Error ? err.message : 'Lỗi khi thêm AE', 'error');
     } finally {
       setLoading(null);
     }
@@ -68,7 +68,7 @@ export function FarmerManager({ initialFarmers }: { initialFarmers: Farmer[] }) 
       );
       setEditingId(null);
       setEditingName('');
-      addToast('Đã cập nhật nguồn', 'success');
+      addToast('Đã cập nhật AE', 'success');
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Lỗi khi cập nhật', 'error');
     } finally {
@@ -82,9 +82,9 @@ export function FarmerManager({ initialFarmers }: { initialFarmers: Farmer[] }) 
       await deleteFarmer(id);
       setFarmers((prev) => prev.filter((s) => s.id !== id));
       setDeletingId(null);
-      addToast('Đã xóa nguồn', 'success');
+      addToast('Đã xóa AE', 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Không thể xóa nguồn này', 'error');
+      addToast(err instanceof Error ? err.message : 'Không thể xóa AE này', 'error');
     } finally {
       setLoading(null);
     }
@@ -98,7 +98,7 @@ export function FarmerManager({ initialFarmers }: { initialFarmers: Farmer[] }) 
           <svg className="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
-          Quản lý nguồn tài khoản
+          Quản lý danh sách AE
         </h2>
 
         {/* Add new Farmer */}
@@ -108,7 +108,7 @@ export function FarmerManager({ initialFarmers }: { initialFarmers: Farmer[] }) 
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && void handleCreate()}
-            placeholder="Tên nguồn mới..."
+            placeholder="Tên AE mới..."
             className="flex-1 rounded-xl border border-white/10 bg-white/5 backdrop-blur px-4 py-2.5 text-white placeholder-slate-500 focus:border-cyan-400/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 transition-all"
           />
           <button
@@ -207,7 +207,7 @@ export function FarmerManager({ initialFarmers }: { initialFarmers: Farmer[] }) 
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-white">Xóa nguồn?</h3>
+                <h3 className="font-semibold text-white">Xóa AE?</h3>
                 <p className="text-sm text-slate-400">Hành động này không thể hoàn tác.</p>
               </div>
             </div>

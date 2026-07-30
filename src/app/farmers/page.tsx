@@ -6,8 +6,8 @@ import Link from 'next/link';
 
 export default async function FarmersPage() {
   const supabase = await createClient();
-  const { data: Farmers } = await supabase
-    .from('Farmers')
+  const { data: farmers } = await supabase
+    .from('farmers')
     .select('id, name')
     .order('name');
 
@@ -39,9 +39,9 @@ export default async function FarmersPage() {
                 DeltaForce
               </p>
             </div>
-            <h1 className="text-3xl font-bold text-white">Quản lý nguồn</h1>
+            <h1 className="text-3xl font-bold text-white">Quản lý AE</h1>
             <p className="mt-1 text-sm text-slate-400">
-              Thêm, sửa, xóa nguồn tài khoản
+              Thêm, sửa, xóa tên AE cày thuê
             </p>
           </div>
           <form action={signOut}>
@@ -57,7 +57,7 @@ export default async function FarmersPage() {
           </form>
         </div>
 
-        <FarmerManager initialFarmers={(Farmers ?? []) as Farmer[]} />
+        <FarmerManager initialFarmers={(farmers ?? []) as Farmer[]} />
       </div>
     </div>
   );
