@@ -221,96 +221,109 @@ function MilestoneBadge({
 }: {
   milestone: Milestone;
   isTarget: boolean;
-  onSave: (id: string, level: number, price: string) => Promise<void>;
+  onSave: (id: string, level: number, price: string, note?: string | null) => Promise<void>;
 }) {
   const [editing, setEditing] = useState(false);
   const [level, setLevel] = useState(String(milestone.level));
   const [price, setPrice] = useState(milestone.price);
+  const [note, setNote] = useState(milestone.note ?? '');
   const [loading, setLoading] = useState(false);
 
   if (editing) {
     return (
-      <div className="flex items-center gap-1.5 rounded-lg border border-brass/40 bg-midnight p-1.5">
-        <input
-          type="number"
-          value={level}
-          onChange={(e) => setLevel(e.target.value)}
-          placeholder="Lv"
-          className="w-14 rounded border border-white/[0.06] bg-midnight px-2 py-0.5 text-xs text-white font-mono focus:outline-none"
-        />
-        <input
-          type="number"
-          step="any"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="Tiền"
-          className="w-16 rounded border border-white/[0.06] bg-midnight px-2 py-0.5 text-xs text-white font-mono focus:outline-none"
-        />
-        <button
-          onClick={async () => {
-            if (!level || !price) return;
-            setLoading(true);
-            try {
-              await onSave(milestone.id, parseInt(level, 10), price);
+      <div className="flex flex-col gap-2 rounded-lg border border-brass/40 bg-midnight p-2">
+        <div className="flex items-center gap-1.5">
+          <input
+            type="number"
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+            placeholder="Lv"
+            className="w-14 rounded border border-white/[0.06] bg-midnight px-2 py-0.5 text-xs text-white font-mono focus:outline-none"
+          />
+          <input
+            type="number"
+            step="any"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="Tiền"
+            className="w-20 rounded border border-white/[0.06] bg-midnight px-2 py-0.5 text-xs text-white font-mono focus:outline-none"
+          />
+          <button
+            onClick={async () => {
+              if (!level || !price) return;
+              setLoading(true);
+              try {
+                await onSave(milestone.id, parseInt(level, 10), price, note.trim() || null);
+                setEditing(false);
+              } catch {
+                // error handled outside
+              } finally {
+                setLoading(false);
+              }
+            }}
+            disabled={loading || !level || !price}
+            className="rounded bg-brass px-2.5 py-0.5 text-xs font-semibold text-midnight hover:bg-brass/90 disabled:opacity-50 transition-colors"
+          >
+            {loading ? '...' : 'Lưu'}
+          </button>
+          <button
+            onClick={() => {
+              setLevel(String(milestone.level));
+              setPrice(milestone.price);
+              setNote(milestone.note ?? '');
               setEditing(false);
-            } catch {
-              // error handled outside
-            } finally {
-              setLoading(false);
-            }
-          }}
-          disabled={loading || !level || !price}
-          className="rounded-lg bg-green-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-green-500 disabled:opacity-50 transition-colors"
-        >
-          {loading ? '...' : 'Lưu'}
-        </button>
-        <button
-          onClick={() => {
-            setLevel(String(milestone.level));
-            setPrice(milestone.price);
-            setEditing(false);
-          }}
-          className="rounded-lg border border-white/10 px-2 py-1 text-xs text-slate-400 hover:bg-white/5 transition-colors"
-        >
-          Hủy
-        </button>
+            }}
+            className="rounded border border-white/[0.06] px-2 py-0.5 text-xs text-ash hover:text-white transition-colors"
+          >
+            Hủy
+          </button>
+        </div>
+        <input
+          type="text"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Chú thích / Ghi chú..."
+          className="w-full rounded border border-white/[0.06] bg-midnight px-2 py-1 text-xs text-white placeholder-ash/40 focus:outline-none focus:border-brass/40"
+        />
       </div>
     );
   }
 
   return (
     <div
-      className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm transition-all duration-200 group/badge ${
+      className={`flex items-center justify-between rounded-lg border px-3 py-2 text-xs transition-all duration-200 group/badge ${
         isTarget
-          ? 'border-cyan-400/40 bg-gradient-to-r from-cyan-950/60 to-violet-950/60 shadow-lg shadow-cyan-500/10'
-          : 'border-white/5 bg-white/[0.03]'
+          ? 'border-brass/40 bg-brass/10'
+          : 'border-white/[0.04] bg-midnight/50'
       }`}
     >
-      <div className="flex items-center gap-2">
-        {isTarget && (
-          <div className="w-5 h-5 rounded-full bg-cyan-400/20 flex items-center justify-center">
-            <svg className="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-        )}
-        <div>
-          <span className="font-semibold bg-gradient-to-r from-cyan-300 to-violet-300 bg-clip-text text-transparent">
+      <div className="flex flex-col min-w-0 pr-2">
+        <div className="flex items-center gap-2">
+          {isTarget && (
+            <div className="w-4 h-4 rounded-full bg-brass/20 flex items-center justify-center flex-shrink-0">
+              <svg className="w-2.5 h-2.5 text-brass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          )}
+          <span className="font-mono font-semibold text-brass">
             {formatMilestone(milestone)}
           </span>
-          {milestone.note && (
-            <span className="ml-2 text-xs text-slate-500">{milestone.note}</span>
-          )}
         </div>
+        {milestone.note && (
+          <span className="text-[11px] text-ash/80 truncate mt-0.5">
+            📝 {milestone.note}
+          </span>
+        )}
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 flex-shrink-0">
         {isTarget && (
-          <span className="text-xs font-medium text-cyan-400/60 mr-1">Mốc giao</span>
+          <span className="text-[10px] font-semibold uppercase text-brass/70 mr-1">Mốc giao</span>
         )}
         <button
           onClick={() => setEditing(true)}
-          className="rounded-lg p-1 text-slate-400 hover:text-cyan-400 hover:bg-white/10 opacity-60 group-hover/badge:opacity-100 transition-all"
-          title="Chỉnh sửa mốc"
+          className="rounded p-1 text-ash hover:text-white hover:bg-white/10 opacity-60 group-hover/badge:opacity-100 transition-all"
+          title="Chỉnh sửa mốc & chú thích"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -751,10 +764,10 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                             key={m.id}
                             milestone={m}
                             isTarget={m.id === account.target_milestone_id}
-                            onSave={async (id, level, price) => {
+                            onSave={async (id, level, price, note) => {
                               try {
-                                await updateMilestone(id, level, price);
-                                showToast('Đã cập nhật mốc');
+                                await updateMilestone(id, level, price, note);
+                                showToast('Đã cập nhật mốc & chú thích');
                               } catch (err) {
                                 setError(err instanceof Error ? err.message : 'Lỗi cập nhật mốc');
                               }

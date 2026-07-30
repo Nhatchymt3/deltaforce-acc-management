@@ -430,11 +430,11 @@ export async function ensureMilestone(accountId: string, level: number, price: s
   return inserted.id;
 }
 
-export async function updateMilestone(id: string, level: number, price: string): Promise<Milestone> {
+export async function updateMilestone(id: string, level: number, price: string, note?: string | null): Promise<Milestone> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('account_milestones')
-    .update({ level, price })
+    .update({ level, price, note: note ?? null })
     .eq('id', id)
     .select('*')
     .single();
