@@ -317,6 +317,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const [filter, setFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<'default' | 'newest' | 'oldest'>('default');
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [activeAccount, setActiveAccount] = useState<Account | null>(null);
   const [mounted, setMounted] = useState(false);
   const { toasts, addToast } = useToast();
@@ -382,6 +383,21 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
     return list;
   }, [accounts, initialFarmers]);
+
+  const leaderboardItems = useMemo(() => {
+    const map: Record<string, { name: string; total: number; count: number }> = {};
+
+    allFarmers.forEach((f) => {
+      const norm = normaliseHolder(f.name);
+      map[norm] = {
+        name: f.name,
+        total: revenueByNormHolder[norm] ?? 0,
+        count: accounts.filter((a) => a.current_holder && normaliseHolder(a.current_holder) === norm).length,
+      };
+    });
+
+    return Object.values(map).sort((a, b) => b.total - a.total);
+  }, [allFarmers, revenueByNormHolder, accounts]);
 
   useEffect(() => {
     if (deletedIds.length === 0) return;
@@ -652,6 +668,22 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             />
           </div>
 
+          {/* Leaderboard Popup Toggle */}
+          <button
+            onClick={() => setShowLeaderboard(!showLeaderboard)}
+            className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition-all ${
+              showLeaderboard
+                ? 'border-brass bg-brass text-midnight shadow-lg shadow-brass/20'
+                : 'border-white/[0.06] bg-gunmetal/60 text-brass hover:border-brass/30'
+            }`}
+            title="Bảng xếp hạng cày tiền AE"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+            <span>BXH AE</span>
+          </button>
+
           {/* Finance link */}
           <Link
             href="/finance"
@@ -752,6 +784,107 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             document.body
           )}
       </DndContext>
+
+      {/* Leaderboard Popup Modal */}
+      {showLeaderboard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setShowLeaderboard(false)} />
+          <div className="relative z-10 w-full max-w-md rounded-xl border border-white/[0.08] bg-gunmetal p-5 shadow-2xl space-y-4">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded bg-brass/20 border border-brass/30 flex items-center justify-center">
+                  <span className="text-brass font-bold text-sm">🏆</span>
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-white text-base tracking-wide">Bảng Xếp Hạng AE</h3>
+                  <p className="text-[11px] text-ash">Xếp theo tổng doanh thu cày thuê</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowLeaderboard(false)}
+                className="rounded p-1 text-ash hover:text-white transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* List */}
+            <div className="max-h-80 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+              {leaderboardItems.length === 0 ? (
+                <div className="py-8 text-center text-ash/50 text-xs">Chưa có dữ liệu AE</div>
+              ) : (
+                leaderboardItems.map((item, index) => {
+                  const rank = index + 1;
+                  const isTop1 = rank === 1;
+                  const isTop2 = rank === 2;
+                  const isTop3 = rank === 3;
+
+                  return (
+                    <div
+                      key={item.name}
+                      className={`flex items-center justify-between rounded-lg border px-3.5 py-2.5 transition-all ${
+                        isTop1
+                          ? 'border-brass/50 bg-brass/15'
+                          : isTop2
+                          ? 'border-slate-400/30 bg-white/[0.04]'
+                          : isTop3
+                          ? 'border-amber-700/30 bg-amber-950/20'
+                          : 'border-white/[0.04] bg-midnight/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-6 h-6 rounded flex items-center justify-center font-mono font-bold text-xs ${
+                            isTop1
+                              ? 'bg-brass text-midnight shadow-md shadow-brass/30'
+                              : isTop2
+                              ? 'bg-slate-300 text-slate-900'
+                              : isTop3
+                              ? 'bg-amber-700 text-white'
+                              : 'bg-white/10 text-ash'
+                          }`}
+                        >
+                          {rank}
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-white flex items-center gap-1.5">
+                            {item.name}
+                            {isTop1 && <span className="text-xs">👑</span>}
+                          </p>
+                          <p className="text-[10px] text-ash/60 font-mono">Đang cày {item.count} acc</p>
+                        </div>
+                      </div>
+                      <span className={`font-mono text-sm font-bold ${isTop1 ? 'text-brass' : 'text-gray-200'}`}>
+                        {new Intl.NumberFormat('vi-VN').format(item.total)} đ
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Footer action */}
+            <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between">
+              <Link
+                href="/finance"
+                onClick={() => setShowLeaderboard(false)}
+                className="text-xs text-brass hover:underline flex items-center gap-1"
+              >
+                Xem chi tiết tài chính ➔
+              </Link>
+              <button
+                onClick={() => setShowLeaderboard(false)}
+                className="rounded-lg border border-white/[0.06] bg-midnight px-3.5 py-1.5 text-xs font-medium text-ash hover:text-white transition-colors"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
