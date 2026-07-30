@@ -23,6 +23,7 @@ export type Account = {
   added_by?: string | null;
   tag_label?: string | null;
   tag_expires_at?: string | null;
+  created_at?: string | null;
 };
 
 export type Milestone = {

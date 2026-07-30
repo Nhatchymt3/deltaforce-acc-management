@@ -296,6 +296,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const [sessions] = useState<HolderSession[]>(initialSessions);
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
   const [filter, setFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'default' | 'newest' | 'oldest'>('default');
   const [activeAccount, setActiveAccount] = useState<Account | null>(null);
   const [mounted, setMounted] = useState(false);
   const { toasts, addToast } = useToast();
@@ -491,17 +492,35 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     return () => cleanup?.();
   }, []);
 
-  const filtered = accounts.filter(
-    (a) =>
-      a.status !== 'da_nhan_tien' &&
-      (filter === 'all' || a.source === filter)
-  );
+  const sortedAccounts = useMemo(() => {
+    let list = accounts.filter(
+      (a) =>
+        a.status !== 'da_nhan_tien' &&
+        (filter === 'all' || a.source === filter)
+    );
 
-  const khoAccounts = filtered.filter((a) => a.status === 'kho' && !a.current_holder);
+    if (sortBy === 'newest') {
+      list = [...list].sort((a, b) => {
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return timeB - timeA;
+      });
+    } else if (sortBy === 'oldest') {
+      list = [...list].sort((a, b) => {
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return timeA - timeB;
+      });
+    }
+
+    return list;
+  }, [accounts, filter, sortBy]);
+
+  const khoAccounts = sortedAccounts.filter((a) => a.status === 'kho' && !a.current_holder);
   const holderColumns = allFarmers.map((f) => ({
     id: f.id,
     label: farmerMap[f.id] ?? f.name,
-    accounts: filtered.filter(
+    accounts: sortedAccounts.filter(
       (a) =>
         a.current_holder &&
         (a.current_holder === f.id || normaliseHolder(a.current_holder) === normaliseHolder(f.name))
@@ -569,6 +588,22 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               options={sourceFilterOptions}
               size="sm"
               ariaLabel="Lọc theo nguồn"
+            />
+          </div>
+
+          {/* Sort dropdown */}
+          <div className="relative group min-w-[170px]">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-400 to-cyan-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity pointer-events-none" />
+            <Dropdown
+              value={sortBy}
+              onChange={(val) => setSortBy(val as 'default' | 'newest' | 'oldest')}
+              options={[
+                { value: 'default', label: 'Sắp xếp: Mặc định' },
+                { value: 'newest', label: 'Sắp xếp: Mới nhất' },
+                { value: 'oldest', label: 'Sắp xếp: Cũ nhất' },
+              ]}
+              size="sm"
+              ariaLabel="Sắp xếp tài khoản"
             />
           </div>
 

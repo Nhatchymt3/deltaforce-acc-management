@@ -54,6 +54,7 @@ create table if not exists accounts (
   added_by            text,
   tag_label           text,
   tag_expires_at      timestamptz,
+  created_at          timestamptz not null default now(),
   version             integer not null default 0,
   updated_at          timestamptz not null default now()
 );

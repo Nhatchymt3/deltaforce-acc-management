@@ -651,6 +651,11 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                         • Thêm bởi: <strong className="text-slate-200 font-medium">{account.added_by}</strong>
                       </span>
                     )}
+                    {account.created_at && (
+                      <span className="text-xs text-slate-500 font-mono">
+                        • {new Date(account.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors.bg} ${colors.border} ${colors.text}`}>
                       {STATUS_LABELS[account.status]}
                     </span>
