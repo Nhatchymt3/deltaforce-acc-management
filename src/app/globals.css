@@ -2,48 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: dark; }
-* { box-sizing: border-box; }
-body { margin: 0; background: #020617; color: #e2e8f0; }
-
-/* ─── Stars / Particle Background ──────────────────────────── */
-.stars-bg {
-  background-image:
-    radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.15), transparent),
-    radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.12), transparent),
-    radial-gradient(1px 1px at 50px 160px, rgba(255,255,255,0.08), transparent),
-    radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.1), transparent),
-    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.06), transparent),
-    radial-gradient(1.5px 1.5px at 160px 120px, rgba(255,255,255,0.18), transparent),
-    radial-gradient(1px 1px at 200px 50px, rgba(255,255,255,0.09), transparent),
-    radial-gradient(1px 1px at 230px 90px, rgba(255,255,255,0.12), transparent),
-    radial-gradient(1px 1px at 270px 150px, rgba(255,255,255,0.07), transparent),
-    radial-gradient(1px 1px at 310px 30px, rgba(255,255,255,0.1), transparent),
-    radial-gradient(1.5px 1.5px at 350px 100px, rgba(255,255,255,0.15), transparent),
-    radial-gradient(1px 1px at 400px 60px, rgba(255,255,255,0.08), transparent),
-    radial-gradient(1px 1px at 450px 140px, rgba(255,255,255,0.11), transparent),
-    radial-gradient(1px 1px at 500px 80px, rgba(255,255,255,0.06), transparent),
-    radial-gradient(1.5px 1.5px at 550px 20px, rgba(255,255,255,0.14), transparent),
-    radial-gradient(1px 1px at 600px 110px, rgba(255,255,255,0.09), transparent),
-    radial-gradient(1px 1px at 650px 160px, rgba(255,255,255,0.07), transparent),
-    radial-gradient(1px 1px at 700px 50px, rgba(255,255,255,0.1), transparent),
-    radial-gradient(1px 1px at 750px 130px, rgba(255,255,255,0.08), transparent),
-    radial-gradient(1.5px 1.5px at 800px 70px, rgba(255,255,255,0.16), transparent);
-  background-size: 850px 200px;
-  background-repeat: repeat;
-  animation: stars-drift 120s linear infinite;
+:root {
+  color-scheme: dark;
+  --midnight: #0C0F1A;
+  --gunmetal: #1A1F2E;
+  --brass: #C9A84C;
+  --od-green: #4A6741;
+  --signal-red: #B83A3A;
+  --ash: #8B8FA3;
 }
 
-@keyframes stars-drift {
-  from { background-position: 0 0; }
-  to { background-position: -850px 200px; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--midnight); color: #d1d5db; }
+
+/* ─── Subtle grid background (tactical) ──────────────────── */
+.stars-bg {
+  background-image:
+    linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
 
 /* ─── Scrollbar ────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.15); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(201,168,76,0.3); }
 
 /* ─── Custom animations ────────────────────────────────────── */
 @keyframes slideInRight {
@@ -52,12 +36,12 @@ body { margin: 0; background: #020617; color: #e2e8f0; }
 }
 
 @keyframes scaleIn {
-  from { transform: scale(0.95); opacity: 0; }
+  from { transform: scale(0.97); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -66,18 +50,13 @@ body { margin: 0; background: #020617; color: #e2e8f0; }
   100% { background-position: 200% 0; }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.1); }
-  50% { box-shadow: 0 0 40px rgba(34, 211, 238, 0.25); }
-}
-
 /* ─── Shimmer / Loading skeleton ────────────────────────────── */
 .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(255,255,255,0.03) 25%,
-    rgba(255,255,255,0.08) 50%,
-    rgba(255,255,255,0.03) 75%
+    rgba(201,168,76,0.03) 25%,
+    rgba(201,168,76,0.08) 50%,
+    rgba(201,168,76,0.03) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
@@ -85,32 +64,16 @@ body { margin: 0; background: #020617; color: #e2e8f0; }
 
 /* ─── Card entrance animation ──────────────────────────────── */
 .card-animate {
-  animation: fadeInUp 0.4s ease-out both;
+  animation: fadeInUp 0.3s ease-out both;
 }
 
 /* ─── Scrollbar thin for modal ─────────────────────────────── */
 .scrollbar-thin::-webkit-scrollbar { width: 4px; }
 .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
-/* ─── Glow pulse utility ───────────────────────────────────── */
-.glow-cyan { box-shadow: 0 0 20px rgba(34, 211, 238, 0.2); }
-.glow-violet { box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }
-.glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.12); border-radius: 2px; }
 
 /* ─── Selection ────────────────────────────────────────────── */
 ::selection {
-  background: rgba(34, 211, 238, 0.3);
+  background: rgba(201,168,76,0.3);
   color: white;
-}
-
-/* ─── Cinematic Noise ──────────────────────────────────────── */
-.noise-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: -5; /* Under content, over gradient bg */
-  mix-blend-mode: overlay;
-  opacity: 0.15;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }

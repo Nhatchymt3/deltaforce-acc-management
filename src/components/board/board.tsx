@@ -36,12 +36,12 @@ const STATUS_LABELS: Record<Account['status'], string> = {
   da_nhan_tien: 'Đã nhận tiền',
 };
 
-const STATUS_COLORS: Record<Account['status'], { bg: string; text: string; glow: string }> = {
-  kho: { bg: 'bg-slate-700/60', text: 'text-slate-300', glow: 'shadow-slate-500/20' },
-  dang_cay: { bg: 'bg-yellow-900/60', text: 'text-yellow-300', glow: 'shadow-yellow-500/20' },
-  done: { bg: 'bg-blue-900/60', text: 'text-blue-300', glow: 'shadow-blue-500/20' },
-  da_giao_cho_ben_thu: { bg: 'bg-orange-900/60', text: 'text-orange-300', glow: 'shadow-orange-500/20' },
-  da_nhan_tien: { bg: 'bg-green-900/60', text: 'text-green-300', glow: 'shadow-green-500/20' },
+const STATUS_COLORS: Record<Account['status'], { bg: string; text: string; glow: string; strip: string }> = {
+  kho: { bg: 'bg-ash/20', text: 'text-ash', glow: '', strip: 'bg-ash' },
+  dang_cay: { bg: 'bg-brass/15', text: 'text-brass', glow: '', strip: 'bg-brass' },
+  done: { bg: 'bg-od-green/20', text: 'text-emerald-300', glow: '', strip: 'bg-od-green' },
+  da_giao_cho_ben_thu: { bg: 'bg-amber-800/30', text: 'text-amber-300', glow: '', strip: 'bg-amber-500' },
+  da_nhan_tien: { bg: 'bg-od-green/25', text: 'text-green-300', glow: '', strip: 'bg-green-500' },
 };
 
 function normaliseHolder(name: string): string {
@@ -122,76 +122,68 @@ function Card({ account, targetMilestone, onOpen, index }: CardProps) {
       role="button"
       tabIndex={0}
       aria-label={`Account ${account.username}`}
-      className={`group relative rounded-xl border p-4 shadow-lg transition-all duration-300 select-none cursor-pointer hover:border-cyan-400/30 hover:bg-white/[0.06] hover:shadow-xl hover:shadow-cyan-500/10 hover:scale-[1.02] ${
+      className={`group relative overflow-hidden rounded-lg border transition-all duration-200 select-none cursor-pointer hover:border-brass/30 hover:bg-white/[0.04] ${
         isDragging
-          ? 'border-cyan-400/60 bg-cyan-950/30 opacity-50 scale-105 rotate-1 shadow-cyan-500/30'
+          ? 'border-brass/50 bg-gunmetal opacity-60 scale-105 rotate-1'
           : disabled
-          ? 'border-white/5 bg-white/[0.02]'
-          : 'border-white/5 bg-white/[0.03] cursor-grab active:cursor-grabbing'
+          ? 'border-white/5 bg-gunmetal/60'
+          : 'border-white/[0.06] bg-gunmetal/80 cursor-grab active:cursor-grabbing'
       }`}
-      style={{ ...style, animationDelay: `${index * 60}ms` }}
+      style={{ ...style, animationDelay: `${index * 40}ms` }}
     >
-      {/* Glow accent on hover */}
-      <div className={`absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
+      {/* Tactical status strip */}
+      <div className={`absolute left-0 top-0 bottom-0 w-1 ${colors.strip}`} />
 
-      <div className="relative flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="font-semibold text-white truncate">{account.username}</h3>
-          <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-violet-400" />
-            {account.sourceName ?? account.source}
-          </p>
+      <div className="pl-4 pr-3 py-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="font-mono font-semibold text-white text-sm truncate">{account.username}</h3>
+            <p className="text-[11px] text-ash mt-0.5">
+              {account.sourceName ?? account.source}
+            </p>
+          </div>
+          <span className={`flex-shrink-0 rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${colors.bg} ${colors.text}`}>
+            {STATUS_LABELS[account.status]}
+          </span>
         </div>
-        <span className={`flex-shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${colors.bg} ${colors.text} ${colors.glow} shadow-md`}>
-          {STATUS_LABELS[account.status]}
-        </span>
+
+        {account.current_holder && (
+          <div className="mt-2 flex items-center gap-1.5">
+            <div className="w-5 h-5 rounded bg-brass/20 border border-brass/30 flex items-center justify-center">
+              <span className="text-[9px] font-bold text-brass">
+                {account.current_holder.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <span className="text-xs text-gray-400">{account.current_holder}</span>
+          </div>
+        )}
+        <div className="mt-1.5 flex items-center gap-3 text-[11px] text-ash font-mono">
+          {targetMilestone
+            ? <span className="text-brass/80">LV{targetMilestone.level}–{targetMilestone.price}M</span>
+            : <span className="text-ash/50">—</span>}
+          {account.added_by && (
+            <span className="text-ash/60">↳ {account.added_by}</span>
+          )}
+        </div>
+        {(() => {
+          if (!account.tag_label || !account.tag_expires_at) return null;
+          const expires = new Date(account.tag_expires_at).getTime();
+          const now = Date.now();
+          if (expires <= now) return null;
+          const remainingDays = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
+          const isBan = account.tag_label.toLowerCase().includes('ban') && !account.tag_label.toLowerCase().includes('cấm');
+          return (
+            <div className={`mt-1.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+              isBan
+                ? 'bg-signal-red/15 text-red-300 border border-signal-red/30'
+                : 'bg-amber-500/10 text-amber-300 border border-amber-500/25'
+            }`}>
+              <span>{account.tag_label}</span>
+              <span className="opacity-60">({remainingDays}d)</span>
+            </div>
+          );
+        })()}
       </div>
-
-      {account.current_holder && (
-        <div className="mt-3 flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
-            <span className="text-[10px] font-bold text-white">
-              {account.current_holder.charAt(0).toUpperCase()}
-            </span>
-          </div>
-          <p className="text-sm text-slate-300">
-            <span className="text-slate-500">AE:</span>{' '}
-            <span className="text-slate-200 font-medium">{account.current_holder}</span>
-          </p>
-        </div>
-      )}
-      <p className="mt-1.5 text-xs text-slate-600 flex items-center gap-1 font-mono tracking-tight">
-        <svg className="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-        {targetMilestone
-          ? <span className="text-slate-400 font-medium">LV{targetMilestone.level}-{targetMilestone.price}M</span>
-          : 'Chưa có mốc'}
-      </p>
-      {account.added_by && (
-        <p className="mt-1 text-[11px] text-slate-500">
-          Người thêm: <span className="text-slate-400 font-medium">{account.added_by}</span>
-        </p>
-      )}
-      {(() => {
-        if (!account.tag_label || !account.tag_expires_at) return null;
-        const expires = new Date(account.tag_expires_at).getTime();
-        const now = Date.now();
-        if (expires <= now) return null;
-        const remainingDays = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
-        const isBan = account.tag_label.toLowerCase().includes('ban') && !account.tag_label.toLowerCase().includes('cấm');
-        return (
-          <div className={`mt-2 inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[11px] font-semibold ${
-            isBan
-              ? 'border-red-500/40 bg-red-500/10 text-red-300'
-              : 'border-amber-500/40 bg-amber-500/10 text-amber-300'
-          }`}>
-            <span>{isBan ? '🚫' : '⚠️'}</span>
-            <span>{account.tag_label}</span>
-            <span className="opacity-75">({remainingDays}d)</span>
-          </div>
-        );
-      })()}
     </div>
   );
 }
@@ -213,25 +205,26 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col gap-3 rounded-2xl border p-4 transition-all duration-300 min-h-[420px] ${
+      className={`flex flex-col rounded-xl border transition-all duration-200 min-h-[420px] ${
         isOver && id === KHO_SENTINEL
-          ? 'border-cyan-400/50 bg-cyan-950/30 shadow-xl shadow-cyan-500/10'
+          ? 'border-brass/40 bg-brass/5'
           : isKho
-          ? 'border-dashed border-white/10 bg-white/[0.02] hover:border-white/20'
-          : 'border-white/5 bg-white/[0.01] hover:border-white/10'
+          ? 'border-dashed border-white/[0.06] bg-midnight/50'
+          : 'border-white/[0.04] bg-midnight/40'
       }`}
     >
-      <div className="flex items-center justify-between mb-1">
-        <h2 className="font-bold text-white flex items-center gap-2">
+      {/* Column header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.04]">
+        <h2 className="font-display font-semibold text-white text-sm tracking-wide flex items-center gap-2">
           {isKho ? (
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center">
-              <svg className="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-6 h-6 rounded bg-ash/15 flex items-center justify-center">
+              <svg className="w-3 h-3 text-ash" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
           ) : (
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 border border-cyan-400/20 flex items-center justify-center">
-              <span className="text-cyan-400 font-semibold text-xs">
+            <div className="w-6 h-6 rounded bg-brass/15 border border-brass/20 flex items-center justify-center">
+              <span className="text-brass text-[10px] font-bold">
                 {label.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -239,29 +232,27 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
           {label}
         </h2>
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-white/5 px-2 py-0.5 text-xs text-slate-500 font-medium">
+          <span className="font-mono text-[11px] text-ash/60">
             {accounts.length}
           </span>
           {onRemove && accounts.length === 0 && (
             <button
               onClick={onRemove}
               title="Xóa cột AE"
-              className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+              className="flex h-5 w-5 items-center justify-center rounded text-ash/40 hover:bg-signal-red/10 hover:text-signal-red transition-colors"
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}
         </div>
       </div>
-      <div className="flex flex-col gap-3 max-h-[75vh] overflow-y-auto scrollbar-thin pb-8 [mask-image:linear-gradient(to_bottom,black_85%,transparent_100%)]">
+      {/* Card list */}
+      <div className="flex flex-col gap-2 p-3 max-h-[75vh] overflow-y-auto scrollbar-thin pb-8">
         {accounts.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-slate-600">
-            <svg className="w-8 h-8 mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
-            <span className="text-xs">—</span>
+          <div className="flex items-center justify-center py-12 text-ash/30">
+            <span className="text-xs font-mono">—</span>
           </div>
         )}
         {accounts.map((a, i) => (
@@ -528,14 +519,11 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   }));
 
   return (
-    <div className={`relative min-h-screen text-white transition-all duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/60 to-slate-950" />
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-cyan-500/8 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-violet-500/8 rounded-full blur-[120px] animate-[pulse_10s_ease-in-out_infinite]" style={{ animationDelay: '3s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[150px] animate-[pulse_12s_ease-in-out_infinite]" style={{ animationDelay: '6s' }} />
+    <div className={`relative min-h-screen text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-midnight" />
         <div className="stars-bg absolute inset-0" />
-        <div className="noise-overlay" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brass/30 to-transparent" />
       </div>
 
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
@@ -570,18 +558,17 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         ))}
       </div>
 
-      <header className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 pt-6">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">
-            DeltaForce
-          </p>
-          <h1 className="mt-1 text-3xl font-bold bg-gradient-to-r from-white via-cyan-100 to-violet-200 bg-clip-text text-transparent">
-            Acc Management
+      <header className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 pt-5 pb-1">
+        <div className="flex items-baseline gap-3">
+          <h1 className="font-display text-2xl font-bold tracking-wide text-white">
+            DF<span className="text-brass">△</span>
           </h1>
+          <span className="text-xs font-display font-medium uppercase tracking-[0.2em] text-ash/60">
+            Acc Management
+          </span>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <div className="relative group min-w-[160px]">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-violet-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity pointer-events-none" />
+          <div className="min-w-[150px]">
             <Dropdown
               value={filter}
               onChange={setFilter}
@@ -592,15 +579,14 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           </div>
 
           {/* Sort dropdown */}
-          <div className="relative group min-w-[170px]">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-400 to-cyan-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity pointer-events-none" />
+          <div className="min-w-[160px]">
             <Dropdown
               value={sortBy}
               onChange={(val) => setSortBy(val as 'default' | 'newest' | 'oldest')}
               options={[
-                { value: 'default', label: 'Sắp xếp: Mặc định' },
-                { value: 'newest', label: 'Sắp xếp: Mới nhất' },
-                { value: 'oldest', label: 'Sắp xếp: Cũ nhất' },
+                { value: 'default', label: 'Mặc định' },
+                { value: 'newest', label: 'Mới nhất' },
+                { value: 'oldest', label: 'Cũ nhất' },
               ]}
               size="sm"
               ariaLabel="Sắp xếp tài khoản"
@@ -610,59 +596,59 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           {/* Finance link */}
           <Link
             href="/finance"
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-3.5 py-2.5 text-sm text-slate-300 hover:text-white hover:border-cyan-400/30 hover:bg-cyan-500/10 transition-all"
-            title="Thống kê tài chính"
+            className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-3 py-2 text-xs text-ash hover:text-white hover:border-brass/30 transition-all"
+            title="Tài chính"
           >
-            <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 text-brass/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="hidden md:inline font-medium">Tài chính</span>
+            <span className="hidden md:inline">Tài chính</span>
           </Link>
 
           {/* Archive link */}
           <Link
             href="/archive"
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-3.5 py-2.5 text-sm text-slate-300 hover:text-white hover:border-violet-400/30 hover:bg-violet-500/10 transition-all"
-            title="Kho lưu trữ (đã nhận tiền)"
+            className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-3 py-2 text-xs text-ash hover:text-white hover:border-brass/30 transition-all"
+            title="Kho lưu trữ"
           >
-            <svg className="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
             </svg>
-            <span className="hidden md:inline font-medium">Kho lưu trữ</span>
+            <span className="hidden md:inline">Kho lưu trữ</span>
           </Link>
 
           {/* Farmers link */}
           <Link
             href="/farmers"
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-3.5 py-2.5 text-sm text-slate-300 hover:text-white hover:border-blue-400/30 hover:bg-blue-500/10 transition-all"
+            className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-3 py-2 text-xs text-ash hover:text-white hover:border-brass/30 transition-all"
             title="Quản lý AE"
           >
-            <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
-            <span className="hidden md:inline font-medium">Quản lý AE</span>
+            <span className="hidden md:inline">AE</span>
           </Link>
 
           {/* Settings link */}
           <Link
             href="/sources"
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-3.5 py-2.5 text-sm text-slate-300 hover:text-white hover:border-slate-400/30 hover:bg-white/10 transition-all"
-            title="Quản lý nguồn"
+            className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-3 py-2 text-xs text-ash hover:text-white hover:border-brass/30 transition-all"
+            title="Nguồn"
           >
-            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span className="hidden md:inline font-medium">Nguồn</span>
+            <span className="hidden md:inline">Nguồn</span>
           </Link>
 
           <form action={signOut}>
             <button
               type="submit"
-              className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2.5 text-sm text-slate-400 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all"
+              className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-3 py-2 text-xs text-ash hover:text-white hover:border-signal-red/30 transition-all"
               title="Đăng xuất"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
             </button>
@@ -696,10 +682,9 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           createPortal(
             <DragOverlay>
               {activeAccount && (
-                <div className="rotate-2 rounded-xl border border-cyan-400/60 bg-gradient-to-br from-slate-800 to-slate-900 p-4 shadow-2xl shadow-cyan-500/30 opacity-95">
-                  <h3 className="font-semibold text-white">{activeAccount.username}</h3>
-                  <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-violet-400" />
+                <div className="rotate-1 rounded-lg border border-brass/40 bg-gunmetal p-3 shadow-2xl opacity-90">
+                  <h3 className="font-mono font-semibold text-white text-sm">{activeAccount.username}</h3>
+                  <p className="text-[11px] text-ash mt-0.5">
                     {activeAccount.sourceName ?? activeAccount.source}
                   </p>
                 </div>

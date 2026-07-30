@@ -1,14 +1,16 @@
-import { Inter } from 'next/font/google';
+import { Inter, Rajdhani, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin', 'vietnamese'] });
+const inter = Inter({ subsets: ['latin', 'vietnamese'], variable: '--font-inter' });
+const rajdhani = Rajdhani({ weight: ['400', '500', '600', '700'], subsets: ['latin'], variable: '--font-rajdhani' });
+const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains' });
 
 export const metadata = { title: 'DeltaForce Acc Management', description: 'Kanban quản lý acc cày thuê' };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="vi">
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.className} ${rajdhani.variable} ${jetbrains.variable}`}>{children}</body>
     </html>
   );
 }
