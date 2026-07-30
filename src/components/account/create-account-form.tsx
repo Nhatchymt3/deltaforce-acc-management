@@ -43,9 +43,6 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
   const [addedBy, setAddedBy] = useState('');
   const [customAddedBy, setCustomAddedBy] = useState('');
   const [selectedMilestoneId, setSelectedMilestoneId] = useState<string>(presetMilestones[0]?.id ?? '');
-  const [customLevel, setCustomLevel] = useState('');
-  const [customPrice, setCustomPrice] = useState('');
-  const [customNote, setCustomNote] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
@@ -94,37 +91,17 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
       return;
     }
 
-    let selectedLevel: number | null = null;
-    let selectedPrice: string | null = null;
-    let selectedNote: string | undefined = undefined;
-
-    if (selectedMilestoneId === '__custom__') {
-      if (!customLevel || !customPrice) {
-        setError('Nhập Level và Giá tiền cho mốc cày');
-        return;
-      }
-      selectedLevel = parseInt(customLevel, 10);
-      selectedPrice = customPrice.trim();
-      selectedNote = customNote.trim() || undefined;
-    } else {
-      const found = presetMilestones.find((pm) => pm.id === selectedMilestoneId);
-      if (found) {
-        selectedLevel = found.level;
-        selectedPrice = found.price;
-        selectedNote = found.note || undefined;
-      }
-    }
-
-    if (!selectedLevel || !selectedPrice) {
-      setError('Chọn hoặc nhập 1 mốc cày cho tài khoản');
+    const found = presetMilestones.find((pm) => pm.id === selectedMilestoneId);
+    if (!found) {
+      setError('Vui lòng chọn 1 mốc cày từ danh sách');
       return;
     }
 
     const parsedMilestones = [
       {
-        level: selectedLevel,
-        price: selectedPrice,
-        note: selectedNote,
+        level: found.level,
+        price: found.price,
+        note: found.note || undefined,
       },
     ];
 
@@ -356,45 +333,14 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
                     value={selectedMilestoneId}
                     onChange={setSelectedMilestoneId}
                     placeholder="Chọn mốc cày..."
-                    options={[
-                      ...presetMilestones.map((pm) => ({
-                        value: pm.id,
-                        label: `LV${pm.level}-${pm.price}M ${pm.note ? `(${pm.note})` : ''}`,
-                      })),
-                      { value: '__custom__', label: '✏️ Tự nhập mốc khác...' },
-                    ]}
+                    options={presetMilestones.map((pm) => ({
+                      value: pm.id,
+                      label: `LV${pm.level}-${pm.price}M ${pm.note ? `(${pm.note})` : ''}`,
+                    }))}
                     ariaLabel="Mốc Level"
                     size="sm"
                   />
                 </label>
-
-                {selectedMilestoneId === '__custom__' && (
-                  <div className="mt-2 flex items-center gap-2 rounded-lg border border-brass/40 bg-midnight p-2">
-                    <input
-                      type="number"
-                      min={1}
-                      placeholder="Lv (VD: 30)"
-                      value={customLevel}
-                      onChange={(e) => setCustomLevel(e.target.value)}
-                      className="w-20 rounded border border-white/[0.06] bg-midnight px-2 py-1 text-xs text-white placeholder-ash/40 font-mono focus:border-brass/40 focus:outline-none"
-                    />
-                    <input
-                      type="number"
-                      step="any"
-                      placeholder="Tiền (VD: 20)"
-                      value={customPrice}
-                      onChange={(e) => setCustomPrice(e.target.value)}
-                      className="w-24 rounded border border-white/[0.06] bg-midnight px-2 py-1 text-xs text-white placeholder-ash/40 font-mono focus:border-brass/40 focus:outline-none"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Chú thích (tùy chọn)"
-                      value={customNote}
-                      onChange={(e) => setCustomNote(e.target.value)}
-                      className="flex-1 rounded border border-white/[0.06] bg-midnight px-2 py-1 text-xs text-white placeholder-ash/40 focus:border-brass/40 focus:outline-none"
-                    />
-                  </div>
-                )}
               </div>
 
               {/* Actions */}
