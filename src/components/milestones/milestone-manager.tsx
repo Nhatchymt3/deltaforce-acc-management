@@ -1,0 +1,273 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { createPresetMilestone, updatePresetMilestone, deletePresetMilestone } from '@/app/actions/preset-milestones';
+import type { PresetMilestone } from '@/lib/types';
+
+interface ToastEntry {
+  id: string;
+  message: string;
+  kind: 'error' | 'success';
+}
+
+let toastCounter = 0;
+
+export function PresetMilestoneManager({ initialMilestones }: { initialMilestones: PresetMilestone[] }) {
+  const [milestones, setMilestones] = useState<PresetMilestone[]>(initialMilestones);
+  const [level, setLevel] = useState('');
+  const [price, setPrice] = useState('');
+  const [note, setNote] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editLevel, setEditLevel] = useState('');
+  const [editPrice, setEditPrice] = useState('');
+  const [editNote, setEditNote] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<ToastEntry[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  function addToast(message: string, kind: ToastEntry['kind'] = 'error') {
+    const id = String(++toastCounter);
+    setToasts((prev) => [...prev, { id, message, kind }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000);
+  }
+
+  async function handleCreate() {
+    const lvlNum = parseInt(level, 10);
+    const cleanPrice = price.trim();
+    if (!lvlNum || !cleanPrice) return;
+    setLoading('create');
+    try {
+      const created = await createPresetMilestone(lvlNum, cleanPrice, note);
+      setMilestones((prev) => [...prev, created].sort((a, b) => a.level - b.level));
+      setLevel('');
+      setPrice('');
+      setNote('');
+      addToast(`Đã thêm mốc LV${created.level}-${created.price}M`, 'success');
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Lỗi khi thêm mốc', 'error');
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  async function handleSaveEdit(id: string) {
+    const lvlNum = parseInt(editLevel, 10);
+    const cleanPrice = editPrice.trim();
+    if (!lvlNum || !cleanPrice) return;
+    setLoading(`edit-${id}`);
+    try {
+      const updated = await updatePresetMilestone(id, lvlNum, cleanPrice, editNote);
+      setMilestones((prev) =>
+        prev.map((s) => (s.id === id ? updated : s)).sort((a, b) => a.level - b.level)
+      );
+      setEditingId(null);
+      addToast('Đã cập nhật mốc', 'success');
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Lỗi khi cập nhật', 'error');
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    setLoading(`delete-${id}`);
+    try {
+      await deletePresetMilestone(id);
+      setMilestones((prev) => prev.filter((s) => s.id !== id));
+      setDeletingId(null);
+      addToast('Đã xóa mốc', 'success');
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'Không thể xóa mốc này', 'error');
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  return (
+    <div className={`space-y-6 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+      <div className="rounded-xl border border-white/[0.06] bg-gunmetal p-5 shadow-xl">
+        <h2 className="font-display text-base font-semibold text-white mb-4 tracking-wide">
+          Danh sách mốc cày cố định
+        </h2>
+
+        {/* Add new Milestone */}
+        <div className="flex flex-wrap gap-2 mb-5">
+          <input
+            type="number"
+            min={1}
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+            placeholder="Lv (VD: 30)"
+            className="w-24 rounded-lg border border-white/[0.06] bg-midnight px-3 py-2 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none font-mono"
+          />
+          <input
+            type="number"
+            step="any"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="Tiền (VD: 20)"
+            className="w-28 rounded-lg border border-white/[0.06] bg-midnight px-3 py-2 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none font-mono"
+          />
+          <input
+            type="text"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && void handleCreate()}
+            placeholder="Ghi chú / Chú thích (tùy chọn)..."
+            className="flex-1 min-w-[160px] rounded-lg border border-white/[0.06] bg-midnight px-3 py-2 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none"
+          />
+          <button
+            onClick={() => void handleCreate()}
+            disabled={loading === 'create' || !level || !price}
+            className="rounded-lg bg-brass px-4 py-2 text-xs font-semibold text-midnight hover:bg-brass/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          >
+            Thêm mốc
+          </button>
+        </div>
+
+        {/* Milestones list */}
+        {milestones.length === 0 ? (
+          <div className="text-center py-8 rounded-lg border border-dashed border-white/[0.06] bg-midnight/50">
+            <p className="text-xs text-ash">Chưa có mốc cày nào. Tạo mốc mới để chọn nhanh khi thêm acc.</p>
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {milestones.map((m) => (
+              <div
+                key={m.id}
+                className="group flex items-center justify-between rounded-lg border border-white/[0.04] bg-midnight/40 px-3.5 py-2.5 hover:border-white/[0.08] transition-colors"
+              >
+                {editingId === m.id ? (
+                  <div className="flex flex-1 flex-wrap items-center gap-2">
+                    <input
+                      type="number"
+                      value={editLevel}
+                      onChange={(e) => setEditLevel(e.target.value)}
+                      placeholder="Lv"
+                      className="w-16 rounded border border-brass/40 bg-midnight px-2 py-1 text-xs text-white font-mono focus:outline-none"
+                    />
+                    <input
+                      type="number"
+                      step="any"
+                      value={editPrice}
+                      onChange={(e) => setEditPrice(e.target.value)}
+                      placeholder="Tiền"
+                      className="w-20 rounded border border-brass/40 bg-midnight px-2 py-1 text-xs text-white font-mono focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      value={editNote}
+                      onChange={(e) => setEditNote(e.target.value)}
+                      placeholder="Ghi chú"
+                      className="flex-1 rounded border border-brass/40 bg-midnight px-2 py-1 text-xs text-white focus:outline-none"
+                    />
+                    <button
+                      onClick={() => void handleSaveEdit(m.id)}
+                      disabled={loading === `edit-${m.id}`}
+                      className="rounded bg-brass px-2.5 py-1 text-xs font-medium text-midnight hover:bg-brass/90 disabled:opacity-50"
+                    >
+                      Lưu
+                    </button>
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="rounded border border-white/[0.06] px-2.5 py-1 text-xs text-ash hover:text-white"
+                    >
+                      Hủy
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <div className="rounded bg-brass/15 border border-brass/20 px-2.5 py-1">
+                        <span className="text-brass font-mono font-bold text-xs">
+                          LV{m.level}-{m.price}M
+                        </span>
+                      </div>
+                      {m.note ? (
+                        <span className="text-xs text-ash/80">📝 {m.note}</span>
+                      ) : (
+                        <span className="text-xs text-ash/30 italic">Không có ghi chú</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => {
+                          setEditingId(m.id);
+                          setEditLevel(String(m.level));
+                          setEditPrice(m.price);
+                          setEditNote(m.note ?? '');
+                        }}
+                        className="rounded p-1 text-ash hover:text-white transition-colors"
+                        title="Sửa"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => setDeletingId(m.id)}
+                        className="rounded p-1 text-ash hover:text-signal-red transition-colors"
+                        title="Xóa"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Delete confirmation modal */}
+      {deletingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setDeletingId(null)} />
+          <div className="relative z-10 w-full max-w-sm rounded-xl border border-white/[0.08] bg-gunmetal p-5 shadow-2xl space-y-4">
+            <h3 className="font-display font-semibold text-white text-base">Xóa mốc này?</h3>
+            <p className="text-xs text-ash">Hành động này sẽ xóa mốc khỏi danh sách mốc cố định.</p>
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                onClick={() => setDeletingId(null)}
+                className="rounded-lg border border-white/[0.06] bg-midnight px-3.5 py-1.5 text-xs text-ash hover:text-white transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => void handleDelete(deletingId)}
+                disabled={loading === `delete-${deletingId}`}
+                className="rounded-lg bg-signal-red px-3.5 py-1.5 text-xs font-medium text-white hover:bg-signal-red/90 disabled:opacity-50 transition-colors"
+              >
+                {loading === `delete-${deletingId}` ? 'Đang xóa...' : 'Xóa'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast notifications */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={`relative overflow-hidden rounded-lg border px-3.5 py-2.5 pr-8 text-xs font-medium shadow-xl ${
+              t.kind === 'error'
+                ? 'border-signal-red/30 bg-gunmetal text-red-300'
+                : 'border-brass/30 bg-gunmetal text-brass'
+            }`}
+          >
+            <span>{t.message}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -1,5 +1,6 @@
 export type Source = { id: string; name: string };
 export type Farmer = { id: string; name: string };
+export type PresetMilestone = { id: string; level: number; price: string; note: string | null };
 
 export type AccountStatus = 'kho' | 'dang_cay' | 'done' | 'da_giao_cho_ben_thu' | 'da_nhan_tien';
 export type Account = {

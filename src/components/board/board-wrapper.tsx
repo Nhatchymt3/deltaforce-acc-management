@@ -8,7 +8,7 @@ import dynamic from 'next/dynamic';
 const AccountModal = dynamic(() => import('@/components/account/account-modal').then(mod => mod.AccountModal), { ssr: false });
 const CreateAccountForm = dynamic(() => import('@/components/account/create-account-form').then(mod => mod.CreateAccountForm), { ssr: false });
 import { getAccountSessions, getAccountMilestones } from '@/app/actions/accounts';
-import type { Account, Milestone, HolderSession, Source, Farmer } from '@/lib/types';
+import type { Account, Milestone, HolderSession, Source, Farmer, PresetMilestone } from '@/lib/types';
 
 interface BoardWrapperProps {
   initialAccounts: Account[];
@@ -16,6 +16,7 @@ interface BoardWrapperProps {
   initialMilestones: Milestone[];
   initialSources: Source[];
   initialFarmers: Farmer[];
+  initialPresetMilestones?: PresetMilestone[];
   holderRevenue: Record<string, string>;
 }
 
@@ -25,6 +26,7 @@ export function BoardWrapper({
   initialMilestones,
   initialSources,
   initialFarmers,
+  initialPresetMilestones = [],
   holderRevenue,
 }: BoardWrapperProps) {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
@@ -177,6 +179,7 @@ export function BoardWrapper({
         <CreateAccountForm
           sources={sources}
           farmers={farmers}
+          presetMilestones={initialPresetMilestones}
           onSuccess={handleCreateSuccess}
           onCancel={() => setShowCreate(false)}
         />

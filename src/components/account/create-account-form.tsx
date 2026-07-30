@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createAccountWithMilestones } from '@/app/actions/accounts';
-import type { Source, Farmer } from '@/lib/types';
+import type { Source, Farmer, PresetMilestone } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
 
 interface ParsedAccount {
@@ -12,15 +12,10 @@ interface ParsedAccount {
   raw: string;
 }
 
-interface MilestoneInput {
-  level: string;
-  price: string;
-  note: string;
-}
-
 interface CreateAccountFormProps {
   sources: Source[];
   farmers: Farmer[];
+  presetMilestones?: PresetMilestone[];
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -41,15 +36,16 @@ function parseAccountsInput(input: string): ParsedAccount[] {
   });
 }
 
-export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: CreateAccountFormProps) {
+export function CreateAccountForm({ sources, farmers, presetMilestones = [], onSuccess, onCancel }: CreateAccountFormProps) {
   const [accountsInput, setAccountsInput] = useState('');
   const [source, setSource] = useState(sources[0]?.id ?? '');
   const [initialHolder, setInitialHolder] = useState('');
   const [addedBy, setAddedBy] = useState('');
   const [customAddedBy, setCustomAddedBy] = useState('');
-  const [milestones, setMilestones] = useState<MilestoneInput[]>([
-    { level: '', price: '', note: '' },
-  ]);
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState<string>(presetMilestones[0]?.id ?? '');
+  const [customLevel, setCustomLevel] = useState('');
+  const [customPrice, setCustomPrice] = useState('');
+  const [customNote, setCustomNote] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
@@ -98,18 +94,39 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
       return;
     }
 
-    const parsedMilestones = milestones
-      .filter((m) => m.level !== '' && m.price !== '')
-      .map((m) => ({
-        level: parseInt(m.level, 10),
-        price: m.price,
-        note: m.note || undefined,
-      }));
+    let selectedLevel: number | null = null;
+    let selectedPrice: string | null = null;
+    let selectedNote: string | undefined = undefined;
 
-    if (parsedMilestones.length === 0) {
-      setError('Cần ít nhất một mốc level');
+    if (selectedMilestoneId === '__custom__') {
+      if (!customLevel || !customPrice) {
+        setError('Nhập Level và Giá tiền cho mốc cày');
+        return;
+      }
+      selectedLevel = parseInt(customLevel, 10);
+      selectedPrice = customPrice.trim();
+      selectedNote = customNote.trim() || undefined;
+    } else {
+      const found = presetMilestones.find((pm) => pm.id === selectedMilestoneId);
+      if (found) {
+        selectedLevel = found.level;
+        selectedPrice = found.price;
+        selectedNote = found.note || undefined;
+      }
+    }
+
+    if (!selectedLevel || !selectedPrice) {
+      setError('Chọn hoặc nhập 1 mốc cày cho tài khoản');
       return;
     }
+
+    const parsedMilestones = [
+      {
+        level: selectedLevel,
+        price: selectedPrice,
+        note: selectedNote,
+      },
+    ];
 
     const finalAddedBy = addedBy === '__custom__' ? customAddedBy.trim() : addedBy.trim();
 
@@ -329,46 +346,55 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
                 )}
               </label>
 
-              {/* Milestones */}
+              {/* Milestones Dropdown */}
               <div>
-                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-ash">Mốc Level</span>
-                <div className="space-y-1.5">
-                  {milestones.map((m, i) => (
-                    <div key={i} className="flex items-center gap-2 rounded-lg border border-white/[0.04] bg-midnight/40 p-2">
-                      <div className="flex flex-1 gap-2">
-                        <input
-                          type="number"
-                          min={1}
-                          placeholder="Lv"
-                          value={m.level}
-                          onChange={(e) => updateMilestone(i, 'level', e.target.value)}
-                          className="w-16 rounded border border-white/[0.06] bg-midnight px-2 py-1 text-xs text-white placeholder-ash/40 font-mono focus:border-brass/40 focus:outline-none"
-                        />
-                        <input
-                          type="number"
-                          step="any"
-                          placeholder="Tiền (VD: 1, 1.5)"
-                          value={m.price}
-                          onChange={(e) => updateMilestone(i, 'price', e.target.value)}
-                          className="flex-1 rounded border border-white/[0.06] bg-midnight px-2 py-1 text-xs text-white placeholder-ash/40 font-mono focus:border-brass/40 focus:outline-none"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Ghi chú"
-                          value={m.note}
-                          onChange={(e) => updateMilestone(i, 'note', e.target.value)}
-                          className="w-20 flex-shrink-0 rounded border border-white/[0.06] bg-midnight px-2 py-1 text-xs text-white placeholder-ash/40 focus:border-brass/40 focus:outline-none"
-                        />
-                      </div>
+                <label className="block">
+                  <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-ash">
+                    Mốc Level
+                  </span>
+                  <Dropdown
+                    value={selectedMilestoneId}
+                    onChange={setSelectedMilestoneId}
+                    placeholder="Chọn mốc cày..."
+                    options={[
+                      ...presetMilestones.map((pm) => ({
+                        value: pm.id,
+                        label: `LV${pm.level}-${pm.price}M ${pm.note ? `(${pm.note})` : ''}`,
+                      })),
+                      { value: '__custom__', label: '✏️ Tự nhập mốc khác...' },
+                    ]}
+                    ariaLabel="Mốc Level"
+                    size="sm"
+                  />
+                </label>
 
-                      {m.level || m.price ? (
-                        <span className="flex-shrink-0 rounded bg-brass/15 border border-brass/20 px-2 py-0.5 text-xs font-mono font-medium text-brass">
-                          {getMilestonePreview(m.level, m.price)}
-                        </span>
-                      ) : null}
-                    </div>
-                  ))}
-                </div>
+                {selectedMilestoneId === '__custom__' && (
+                  <div className="mt-2 flex items-center gap-2 rounded-lg border border-brass/40 bg-midnight p-2">
+                    <input
+                      type="number"
+                      min={1}
+                      placeholder="Lv (VD: 30)"
+                      value={customLevel}
+                      onChange={(e) => setCustomLevel(e.target.value)}
+                      className="w-20 rounded border border-white/[0.06] bg-midnight px-2 py-1 text-xs text-white placeholder-ash/40 font-mono focus:border-brass/40 focus:outline-none"
+                    />
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="Tiền (VD: 20)"
+                      value={customPrice}
+                      onChange={(e) => setCustomPrice(e.target.value)}
+                      className="w-24 rounded border border-white/[0.06] bg-midnight px-2 py-1 text-xs text-white placeholder-ash/40 font-mono focus:border-brass/40 focus:outline-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Chú thích (tùy chọn)"
+                      value={customNote}
+                      onChange={(e) => setCustomNote(e.target.value)}
+                      className="flex-1 rounded border border-white/[0.06] bg-midnight px-2 py-1 text-xs text-white placeholder-ash/40 focus:border-brass/40 focus:outline-none"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Actions */}

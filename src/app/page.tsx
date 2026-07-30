@@ -14,6 +14,7 @@ export default async function HomePage() {
     { data: sources },
     { data: farmers },
     { data: paidAccounts },
+    { data: presetMilestones },
   ] = await Promise.all([
     supabase
       .from('accounts')
@@ -43,6 +44,10 @@ export default async function HomePage() {
       .from('accounts')
       .select('id, username, amount_received, holder_sessions(holder_name)')
       .eq('status', 'da_nhan_tien'),
+    supabase
+      .from('preset_milestones')
+      .select('id, level, price, note')
+      .order('level'),
   ]);
 
   // Serialize bigint fields to strings for JSON transport
@@ -119,6 +124,7 @@ export default async function HomePage() {
       initialMilestones={serialisedMilestones}
       initialSources={serialisedSources}
       initialFarmers={serialisedFarmers}
+      initialPresetMilestones={(presetMilestones ?? []) as any}
       holderRevenue={holderRevenue}
     />
   );
