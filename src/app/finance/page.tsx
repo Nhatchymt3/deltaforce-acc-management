@@ -6,15 +6,22 @@ import Link from 'next/link';
 export default async function FinancePage() {
   const supabase = await createClient();
 
-  const { data: accountsData } = await supabase
-    .from('accounts')
-    .select('id, username, amount_received, holder_sessions(holder_name)')
-    .eq('status', 'da_nhan_tien');
+  const [{ data: accountsData }, { data: sources }] = await Promise.all([
+    supabase
+      .from('accounts')
+      .select('id, username, amount_received, source, completed_at, delivered_at, paid_at, holder_sessions(holder_name)')
+      .eq('status', 'da_nhan_tien'),
+    supabase.from('sources').select('id, name'),
+  ]);
+
+  const sourceMap: Record<string, string> = {};
+  (sources ?? []).forEach((s) => { sourceMap[s.id] = s.name; });
 
   const accounts: FinanceAccount[] = (accountsData ?? []).map((item) => ({
     id: item.id,
     username: item.username,
     amount_received: String(item.amount_received ?? '0'),
+    sourceName: sourceMap[item.source] ?? item.source,
     holders: Array.from(
       new Set(
         (item.holder_sessions ?? []).map(
@@ -22,6 +29,9 @@ export default async function FinancePage() {
         )
       )
     ),
+    completed_at: item.completed_at,
+    delivered_at: item.delivered_at,
+    paid_at: item.paid_at,
   }));
 
   return (

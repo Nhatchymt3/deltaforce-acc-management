@@ -6,33 +6,40 @@ import Link from 'next/link';
 export default async function ArchivePage() {
   const supabase = await createClient();
 
-  const [{ data: accountsData }, { data: sources }] = await Promise.all([
+  const [
+    { data: accountsData },
+    { data: sources },
+    { data: milestonesData },
+    { data: sessionsData },
+  ] = await Promise.all([
     supabase
       .from('accounts')
-      .select('id, username, password, amount_received, source, completed_at, delivered_at, paid_at, holder_sessions(holder_name)')
+      .select('*')
       .eq('status', 'da_nhan_tien')
       .order('paid_at', { ascending: false }),
     supabase.from('sources').select('id, name'),
+    supabase.from('account_milestones').select('*').order('level'),
+    supabase.from('holder_sessions').select('*').order('started_at'),
   ]);
 
   const sourceMap: Record<string, string> = {};
   (sources ?? []).forEach((s) => { sourceMap[s.id] = s.name; });
 
-  const rows: ArchiveRow[] = (accountsData ?? []).map((item) => ({
-    id: item.id,
-    username: item.username,
-    password: item.password,
-    amount_received: String(item.amount_received ?? '0'),
-    sourceName: sourceMap[item.source] ?? item.source,
-    holders: Array.from(
-      new Set(
-        (item.holder_sessions ?? []).map((s: { holder_name: string }) => s.holder_name)
-      )
-    ),
-    completed_at: item.completed_at,
-    delivered_at: item.delivered_at,
-    paid_at: item.paid_at,
-  }));
+  const accounts = (accountsData ?? []).map((a) => ({
+    ...a,
+    amount_received: a.amount_received != null ? String(a.amount_received) : null,
+    sourceName: sourceMap[a.source] ?? a.source,
+  })) as any[];
+
+  const milestones = (milestonesData ?? []).map((m) => ({
+    ...m,
+    price: String(m.price),
+  })) as any[];
+
+  const sessions = (sessionsData ?? []).map((s) => ({
+    ...s,
+    duration_seconds: s.duration_seconds != null ? Number(s.duration_seconds) : null,
+  })) as any[];
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -71,7 +78,7 @@ export default async function ArchivePage() {
           </form>
         </div>
 
-        <ArchiveView rows={rows} />
+        <ArchiveView accounts={accounts} milestones={milestones} sessions={sessions} />
       </main>
     </div>
   );
