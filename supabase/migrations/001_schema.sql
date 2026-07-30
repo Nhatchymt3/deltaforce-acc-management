@@ -80,6 +80,7 @@ alter table accounts           enable row level security;
 alter table account_milestones enable row level security;
 alter table holder_sessions    enable row level security;
 alter table sources            enable row level security;
+alter table farmers            enable row level security;
 
 do $$ begin
   create policy "authenticated accounts" on accounts
@@ -98,6 +99,11 @@ exception when duplicate_object then null; end $$;
 
 do $$ begin
   create policy "authenticated sources" on sources
+    for all to authenticated using (true) with check (true);
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create policy "authenticated farmers" on farmers
     for all to authenticated using (true) with check (true);
 exception when duplicate_object then null; end $$;
 
