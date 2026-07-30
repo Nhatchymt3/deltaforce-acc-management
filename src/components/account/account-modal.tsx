@@ -26,11 +26,11 @@ const STATUS_LABELS: Record<Account['status'], string> = {
 };
 
 const STATUS_COLORS: Record<Account['status'], { bg: string; border: string; text: string }> = {
-  kho: { bg: 'bg-slate-900/60', border: 'border-slate-600/30', text: 'text-slate-300' },
-  dang_cay: { bg: 'bg-yellow-900/40', border: 'border-yellow-600/30', text: 'text-yellow-300' },
-  done: { bg: 'bg-blue-900/40', border: 'border-blue-600/30', text: 'text-blue-300' },
-  da_giao_cho_ben_thu: { bg: 'bg-orange-900/40', border: 'border-orange-600/30', text: 'text-orange-300' },
-  da_nhan_tien: { bg: 'bg-green-900/40', border: 'border-green-600/30', text: 'text-green-300' },
+  kho: { bg: 'bg-ash/15', border: 'border-ash/30', text: 'text-ash' },
+  dang_cay: { bg: 'bg-brass/15', border: 'border-brass/30', text: 'text-brass' },
+  done: { bg: 'bg-od-green/20', border: 'border-od-green/40', text: 'text-emerald-300' },
+  da_giao_cho_ben_thu: { bg: 'bg-amber-500/15', border: 'border-amber-500/30', text: 'text-amber-300' },
+  da_nhan_tien: { bg: 'bg-green-500/15', border: 'border-green-500/30', text: 'text-green-300' },
 };
 
 function formatDuration(seconds: number | null): string {

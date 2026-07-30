@@ -31,19 +31,26 @@ export default async function LoginPage({
       : null;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
-      <form action={signIn} className="w-full max-w-sm space-y-6 rounded-2xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
-        <div><p className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-400">DeltaForce</p><h1 className="mt-3 text-3xl font-bold">Acc Management</h1><p className="mt-2 text-sm text-slate-400">Đăng nhập bằng mật khẩu dùng chung.</p></div>
+    <main className="flex min-h-screen items-center justify-center bg-midnight px-6 text-gray-200">
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brass/30 to-transparent" />
+      <form action={signIn} className="w-full max-w-sm space-y-5 rounded-xl border border-white/[0.06] bg-gunmetal p-7">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-white tracking-wide">DF<span className="text-brass">△</span></h1>
+          <p className="mt-1 text-xs text-ash">Đăng nhập bằng mật khẩu dùng chung.</p>
+        </div>
         {errorMessage && (
-          <div role="alert" className="flex items-center gap-2 rounded-lg border border-red-500/40 bg-red-950/50 px-4 py-3 text-sm text-red-300">
-            <svg className="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div role="alert" className="flex items-center gap-2 rounded-lg border border-signal-red/30 bg-signal-red/10 px-3 py-2.5 text-xs text-red-300">
+            <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>{errorMessage}</span>
           </div>
         )}
-        <label className="block text-sm font-medium">Mật khẩu<input name="password" type="password" required className="mt-2 w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-3 outline-none ring-cyan-400 focus:ring-2" /></label>
-        <button className="w-full rounded-lg bg-cyan-500 px-4 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400" type="submit">Đăng nhập</button>
+        <label className="block text-xs font-medium text-ash">
+          Mật khẩu
+          <input name="password" type="password" required className="mt-1.5 w-full rounded-lg border border-white/[0.06] bg-midnight px-3.5 py-2.5 text-sm text-white outline-none focus:border-brass/40 focus:ring-1 focus:ring-brass/20 transition-all" />
+        </label>
+        <button className="w-full rounded-lg bg-brass px-4 py-2.5 text-sm font-semibold text-midnight transition hover:bg-brass/90" type="submit">Đăng nhập</button>
       </form>
     </main>
   );
