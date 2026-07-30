@@ -441,6 +441,7 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [customTagDays, setCustomTagDays] = useState('');
   const [showDoneModal, setShowDoneModal] = useState(false);
   const [doneGameUuid, setDoneGameUuid] = useState('');
