@@ -8,6 +8,14 @@
 -- 001–008 migration chain.
 -- ============================================================
 
+-- ─── Clean Up Existing Data / Reset Database ──────────────────
+drop table if exists holder_sessions cascade;
+drop table if exists account_milestones cascade;
+drop table if exists accounts cascade;
+drop table if exists farmers cascade;
+drop table if exists sources cascade;
+drop type if exists account_status cascade;
+
 -- ─── Enums ────────────────────────────────────────────────────
 do $$ begin
   create type account_status as enum
