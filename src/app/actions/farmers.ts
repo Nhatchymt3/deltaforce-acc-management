@@ -41,6 +41,12 @@ export async function updateFarmer(id: string, name: string): Promise<Farmer> {
   const trimmed = name.trim();
   if (!trimmed) throw new Error('Tên AE không được để trống');
 
+  const { data: oldFarmer } = await supabase
+    .from('farmers')
+    .select('name')
+    .eq('id', id)
+    .single();
+
   const { data, error } = await supabase
     .from('farmers')
     .update({ name: trimmed })
@@ -51,6 +57,18 @@ export async function updateFarmer(id: string, name: string): Promise<Farmer> {
   if (error) {
     if (error.code === '23505') throw new Error('Tên AE này đã tồn tại');
     throw new Error(error.message);
+  }
+
+  if (oldFarmer && oldFarmer.name !== trimmed) {
+    await supabase
+      .from('accounts')
+      .update({ current_holder: trimmed })
+      .ilike('current_holder', oldFarmer.name);
+
+    await supabase
+      .from('holder_sessions')
+      .update({ holder_name: trimmed })
+      .ilike('holder_name', oldFarmer.name);
   }
 
   revalidatePath('/');

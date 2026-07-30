@@ -45,7 +45,7 @@ const STATUS_COLORS: Record<Account['status'], { bg: string; text: string; glow:
 };
 
 function normaliseHolder(name: string): string {
-  return name.trim().replace(/\s+/g, ' ');
+  return name.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 function isLocked(status: Account['status']): boolean {
@@ -474,7 +474,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const holderColumns = allHolders.map((holder) => ({
     id: holder,
     label: holder,
-    accounts: filtered.filter((a) => a.current_holder === holder),
+    accounts: filtered.filter((a) => a.current_holder && normaliseHolder(a.current_holder) === normaliseHolder(holder)),
   }));
 
   return (
