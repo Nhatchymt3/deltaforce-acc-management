@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { signOut } from '@/app/actions/auth';
-import { ArchiveView, type ArchiveRow } from '@/components/archive/archive-view';
+import { ArchiveView } from '@/components/archive/archive-view';
 import Link from 'next/link';
 
 export default async function ArchivePage() {
