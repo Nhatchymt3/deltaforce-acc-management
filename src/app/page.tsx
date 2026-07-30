@@ -69,7 +69,7 @@ export default async function HomePage() {
   // sync it to the active farmer name so no account is left behind.
   const validFarmerNames = new Set(serialisedFarmers.map((f) => f.name.trim().toLowerCase()));
   if (serialisedFarmers.length > 0) {
-    const defaultFarmerName = serialisedFarmers[0].name;
+    const defaultFarmerName = serialisedFarmers[0]!.name;
     const admin = createAdminClient();
     let needsUpdate = false;
 
