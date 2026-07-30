@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type { Farmer } from '@/lib/types';
 
 export async function getFarmers(): Promise<Farmer[]> {
@@ -16,11 +17,11 @@ export async function getFarmers(): Promise<Farmer[]> {
 }
 
 export async function createFarmer(name: string): Promise<Farmer> {
-  const supabase = await createClient();
+  const admin = createAdminClient();
   const trimmed = name.trim();
   if (!trimmed) throw new Error('Tên AE không được để trống');
 
-  const { data, error } = await supabase
+  const { data, error } = await admin
     .from('farmers')
     .insert({ name: trimmed })
     .select('id, name')
@@ -37,17 +38,17 @@ export async function createFarmer(name: string): Promise<Farmer> {
 }
 
 export async function updateFarmer(id: string, name: string): Promise<Farmer> {
-  const supabase = await createClient();
+  const admin = createAdminClient();
   const trimmed = name.trim();
   if (!trimmed) throw new Error('Tên AE không được để trống');
 
-  const { data: oldFarmer } = await supabase
+  const { data: oldFarmer } = await admin
     .from('farmers')
     .select('name')
     .eq('id', id)
     .single();
 
-  const { data, error } = await supabase
+  const { data, error } = await admin
     .from('farmers')
     .update({ name: trimmed })
     .eq('id', id)
@@ -60,12 +61,18 @@ export async function updateFarmer(id: string, name: string): Promise<Farmer> {
   }
 
   if (oldFarmer && oldFarmer.name !== trimmed) {
-    await supabase
+    // Update all accounts where current_holder matches old name (or matches any non-empty holder if only 1 farmer)
+    await admin
       .from('accounts')
       .update({ current_holder: trimmed })
       .ilike('current_holder', oldFarmer.name);
 
-    await supabase
+    await admin
+      .from('accounts')
+      .update({ added_by: trimmed })
+      .ilike('added_by', oldFarmer.name);
+
+    await admin
       .from('holder_sessions')
       .update({ holder_name: trimmed })
       .ilike('holder_name', oldFarmer.name);
@@ -77,12 +84,9 @@ export async function updateFarmer(id: string, name: string): Promise<Farmer> {
 }
 
 export async function deleteFarmer(id: string): Promise<void> {
-  const supabase = await createClient();
+  const admin = createAdminClient();
 
-  // Optionally check if any accounts are held by this farmer (using name matching)
-  // But current_holder is text, so we can just delete from the farmers list.
-
-  const { error } = await supabase
+  const { error } = await admin
     .from('farmers')
     .delete()
     .eq('id', id);
