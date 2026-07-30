@@ -318,22 +318,27 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     return map;
   }, [holderRevenue]);
 
-  const allHolders = useMemo(() => {
-    const seen = new Map<string, string>();
+  const farmerMap = useMemo(() => {
+    const map: Record<string, string> = {};
     if (initialFarmers) {
-      initialFarmers.forEach((f) => seen.set(normaliseHolder(f.name), f.name));
+      initialFarmers.forEach((f) => { map[f.id] = f.name; });
     }
+    return map;
+  }, [initialFarmers]);
+
+  const allFarmers = useMemo(() => {
+    if (initialFarmers && initialFarmers.length > 0) {
+      return initialFarmers;
+    }
+    const seen = new Map<string, { id: string; name: string }>();
     accounts.forEach((a) => {
-      if (a.current_holder) seen.set(normaliseHolder(a.current_holder), a.current_holder);
+      if (a.current_holder) {
+        const norm = normaliseHolder(a.current_holder);
+        if (!seen.has(norm)) seen.set(norm, { id: a.current_holder, name: a.current_holder });
+      }
     });
-    
-    return Array.from(seen.values()).sort((a, b) => {
-      const revA = revenueByNormHolder[normaliseHolder(a)] ?? 0;
-      const revB = revenueByNormHolder[normaliseHolder(b)] ?? 0;
-      if (revA !== revB) return revB - revA;
-      return a.localeCompare(b, 'vi', { sensitivity: 'base' });
-    });
-  }, [accounts, initialFarmers, revenueByNormHolder]);
+    return Array.from(seen.values());
+  }, [accounts, initialFarmers]);
 
   useEffect(() => {
     if (deletedIds.length === 0) return;
@@ -372,8 +377,9 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
       nextHolder = null;
       nextStatus = 'kho';
     } else {
-      if (!allHolders.includes(overId)) return;
-      nextHolder = overId;
+      const targetFarmer = allFarmers.find((f) => f.id === overId || f.name === overId);
+      if (!targetFarmer) return;
+      nextHolder = targetFarmer.name;
       nextStatus = account.status === 'kho' ? 'dang_cay' : account.status;
     }
 
@@ -470,10 +476,14 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   );
 
   const khoAccounts = filtered.filter((a) => a.status === 'kho' && !a.current_holder);
-  const holderColumns = allHolders.map((holder) => ({
-    id: holder,
-    label: holder,
-    accounts: filtered.filter((a) => a.current_holder && normaliseHolder(a.current_holder) === normaliseHolder(holder)),
+  const holderColumns = allFarmers.map((f) => ({
+    id: f.id,
+    label: farmerMap[f.id] ?? f.name,
+    accounts: filtered.filter(
+      (a) =>
+        a.current_holder &&
+        (a.current_holder === f.id || normaliseHolder(a.current_holder) === normaliseHolder(f.name))
+    ),
   }));
 
   return (
