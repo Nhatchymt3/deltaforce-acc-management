@@ -314,16 +314,7 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
 
               {/* Milestones */}
               <div>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-xs font-medium uppercase tracking-wide text-ash">Mốc Level</span>
-                  <button
-                    type="button"
-                    onClick={addMilestone}
-                    className="flex items-center gap-1 text-xs text-brass hover:underline"
-                  >
-                    + Thêm mốc
-                  </button>
-                </div>
+                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-ash">Mốc Level</span>
                 <div className="space-y-1.5">
                   {milestones.map((m, i) => (
                     <div key={i} className="flex items-center gap-2 rounded-lg border border-white/[0.04] bg-midnight/40 p-2">
@@ -358,18 +349,6 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
                           {getMilestonePreview(m.level, m.price)}
                         </span>
                       ) : null}
-
-                      {milestones.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeMilestone(i)}
-                          className="flex-shrink-0 rounded p-1 text-ash hover:text-signal-red transition-colors"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      )}
                     </div>
                   ))}
                 </div>
