@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { FarmerManager } from '@/components/Farmers/Farmer-manager';
+import { FarmerManager } from '@/components/farmers/farmer-manager';
 import { signOut } from '@/app/actions/auth';
 import type { Farmer } from '@/lib/types';
 import Link from 'next/link';
