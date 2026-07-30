@@ -107,6 +107,17 @@ do $$ begin
     for all to authenticated using (true) with check (true);
 exception when duplicate_object then null; end $$;
 
+-- ─── Supabase Realtime ───────────────────────────────────────
+do $$ begin
+  alter publication supabase_realtime add table accounts;
+exception when others then null; end $$;
+do $$ begin
+  alter publication supabase_realtime add table account_milestones;
+exception when others then null; end $$;
+do $$ begin
+  alter publication supabase_realtime add table holder_sessions;
+exception when others then null; end $$;
+
 -- ─── updated_at touch trigger ─────────────────────────────────
 create or replace function touch_updated_at() returns trigger
 language plpgsql as $$

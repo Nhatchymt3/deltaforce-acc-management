@@ -276,6 +276,11 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const [mounted, setMounted] = useState(false);
   const { toasts, addToast } = useToast();
 
+  // Sync state when parent (BoardWrapper) updates initialAccounts (e.g., via AccountModal actions)
+  useEffect(() => {
+    setAccounts(initialAccounts);
+  }, [initialAccounts]);
+
   const snapshotRef = useRef<Account[]>(initialAccounts);
 
   const realtimeUpdateRef = useRef(onRealtimeAccountUpdate);
@@ -403,7 +408,8 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           { event: '*', schema: 'public', table: 'accounts' },
           (payload) => {
             if (payload.eventType === 'UPDATE') {
-              const updated = payload.new as Account;
+              const raw = payload.new as Account;
+              const updated = { ...raw, sourceName: sourceMap[raw.source] ?? raw.sourceName };
               setAccounts((prev) => {
                 const idx = prev.findIndex((a) => a.id === updated.id);
                 if (idx === -1) return prev;
@@ -413,7 +419,8 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               });
               realtimeUpdateRef.current?.(updated);
             } else if (payload.eventType === 'INSERT') {
-              const inserted = payload.new as Account;
+              const raw = payload.new as Account;
+              const inserted = { ...raw, sourceName: sourceMap[raw.source] ?? raw.sourceName };
               setAccounts((prev) =>
                 prev.some((a) => a.id === inserted.id) ? prev : [...prev, inserted]
               );

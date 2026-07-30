@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Board } from '@/components/board/board';
 import dynamic from 'next/dynamic';
 
@@ -31,6 +32,11 @@ export function BoardWrapper({
   const [sessions, setSessions] = useState<HolderSession[]>(initialSessions);
   const [sources] = useState<Source[]>(initialSources);
   const [farmers] = useState<Farmer[]>(initialFarmers);
+  const router = useRouter();
+
+  useEffect(() => {
+    setAccounts(initialAccounts);
+  }, [initialAccounts]);
 
   const [modalAccount, setModalAccount] = useState<Account | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -112,8 +118,8 @@ export function BoardWrapper({
 
   const handleCreateSuccess = useCallback(() => {
     setShowCreate(false);
-    window.location.reload();
-  }, []);
+    router.refresh();
+  }, [router]);
 
   return (
     <>
