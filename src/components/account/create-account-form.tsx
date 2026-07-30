@@ -218,7 +218,7 @@ export function CreateAccountForm({ sources, farmers, onSuccess, onCancel }: Cre
                       ref={textareaRef}
                       value={accountsInput}
                       onChange={handleInputChange}
-                      placeholder={`acc1|pw1\nacc2|pw2\n\nhoặc chỉ username:\nacc1\nacc2`}
+                      placeholder={`acc1|pw1\nacc2|pw2\nacc3|pw3`}
                       rows={3}
                       className={`w-full rounded-lg border ${
                         invalidLines.length > 0
