@@ -10,6 +10,7 @@ import {
   ensureMilestone,
   updateMilestone,
   deleteMilestone,
+  setAccountTag,
 } from '@/app/actions/accounts';
 import type { Account, Milestone, HolderSession } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
@@ -759,6 +760,106 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
                         ))}
                       </div>
                     )}
+                  </section>
+
+                  {/* Incident Tag */}
+                  <section className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
+                      <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      Thẻ sự cố (Ban / Cấm Party)
+                    </h3>
+
+                    {/* Active Tag Status */}
+                    {(() => {
+                      if (!account.tag_label || !account.tag_expires_at) return null;
+                      const expires = new Date(account.tag_expires_at).getTime();
+                      const now = Date.now();
+                      if (expires <= now) return null;
+
+                      const diffMs = expires - now;
+                      const daysLeft = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                      const hoursLeft = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                      const isBan = account.tag_label.toLowerCase().includes('ban') && !account.tag_label.toLowerCase().includes('cấm');
+
+                      return (
+                        <div className="mb-3 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base">{isBan ? '🚫' : '⚠️'}</span>
+                            <div>
+                              <span className="font-bold text-white text-sm">{account.tag_label}</span>
+                              <p className="text-xs text-slate-400">
+                                Hạn còn: <strong className="text-cyan-300 font-mono">{daysLeft} ngày {hoursLeft} giờ</strong>
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={async () => {
+                              try {
+                                const res = await setAccountTag(account.id, null, null);
+                                onUpdated(res);
+                                showToast('Đã gỡ tag');
+                              } catch (err) {
+                                setError(err instanceof Error ? err.message : 'Gỡ tag thất bại');
+                              }
+                            }}
+                            className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-300 hover:bg-red-500/20 transition-all"
+                          >
+                            Gỡ Tag
+                          </button>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Presets */}
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-[11px] font-medium text-red-400/90 block mb-1.5">🚫 Ban acc:</span>
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {[1, 3, 7, 30].map((days) => (
+                            <button
+                              key={`ban-${days}`}
+                              onClick={async () => {
+                                try {
+                                  const res = await setAccountTag(account.id, `Ban ${days} ngày`, days);
+                                  onUpdated(res);
+                                  showToast(`Đã gắn tag Ban ${days} ngày`);
+                                } catch (err) {
+                                  setError(err instanceof Error ? err.message : 'Gắn tag thất bại');
+                                }
+                              }}
+                              className="rounded-lg border border-red-500/20 bg-red-950/30 px-2 py-1.5 text-xs text-red-200 hover:bg-red-900/40 hover:border-red-500/40 transition-all text-center"
+                            >
+                              {days} ngày
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-[11px] font-medium text-amber-400/90 block mb-1.5">⚠️ Cấm party:</span>
+                        <div className="grid grid-cols-4 gap-1.5">
+                          {[1, 3, 7, 30].map((days) => (
+                            <button
+                              key={`party-${days}`}
+                              onClick={async () => {
+                                try {
+                                  const res = await setAccountTag(account.id, `Cấm party ${days} ngày`, days);
+                                  onUpdated(res);
+                                  showToast(`Đã gắn tag Cấm party ${days} ngày`);
+                                } catch (err) {
+                                  setError(err instanceof Error ? err.message : 'Gắn tag thất bại');
+                                }
+                              }}
+                              className="rounded-lg border border-amber-500/20 bg-amber-950/30 px-2 py-1.5 text-xs text-amber-200 hover:bg-amber-900/40 hover:border-amber-500/40 transition-all text-center"
+                            >
+                              {days} ngày
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </section>
 
                   {/* Images */}

@@ -52,6 +52,8 @@ create table if not exists accounts (
   image_url           text,
   image_expires_at    timestamptz,
   added_by            text,
+  tag_label           text,
+  tag_expires_at      timestamptz,
   version             integer not null default 0,
   updated_at          timestamptz not null default now()
 );

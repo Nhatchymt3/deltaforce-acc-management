@@ -21,6 +21,8 @@ export type Account = {
   paid_at: string | null;
   target_milestone_id: string | null;
   added_by?: string | null;
+  tag_label?: string | null;
+  tag_expires_at?: string | null;
 };
 
 export type Milestone = {

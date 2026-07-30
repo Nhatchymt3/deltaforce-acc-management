@@ -173,6 +173,25 @@ function Card({ account, targetMilestone, onOpen, index }: CardProps) {
           Người thêm: <span className="text-slate-400 font-medium">{account.added_by}</span>
         </p>
       )}
+      {(() => {
+        if (!account.tag_label || !account.tag_expires_at) return null;
+        const expires = new Date(account.tag_expires_at).getTime();
+        const now = Date.now();
+        if (expires <= now) return null;
+        const remainingDays = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
+        const isBan = account.tag_label.toLowerCase().includes('ban') && !account.tag_label.toLowerCase().includes('cấm');
+        return (
+          <div className={`mt-2 inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[11px] font-semibold ${
+            isBan
+              ? 'border-red-500/40 bg-red-500/10 text-red-300'
+              : 'border-amber-500/40 bg-amber-500/10 text-amber-300'
+          }`}>
+            <span>{isBan ? '🚫' : '⚠️'}</span>
+            <span>{account.tag_label}</span>
+            <span className="opacity-75">({remainingDays}d)</span>
+          </div>
+        );
+      })()}
     </div>
   );
 }

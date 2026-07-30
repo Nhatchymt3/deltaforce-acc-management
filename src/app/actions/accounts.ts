@@ -466,3 +466,32 @@ export async function getAccountMilestones(accountId: string): Promise<Milestone
   if (error) return [];
   return (data ?? []).map((m) => ({ ...m, price: String(m.price) })) as Milestone[];
 }
+
+export async function setAccountTag(
+  accountId: string,
+  tagLabel: string | null,
+  days: number | null
+): Promise<Account> {
+  const admin = createAdminClient();
+  let tagExpiresAt: string | null = null;
+
+  if (tagLabel && days && days > 0) {
+    const expires = new Date();
+    expires.setDate(expires.getDate() + days);
+    tagExpiresAt = expires.toISOString();
+  }
+
+  const { data, error } = await admin
+    .from('accounts')
+    .update({
+      tag_label: tagLabel,
+      tag_expires_at: tagExpiresAt,
+    })
+    .eq('id', accountId)
+    .select('*')
+    .single();
+
+  if (error) throw new Error(error.message);
+  revalidatePath('/');
+  return serializeAccount(data);
+}
