@@ -24,6 +24,7 @@ import { moveAccount } from '@/app/actions/accounts';
 import { signOut } from '@/app/actions/auth';
 import type { Account, HolderSession, Milestone, Source, Farmer } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
+import { AudioPlayer } from '@/components/ui/audio-player';
 
 const KHO_SENTINEL = '__kho__';
 const LOCKED_STATUSES = ['done', 'da_giao_cho_ben_thu', 'da_nhan_tien'] as const;
@@ -659,6 +660,9 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Background Audio Player */}
+          <AudioPlayer />
+
           {/* Quick Search */}
           <div className="relative min-w-[180px]">
             <input
