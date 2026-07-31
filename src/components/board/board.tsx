@@ -712,11 +712,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
       {/* Right Control Dock Sidebar */}
       <aside className="fixed right-4 top-20 z-40 flex flex-col items-center gap-2 rounded-2xl border border-white/[0.08] bg-gunmetal/90 p-2 shadow-2xl backdrop-blur-xl transition-all">
-        {/* Background Music Player */}
-        <AudioPlayer />
-
-        <div className="w-6 h-px bg-white/10 my-0.5" />
-
         {/* Leaderboard Toggle */}
         <button
           onClick={() => setShowLeaderboard(!showLeaderboard)}
