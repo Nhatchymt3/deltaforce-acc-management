@@ -229,6 +229,15 @@ interface ColumnProps {
 
 function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRemove }: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
+  const [khoSearch, setKhoSearch] = useState('');
+
+  const displayedAccounts = isKho && khoSearch.trim()
+    ? accounts.filter((a) =>
+        a.username.toLowerCase().includes(khoSearch.trim().toLowerCase()) ||
+        (a.sourceName && a.sourceName.toLowerCase().includes(khoSearch.trim().toLowerCase())) ||
+        (a.added_by && a.added_by.toLowerCase().includes(khoSearch.trim().toLowerCase()))
+      )
+    : accounts;
 
   return (
     <div
@@ -237,53 +246,82 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
         isOver && id === KHO_SENTINEL
           ? 'border-brass/40 bg-brass/5'
           : isKho
-          ? 'border-dashed border-white/[0.06] bg-midnight/50'
+          ? 'border-dashed border-white/[0.08] bg-midnight/60 shadow-inner'
           : 'border-white/[0.04] bg-midnight/40'
       }`}
     >
       {/* Column header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.04]">
-        <h2 className="font-display font-semibold text-white text-sm tracking-wide flex items-center gap-2">
-          {isKho ? (
-            <div className="w-6 h-6 rounded bg-ash/15 flex items-center justify-center">
-              <svg className="w-3 h-3 text-ash" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            </div>
-          ) : (
-            <div className="w-6 h-6 rounded bg-brass/15 border border-brass/20 flex items-center justify-center">
-              <span className="text-brass text-[10px] font-bold">
-                {label.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          )}
-          {label}
-        </h2>
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-[11px] text-ash/60">
-            {accounts.length}
-          </span>
-          {onRemove && accounts.length === 0 && (
-            <button
-              onClick={onRemove}
-              title="Xóa cột AE"
-              className="flex h-5 w-5 items-center justify-center rounded text-ash/40 hover:bg-signal-red/10 hover:text-signal-red transition-colors"
-            >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
+      <div className="flex flex-col border-b border-white/[0.04]">
+        <div className="flex items-center justify-between px-4 py-3">
+          <h2 className="font-display font-semibold text-white text-sm tracking-wide flex items-center gap-2">
+            {isKho ? (
+              <div className="w-6 h-6 rounded bg-ash/15 flex items-center justify-center">
+                <svg className="w-3.5 h-3.5 text-brass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+            ) : (
+              <div className="w-6 h-6 rounded bg-brass/15 border border-brass/20 flex items-center justify-center">
+                <span className="text-brass text-[10px] font-bold">
+                  {label.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+            {label}
+          </h2>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[11px] text-ash/70 bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/[0.06]">
+              {displayedAccounts.length}{isKho && khoSearch.trim() && `/${accounts.length}`}
+            </span>
+            {onRemove && accounts.length === 0 && (
+              <button
+                onClick={onRemove}
+                title="Xóa cột AE"
+                className="flex h-5 w-5 items-center justify-center rounded text-ash/40 hover:bg-signal-red/10 hover:text-signal-red transition-colors"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-      {/* Card list */}
-      <div className="flex flex-col gap-2 p-3 max-h-[75vh] overflow-y-auto scrollbar-thin pb-8">
-        {accounts.length === 0 && (
-          <div className="flex items-center justify-center py-12 text-ash/30">
-            <span className="text-xs font-mono">—</span>
+
+        {/* Quick Search for Kho chung */}
+        {isKho && accounts.length > 5 && (
+          <div className="px-3 pb-2.5">
+            <div className="relative">
+              <input
+                type="text"
+                value={khoSearch}
+                onChange={(e) => setKhoSearch(e.target.value)}
+                placeholder="Lọc nhanh acc trong kho..."
+                className="w-full rounded-md border border-white/[0.06] bg-gunmetal/90 px-2.5 py-1 pl-7 text-[11px] text-white placeholder-ash/40 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+              />
+              <svg className="w-3 h-3 absolute left-2 top-2 text-ash/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              {khoSearch && (
+                <button
+                  onClick={() => setKhoSearch('')}
+                  className="absolute right-2 top-1.5 text-ash/40 hover:text-white text-[10px]"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
         )}
-        {accounts.map((a, i) => (
+      </div>
+
+      {/* Card list */}
+      <div className="flex flex-col gap-2 p-3 max-h-[70vh] overflow-y-auto scrollbar-thin pb-8">
+        {displayedAccounts.length === 0 && (
+          <div className="flex items-center justify-center py-12 text-ash/30">
+            <span className="text-xs font-mono">{isKho && khoSearch.trim() ? 'Không tìm thấy acc' : '—'}</span>
+          </div>
+        )}
+        {displayedAccounts.map((a, i) => (
           <Card
             key={a.id}
             account={a}
