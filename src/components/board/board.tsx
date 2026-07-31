@@ -242,13 +242,14 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col rounded-xl border transition-all duration-200 min-h-[420px] ${
+      className={`flex flex-col rounded-xl border transition-all duration-200 ${
         isOver && id === KHO_SENTINEL
           ? 'border-brass/40 bg-brass/5'
           : isKho
           ? 'border-dashed border-white/[0.08] bg-midnight/60 shadow-inner'
           : 'border-white/[0.04] bg-midnight/40'
       }`}
+      style={{ maxHeight: 'calc(100vh - 160px)' }}
     >
       {/* Column header */}
       <div className="flex flex-col border-b border-white/[0.04]">
@@ -315,7 +316,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
       </div>
 
       {/* Card list */}
-      <div className="flex flex-col gap-2.5 p-3 flex-1 overflow-y-auto scrollbar-thin max-h-[calc(100vh-230px)] min-h-[300px] pb-6">
+      <div className="flex flex-col gap-2.5 p-3 flex-1 overflow-y-auto scrollbar-thin pb-6">
         {displayedAccounts.length === 0 && (
           <div className="flex items-center justify-center py-12 text-ash/30">
             <span className="text-xs font-mono">{isKho && khoSearch.trim() ? 'Không tìm thấy acc' : '—'}</span>
@@ -804,6 +805,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             display: 'grid',
             gridAutoFlow: 'column',
             gridAutoColumns: '300px',
+            alignItems: 'start',
           }}
         >
           <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
