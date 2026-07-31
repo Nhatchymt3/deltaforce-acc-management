@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/browser';
 import { signOut } from '@/app/actions/auth';
 import { AudioPlayer } from '@/components/ui/audio-player';
 import { Dropdown } from '@/components/ui/dropdown';
@@ -12,6 +14,25 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel('global-db-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public' },
+        () => {
+          router.refresh();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [router]);
   const isHomePage = pathname === '/';
 
   return (

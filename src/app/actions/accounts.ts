@@ -64,14 +64,21 @@ export async function moveAccount(
   knownVersion: number
 ) {
   const supabase = await createClient();
-  const account = await runVersionTolerantRpc(accountId, knownVersion, async (version) =>
-    supabase.rpc('move_account', {
-      p_account_id: accountId,
-      p_next_holder: nextHolder,
-      p_target_pos: position,
-      p_known_version: version,
-    })
-  );
+  const { data, error } = await supabase.rpc('move_account', {
+    p_account_id: accountId,
+    p_next_holder: nextHolder,
+    p_target_pos: position,
+    p_known_version: knownVersion,
+  });
+
+  if (error) {
+    if (isVersionConflict(error.message)) {
+      throw new Error('Tài khoản đã được người khác thao tác trước đó!');
+    }
+    throw new Error(error.message);
+  }
+
+  const account = serializeAccount(data);
   revalidatePath('/');
   revalidatePath('/finance');
   return account;
