@@ -607,7 +607,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   }));
 
   return (
-    <div className={`relative min-h-screen text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`relative h-screen flex flex-col overflow-hidden text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-midnight" />
         <div className="stars-bg absolute inset-0" />
@@ -798,12 +798,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
       </header>
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
-        <section
-          className="mx-auto mt-6 flex gap-4 px-6 pb-8 overflow-x-auto items-start"
-          style={{
-            minHeight: 'calc(100vh - 120px)'
-          }}
-        >
+        <section className="flex-1 min-h-0 mx-auto w-full my-3 flex gap-4 px-6 overflow-x-auto items-start">
           <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
           {holderColumns.map((col) => (
             <Column
