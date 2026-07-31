@@ -13,11 +13,8 @@ export const metadata = { title: 'DeltaForce Acc Management', description: 'Kanb
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="vi">
-      <body className={`${inter.className} ${rajdhani.variable} ${jetbrains.variable} h-screen flex flex-col overflow-hidden bg-midnight text-gray-200`}>
-        <main className="flex-1 min-h-0 relative overflow-y-auto">
-          {children}
-        </main>
-        <Footer />
+      <body className={`${inter.className} ${rajdhani.variable} ${jetbrains.variable} h-screen overflow-hidden bg-midnight text-gray-200`}>
+        {children}
       </body>
     </html>
   );
