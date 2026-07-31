@@ -40,6 +40,32 @@ export function AudioPlayer() {
     }
   }, [volume]);
 
+  // Autoplay when tracks loaded or track index changes
+  useEffect(() => {
+    if (tracks.length > 0 && audioRef.current) {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch(() => {
+            // Browser autoplay policy might require first user click
+            setIsPlaying(false);
+
+            const handleFirstInteraction = () => {
+              if (audioRef.current) {
+                audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+              }
+              window.removeEventListener('click', handleFirstInteraction);
+              window.removeEventListener('keydown', handleFirstInteraction);
+            };
+
+            window.addEventListener('click', handleFirstInteraction);
+            window.addEventListener('keydown', handleFirstInteraction);
+          });
+      }
+    }
+  }, [tracks, currentIndex]);
+
   function togglePlay() {
     if (!audioRef.current) return;
     if (isPlaying) {
