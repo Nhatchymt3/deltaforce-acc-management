@@ -562,7 +562,51 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
     void performAction('pay', { amountReceived: payAmount });
   }
 
-  const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, quality = 0.8): Promise<File> {
+  if (!file.type.startsWith('image/') || file.type === 'image/gif') return file;
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width > maxWidth || height > maxHeight) {
+        if (width / height > maxWidth / maxHeight) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        } else {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return resolve(file);
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob || blob.size >= file.size) return resolve(file);
+          const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
+            type: 'image/jpeg',
+            lastModified: Date.now(),
+          });
+          resolve(compressedFile);
+        },
+        'image/jpeg',
+        quality
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(file);
+    };
+    img.src = url;
+  });
+}
+
+  const MAX_IMAGE_SIZE = 25 * 1024 * 1024; // 25 MB before compression
 
   function stageFiles(files: File[]) {
     if (files.length === 0) return;
@@ -574,7 +618,7 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
         continue;
       }
       if (file.size > MAX_IMAGE_SIZE) {
-        setError(`"${file.name}" quá lớn – tối đa 5 MB`);
+        setError(`"${file.name}" quá lớn – tối đa 25 MB`);
         continue;
       }
       const safeName = file.name && file.name.trim() ? file.name : 'clipboard.png';
@@ -601,12 +645,17 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
     setError(null);
     setUploading(true);
     try {
-      const fd = new FormData();
-      staged.forEach((s) => fd.append('files', s.file));
-      const result = await uploadAccountImages(account.id, account.version, fd);
+      let currentAccount = account;
+      for (const s of staged) {
+        const compressed = await compressImage(s.file);
+        const fd = new FormData();
+        fd.append('files', compressed);
+        const result = await uploadAccountImages(currentAccount.id, currentAccount.version, fd);
+        currentAccount = result as Account;
+      }
       staged.forEach((s) => URL.revokeObjectURL(s.preview));
       setStaged([]);
-      onUpdated(result as Account);
+      onUpdated(currentAccount);
       showToast(`Đã tải lên ${staged.length} ảnh!`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload thất bại');
