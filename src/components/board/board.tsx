@@ -642,18 +642,15 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           ))}
         </div>
 
-
-
-      {/* Board Controls Toolbar */}
-      <div className="shrink-0 mx-auto flex max-w-full w-full items-center justify-between gap-4 px-6 pt-3 pb-2 border-b border-white/[0.04] bg-midnight/40 backdrop-blur-md">
+      {/* Horizontal Header Toolbar Controls */}
+      <div className="shrink-0 mx-auto flex max-w-full w-full items-center justify-between gap-4 px-6 pt-2 pb-2 border-b border-white/[0.04] bg-midnight/30 backdrop-blur-md">
         <div className="flex items-center gap-3 shrink-0">
-          <span className="font-mono text-xs text-brass/80 bg-brass/10 border border-brass/20 rounded px-2.5 py-0.5" title="Tổng số acc đang cày/trong kho">
+          <span className="font-mono text-xs text-brass/80 bg-brass/10 border border-brass/20 rounded px-2.5 py-0.5" title="Tổng số acc">
             {initialAccounts.length} ACC
           </span>
         </div>
 
         <div className="flex items-center gap-3 pr-20">
-          {/* Quick Search */}
           <div className="relative min-w-[200px] max-w-[280px]">
             <input
               type="text"
@@ -666,10 +663,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="absolute right-2 top-2 text-ash/50 hover:text-white text-xs"
-              >
+              <button onClick={() => setSearchTerm('')} className="absolute right-2 top-2 text-ash/50 hover:text-white text-xs">
                 ✕
               </button>
             )}
@@ -685,7 +679,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             />
           </div>
 
-          {/* Sort dropdown */}
           <div className="min-w-[140px]">
             <Dropdown
               value={sortBy}

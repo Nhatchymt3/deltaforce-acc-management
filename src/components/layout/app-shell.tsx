@@ -12,6 +12,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
+  const isHomePage = pathname === '/';
 
   return (
     <div className="relative h-screen flex flex-col overflow-hidden text-gray-200 bg-midnight">
