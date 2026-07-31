@@ -58,12 +58,13 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       </header>
 
-      {/* Right Control Dock Sidebar - Persistent across pages */}
-      <aside className="fixed right-4 top-16 z-40 flex flex-col items-center gap-2 rounded-2xl border border-white/[0.08] bg-gunmetal/90 p-2 shadow-2xl backdrop-blur-xl transition-all">
+      {/* Control Dock: Bottom bar on mobile, Right sidebar on desktop */}
+      <aside className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-4 md:top-16 z-40 flex flex-row md:flex-col items-center justify-around md:justify-start gap-1.5 md:gap-2 border-t md:border border-white/[0.08] bg-gunmetal/95 md:bg-gunmetal/90 p-2 shadow-2xl backdrop-blur-xl transition-all">
         {/* Background Music Player */}
         <AudioPlayer />
 
-        <div className="w-6 h-px bg-white/10 my-0.5" />
+        <div className="hidden md:block w-6 h-px bg-white/10 my-0.5" />
+        <div className="block md:hidden h-6 w-px bg-white/10 mx-0.5" />
 
         {/* Board Acc / Trang chủ */}
         <Link
@@ -79,8 +80,6 @@ export function AppShell({ children }: AppShellProps) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>
         </Link>
-
-
 
         {/* Finance */}
         <Link
@@ -108,7 +107,7 @@ export function AppShell({ children }: AppShellProps) {
           title="Quản lý AE"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
         </Link>
 
@@ -157,7 +156,8 @@ export function AppShell({ children }: AppShellProps) {
           </svg>
         </Link>
 
-        <div className="w-6 h-px bg-white/10 my-0.5" />
+        <div className="hidden md:block w-6 h-px bg-white/10 my-0.5" />
+        <div className="block md:hidden h-6 w-px bg-white/10 mx-0.5" />
 
         {/* Logout */}
         <form action={signOut}>
@@ -174,7 +174,7 @@ export function AppShell({ children }: AppShellProps) {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 min-h-0 relative overflow-hidden">
+      <main className="flex-1 min-h-0 relative overflow-hidden pb-16 md:pb-0">
         {children}
       </main>
 
