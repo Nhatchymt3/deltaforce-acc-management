@@ -647,7 +647,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         ))}
       </div>
 
-      <header className="shrink-0 mx-auto flex max-w-[1600px] w-full items-center justify-between gap-4 px-6 pt-4 pb-2">
+      <header className="shrink-0 mx-auto flex max-w-full w-full items-center justify-between gap-4 px-6 pt-4 pb-2 border-b border-white/[0.04] bg-midnight/40 backdrop-blur-md">
         <div className="flex items-center gap-3 shrink-0">
           <h1 className="font-display text-xl font-bold tracking-wide text-white">
             DF<span className="text-brass">△</span>
@@ -655,20 +655,20 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           <span className="text-[11px] font-display font-medium uppercase tracking-[0.2em] text-ash/60 hidden sm:inline">
             Acc Management
           </span>
-          <span className="font-mono text-xs text-brass/80 bg-brass/10 border border-brass/20 rounded px-2 py-0.5" title="Tổng số acc đang cày/trong kho">
+          <span className="font-mono text-xs text-brass/80 bg-brass/10 border border-brass/20 rounded px-2.5 py-0.5" title="Tổng số acc đang cày/trong kho">
             {initialAccounts.length} ACC
           </span>
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <div className="flex items-center gap-3">
           {/* Quick Search */}
-          <div className="relative min-w-[150px] max-w-[200px]">
+          <div className="relative min-w-[200px] max-w-[280px]">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Tìm username, AE..."
-              className="w-full rounded-lg border border-white/[0.06] bg-gunmetal/80 px-3 py-1.5 pl-8 text-xs text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+              className="w-full rounded-lg border border-white/[0.08] bg-gunmetal/90 px-3 py-1.5 pl-8 text-xs text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
             />
             <svg className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -683,7 +683,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             )}
           </div>
 
-          <div className="min-w-[130px]">
+          <div className="min-w-[150px]">
             <Dropdown
               value={filter}
               onChange={setFilter}
@@ -694,7 +694,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           </div>
 
           {/* Sort dropdown */}
-          <div className="min-w-[130px]">
+          <div className="min-w-[140px]">
             <Dropdown
               value={sortBy}
               onChange={(val) => setSortBy(val as 'default' | 'newest' | 'oldest')}
@@ -707,99 +707,101 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               ariaLabel="Sắp xếp tài khoản"
             />
           </div>
-
-          <div className="h-4 w-px bg-white/10 mx-1 shrink-0" />
-
-          {/* Background Audio Player */}
-          <AudioPlayer />
-
-          <div className="h-4 w-px bg-white/10 mx-1 shrink-0" />
-
-          {/* Leaderboard Popup Toggle */}
-          <button
-            onClick={() => setShowLeaderboard(!showLeaderboard)}
-            className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold shrink-0 transition-all ${
-              showLeaderboard
-                ? 'border-brass bg-brass text-midnight shadow-lg shadow-brass/20'
-                : 'border-white/[0.06] bg-gunmetal/60 text-brass hover:border-brass/30'
-            }`}
-            title="Bảng xếp hạng cày tiền AE"
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-            <span className="hidden xl:inline">BXH AE</span>
-          </button>
-
-          {/* Nav Links */}
-          <Link
-            href="/finance"
-            className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-2.5 py-1.5 text-xs text-ash hover:text-white hover:border-brass/30 shrink-0 transition-all"
-            title="Tài chính"
-          >
-            <svg className="w-3.5 h-3.5 text-brass/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="hidden lg:inline">Tài chính</span>
-          </Link>
-
-          <Link
-            href="/farmers"
-            className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-2.5 py-1.5 text-xs text-ash hover:text-white hover:border-brass/30 shrink-0 transition-all"
-            title="Quản lý AE"
-          >
-            <svg className="w-3.5 h-3.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            <span className="hidden lg:inline">AE</span>
-          </Link>
-
-          <Link
-            href="/milestones"
-            className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-2.5 py-1.5 text-xs text-ash hover:text-white hover:border-brass/30 shrink-0 transition-all"
-            title="Quản lý Mốc cày"
-          >
-            <svg className="w-3.5 h-3.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <span className="hidden lg:inline">Mốc</span>
-          </Link>
-
-          <Link
-            href="/sources"
-            className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-2.5 py-1.5 text-xs text-ash hover:text-white hover:border-brass/30 shrink-0 transition-all"
-            title="Nguồn"
-          >
-            <svg className="w-3.5 h-3.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            </svg>
-            <span className="hidden lg:inline">Nguồn</span>
-          </Link>
-
-          <Link
-            href="/archive"
-            className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-2.5 py-1.5 text-xs text-ash hover:text-white hover:border-brass/30 shrink-0 transition-all"
-            title="Kho lưu trữ"
-          >
-            <svg className="w-3.5 h-3.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
-            <span className="hidden lg:inline">Lưu trữ</span>
-          </Link>
-
-          <form action={signOut} className="shrink-0">
-            <button
-              type="submit"
-              className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-2.5 py-1.5 text-xs text-ash hover:text-white hover:border-signal-red/30 transition-all"
-              title="Đăng xuất"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            </button>
-          </form>
         </div>
       </header>
+
+      {/* Right Control Dock Sidebar */}
+      <aside className="fixed right-4 top-20 z-40 flex flex-col items-center gap-2 rounded-2xl border border-white/[0.08] bg-gunmetal/90 p-2 shadow-2xl backdrop-blur-xl transition-all">
+        {/* Background Music Player */}
+        <AudioPlayer />
+
+        <div className="w-6 h-px bg-white/10 my-0.5" />
+
+        {/* Leaderboard Toggle */}
+        <button
+          onClick={() => setShowLeaderboard(!showLeaderboard)}
+          className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
+            showLeaderboard
+              ? 'border-brass bg-brass text-midnight shadow-md shadow-brass/30'
+              : 'border-white/[0.06] bg-midnight/60 text-brass hover:border-brass/40 hover:bg-brass/10'
+          }`}
+          title="Bảng xếp hạng cày tiền AE"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+        </button>
+
+        {/* Finance */}
+        <Link
+          href="/finance"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-midnight/60 text-ash hover:text-brass hover:border-brass/30 hover:bg-brass/10 transition-all"
+          title="Tài chính"
+        >
+          <svg className="w-4 h-4 text-brass/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </Link>
+
+        {/* Farmers */}
+        <Link
+          href="/farmers"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30 hover:bg-white/[0.04] transition-all"
+          title="Quản lý AE"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </Link>
+
+        {/* Milestones */}
+        <Link
+          href="/milestones"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30 hover:bg-white/[0.04] transition-all"
+          title="Quản lý Mốc cày"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </Link>
+
+        {/* Sources */}
+        <Link
+          href="/sources"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30 hover:bg-white/[0.04] transition-all"
+          title="Nguồn"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          </svg>
+        </Link>
+
+        {/* Archive */}
+        <Link
+          href="/archive"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30 hover:bg-white/[0.04] transition-all"
+          title="Kho lưu trữ"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+          </svg>
+        </Link>
+
+        <div className="w-6 h-px bg-white/10 my-0.5" />
+
+        {/* Logout */}
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-midnight/60 text-ash hover:text-signal-red hover:border-signal-red/30 hover:bg-signal-red/10 transition-all"
+            title="Đăng xuất"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        </form>
+      </aside>
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <section className="flex-1 min-h-0 mx-auto w-full my-3 flex gap-4 px-6 overflow-x-auto items-start">

@@ -113,62 +113,49 @@ export function AudioPlayer() {
         onPlay={() => setIsPlaying(true)}
       />
 
-      {/* Control Bar Button */}
-      <div className="flex items-center gap-2 rounded-lg border border-brass/30 bg-gunmetal/90 px-3 py-1.5 shadow-lg">
-        <button
-          onClick={togglePlay}
-          className="flex h-7 w-7 items-center justify-center rounded-full bg-brass text-midnight hover:scale-105 transition-transform"
-          title={isPlaying ? 'Tạm dừng nhạc' : 'Phát nhạc'}
-        >
-          {isPlaying ? (
-            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-            </svg>
-          ) : (
-            <svg className="w-3.5 h-3.5 fill-current ml-0.5" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          )}
-        </button>
-
-        <div className="min-w-0 max-w-[120px] md:max-w-[160px]">
-          <p className="text-[11px] font-mono font-semibold text-white truncate" title={currentTrack?.name}>
-            🎵 {currentTrack?.name}
-          </p>
-        </div>
-
-        {/* Volume slider */}
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.05"
-          value={volume}
-          onChange={(e) => setVolume(parseFloat(e.target.value))}
-          className="w-12 h-1 accent-brass cursor-pointer hidden sm:block"
-          title={`Âm lượng: ${Math.round(volume * 100)}%`}
-        />
-
-        {/* Playlist Toggle Button */}
-        <button
-          onClick={() => setShowPlaylist(!showPlaylist)}
-          className={`rounded p-1 text-xs transition-colors ${
-            showPlaylist ? 'text-brass bg-brass/10' : 'text-ash hover:text-white'
-          }`}
-          title="Danh sách nhạc"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h10" />
+      {/* Compact Dock Control Button */}
+      <button
+        onClick={togglePlay}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          setShowPlaylist(!showPlaylist);
+        }}
+        className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
+          isPlaying
+            ? 'border-brass/60 bg-brass/20 text-brass shadow-md shadow-brass/20 animate-pulse'
+            : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30'
+        }`}
+        title={isPlaying ? `Đang phát: ${currentTrack?.name} (Click phải để xem ds nhạc)` : 'Phát nhạc nền (Click phải để xem ds nhạc)'}
+      >
+        {isPlaying ? (
+          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
           </svg>
-        </button>
-      </div>
+        ) : (
+          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" opacity="0.5" />
+          </svg>
+        )}
+      </button>
 
       {/* Playlist Popover */}
       {showPlaylist && (
-        <div className="absolute right-0 top-11 z-50 w-64 rounded-xl border border-white/[0.08] bg-gunmetal/95 p-3 shadow-2xl backdrop-blur-xl">
+        <div className="absolute right-12 top-0 z-50 w-64 rounded-xl border border-white/[0.08] bg-gunmetal/95 p-3 shadow-2xl backdrop-blur-xl">
           <div className="flex items-center justify-between border-b border-white/[0.06] pb-2 mb-2">
             <span className="text-xs font-display font-semibold text-brass">Danh sách nhạc ({tracks.length})</span>
-            <span className="text-[10px] text-ash/60">Lặp lại phát</span>
+            <button onClick={() => setShowPlaylist(false)} className="text-ash hover:text-white text-xs">✕</button>
+          </div>
+          <div className="mb-2">
+            <label className="text-[10px] text-ash block mb-1">Âm lượng: {Math.round(volume * 100)}%</label>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={volume}
+              onChange={(e) => setVolume(parseFloat(e.target.value))}
+              className="w-full h-1 accent-brass cursor-pointer"
+            />
           </div>
           <div className="max-h-48 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
             {tracks.map((track, idx) => {
