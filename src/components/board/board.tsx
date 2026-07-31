@@ -242,17 +242,16 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
   return (
     <div
       ref={setNodeRef}
-      className={`w-[300px] shrink-0 flex flex-col rounded-xl border transition-all duration-200 ${
+      className={`w-[300px] shrink-0 flex flex-col rounded-xl border transition-all duration-200 h-[calc(100vh-140px)] ${
         isOver && id === KHO_SENTINEL
           ? 'border-brass/40 bg-brass/5'
           : isKho
           ? 'border-dashed border-white/[0.08] bg-midnight/60 shadow-inner'
           : 'border-white/[0.04] bg-midnight/40'
       }`}
-      style={{ maxHeight: 'calc(100vh - 150px)' }}
     >
       {/* Column header */}
-      <div className="flex flex-col border-b border-white/[0.04]">
+      <div className="flex flex-col border-b border-white/[0.04] shrink-0">
         <div className="flex items-center justify-between px-4 py-3">
           <h2 className="font-display font-semibold text-white text-sm tracking-wide flex items-center gap-2">
             {isKho ? (
@@ -316,7 +315,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
       </div>
 
       {/* Card list */}
-      <div className="flex flex-col gap-2.5 p-3 overflow-y-auto scrollbar-thin max-h-[calc(100vh-230px)] pb-6">
+      <div className="flex flex-col gap-2.5 p-3 overflow-y-auto min-h-0 flex-1 scrollbar-thin pb-6">
         {displayedAccounts.length === 0 && (
           <div className="flex items-center justify-center py-12 text-ash/30">
             <span className="text-xs font-mono">{isKho && khoSearch.trim() ? 'Không tìm thấy acc' : '—'}</span>
