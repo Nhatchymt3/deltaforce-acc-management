@@ -242,13 +242,14 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col overflow-hidden min-h-0 rounded-xl border transition-all duration-200 ${
+      className={`w-[300px] shrink-0 flex flex-col rounded-xl border transition-all duration-200 ${
         isOver && id === KHO_SENTINEL
           ? 'border-brass/40 bg-brass/5'
           : isKho
           ? 'border-dashed border-white/[0.08] bg-midnight/60 shadow-inner'
           : 'border-white/[0.04] bg-midnight/40'
       }`}
+      style={{ maxHeight: 'calc(100vh - 150px)' }}
     >
       {/* Column header */}
       <div className="flex flex-col border-b border-white/[0.04]">
@@ -314,8 +315,8 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
         )}
       </div>
 
-      {/* Card list — direct viewport-relative max-height, no parent chain dependency */}
-      <div className="flex flex-col gap-2.5 p-3 overflow-y-auto scrollbar-thin pb-6" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+      {/* Card list */}
+      <div className="flex flex-col gap-2.5 p-3 flex-1 min-h-0 overflow-y-auto scrollbar-thin pb-6">
         {displayedAccounts.length === 0 && (
           <div className="flex items-center justify-center py-12 text-ash/30">
             <span className="text-xs font-mono">{isKho && khoSearch.trim() ? 'Không tìm thấy acc' : '—'}</span>
@@ -607,7 +608,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   }));
 
   return (
-    <div className={`relative h-screen flex flex-col overflow-hidden text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`relative min-h-screen text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-midnight" />
         <div className="stars-bg absolute inset-0" />
@@ -799,12 +800,9 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <section
-          className="flex-1 min-h-0 mt-4 gap-4 px-6 pb-4 overflow-x-auto overflow-y-hidden"
+          className="mx-auto mt-6 flex gap-4 px-6 pb-8 overflow-x-auto items-start"
           style={{
-            display: 'grid',
-            gridAutoFlow: 'column',
-            gridAutoColumns: '300px',
-            gridTemplateRows: 'minmax(0, 1fr)',
+            minHeight: 'calc(100vh - 120px)'
           }}
         >
           <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
