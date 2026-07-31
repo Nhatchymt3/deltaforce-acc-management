@@ -14,7 +14,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="vi">
       <body className={`${inter.className} ${rajdhani.variable} ${jetbrains.variable} h-screen flex flex-col overflow-hidden bg-midnight text-gray-200`}>
-        <HeaderNav />
         <main className="flex-1 min-h-0 relative overflow-y-auto">
           {children}
         </main>
