@@ -17,6 +17,15 @@ export function AudioPlayer() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Read saved settings on mount
+  useEffect(() => {
+    const savedVol = localStorage.getItem('audio_volume');
+    if (savedVol !== null) {
+      const parsed = parseFloat(savedVol);
+      if (!isNaN(parsed)) setVolume(parsed);
+    }
+  }, []);
+
   useEffect(() => {
     async function fetchTracks() {
       try {
@@ -38,10 +47,17 @@ export function AudioPlayer() {
     if (audioRef.current) {
       audioRef.current.volume = volume;
     }
+    localStorage.setItem('audio_volume', String(volume));
   }, [volume]);
 
-  // Autoplay when tracks loaded or track index changes
+  // Autoplay when tracks loaded or track index changes - IF user hasn't muted
   useEffect(() => {
+    const isMuted = localStorage.getItem('audio_muted') === 'true';
+    if (isMuted) {
+      setIsPlaying(false);
+      return;
+    }
+
     if (tracks.length > 0 && audioRef.current) {
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
@@ -52,6 +68,7 @@ export function AudioPlayer() {
             setIsPlaying(false);
 
             const handleFirstInteraction = () => {
+              if (localStorage.getItem('audio_muted') === 'true') return;
               if (audioRef.current) {
                 audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
               }
@@ -71,7 +88,9 @@ export function AudioPlayer() {
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
+      localStorage.setItem('audio_muted', 'true');
     } else {
+      localStorage.setItem('audio_muted', 'false');
       audioRef.current
         .play()
         .then(() => setIsPlaying(true))
@@ -81,11 +100,14 @@ export function AudioPlayer() {
 
   function handleEnded() {
     if (tracks.length === 0) return;
+    const isMuted = localStorage.getItem('audio_muted') === 'true';
+    if (isMuted) return;
+
     // Loop playlist automatically
     const nextIndex = (currentIndex + 1) % tracks.length;
     setCurrentIndex(nextIndex);
     setTimeout(() => {
-      if (audioRef.current) {
+      if (audioRef.current && localStorage.getItem('audio_muted') !== 'true') {
         audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
       }
     }, 100);
@@ -93,6 +115,7 @@ export function AudioPlayer() {
 
   function playTrack(index: number) {
     setCurrentIndex(index);
+    localStorage.setItem('audio_muted', 'false');
     setTimeout(() => {
       if (audioRef.current) {
         audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
