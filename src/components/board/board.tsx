@@ -242,7 +242,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col rounded-xl border transition-all duration-200 ${
+      className={`flex flex-col overflow-hidden min-h-0 rounded-xl border transition-all duration-200 ${
         isOver && id === KHO_SENTINEL
           ? 'border-brass/40 bg-brass/5'
           : isKho
