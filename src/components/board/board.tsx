@@ -654,7 +654,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           </span>
         </div>
 
-        <div className="flex items-center gap-3 pr-14">
+        <div className="flex items-center gap-3 pr-20">
           {/* Quick Search */}
           <div className="relative min-w-[200px] max-w-[280px]">
             <input
@@ -796,7 +796,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
       </aside>
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
-        <section className="flex-1 min-h-0 mx-auto w-full my-3 flex gap-4 px-6 overflow-x-auto items-start">
+        <section className="flex-1 min-h-0 mx-auto w-full my-3 flex gap-4 pl-6 pr-20 overflow-x-auto items-start">
           <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
           {holderColumns.map((col) => (
             <Column
