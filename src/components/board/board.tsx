@@ -249,7 +249,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
           ? 'border-dashed border-white/[0.08] bg-midnight/60 shadow-inner'
           : 'border-white/[0.04] bg-midnight/40'
       }`}
-      style={{ maxHeight: 'calc(100vh - 160px)' }}
+      style={{ maxHeight: '100%' }}
     >
       {/* Column header */}
       <div className="flex flex-col border-b border-white/[0.04]">
@@ -608,7 +608,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   }));
 
   return (
-    <div className={`relative min-h-screen text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`relative h-screen flex flex-col overflow-hidden text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-midnight" />
         <div className="stars-bg absolute inset-0" />
@@ -647,7 +647,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         ))}
       </div>
 
-      <header className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 pt-5 pb-1">
+      <header className="shrink-0 mx-auto flex max-w-7xl w-full flex-wrap items-center justify-between gap-4 px-6 pt-5 pb-1">
         <div className="flex items-baseline gap-3">
           <h1 className="font-display text-2xl font-bold tracking-wide text-white">
             DF<span className="text-brass">△</span>
@@ -800,7 +800,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <section
-          className="mx-auto mt-8 gap-4 px-6 pb-8 overflow-x-auto"
+          className="flex-1 min-h-0 mt-4 gap-4 px-6 pb-4 overflow-x-auto"
           style={{
             display: 'grid',
             gridAutoFlow: 'column',
