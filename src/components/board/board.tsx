@@ -314,8 +314,8 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
         )}
       </div>
 
-      {/* Card list — min-h-0 needed so flex-1 + overflow-y-auto works */}
-      <div className="flex flex-col gap-2.5 p-3 flex-1 min-h-0 overflow-y-auto scrollbar-thin pb-6">
+      {/* Card list — direct viewport-relative max-height, no parent chain dependency */}
+      <div className="flex flex-col gap-2.5 p-3 overflow-y-auto scrollbar-thin pb-6" style={{ maxHeight: 'calc(100vh - 200px)' }}>
         {displayedAccounts.length === 0 && (
           <div className="flex items-center justify-center py-12 text-ash/30">
             <span className="text-xs font-mono">{isKho && khoSearch.trim() ? 'Không tìm thấy acc' : '—'}</span>
