@@ -244,7 +244,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
   return (
     <div
       ref={setNodeRef}
-      className={`w-[300px] shrink-0 flex flex-col rounded-xl border transition-all duration-200 h-[calc(100vh-140px)] ${
+      className={`w-[300px] shrink-0 flex flex-col rounded-xl border transition-all duration-200 h-full max-h-full ${
         isOver && id === KHO_SENTINEL
           ? 'border-brass/40 bg-brass/5'
           : isKho
@@ -696,7 +696,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
       </div>
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
-        <section className="flex-1 min-h-0 mx-auto w-full my-3 flex gap-4 pl-6 pr-20 overflow-x-auto items-start">
+        <section className="flex-1 min-h-0 mx-auto w-full py-3 flex gap-4 pl-6 pr-20 overflow-x-auto items-stretch">
           <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
           {holderColumns.map((col) => (
             <Column
