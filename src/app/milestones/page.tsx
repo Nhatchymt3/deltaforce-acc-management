@@ -11,17 +11,15 @@ export default async function MilestonesPage() {
     .order('level', { ascending: true });
 
   return (
-    <AppShell>
-      <div className="mx-auto max-w-2xl px-6 py-8 pr-16">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="font-display text-xl font-bold text-white tracking-wide">Quản lý Mốc Cày</h1>
-            <p className="text-xs text-ash">Thêm, sửa, xóa các mốc Level & Giá tiền cố định</p>
-          </div>
+    <div className="mx-auto max-w-2xl px-6 py-8 pr-16">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-xl font-bold text-white tracking-wide">Quản lý Mốc Cày</h1>
+          <p className="text-xs text-ash">Thêm, sửa, xóa các mốc Level & Giá tiền cố định</p>
         </div>
-
-        <PresetMilestoneManager initialMilestones={(milestones ?? []) as PresetMilestone[]} />
       </div>
-    </AppShell>
+
+      <PresetMilestoneManager initialMilestones={(milestones ?? []) as PresetMilestone[]} />
+    </div>
   );
 }

@@ -1,8 +1,6 @@
 import { Inter, Rajdhani, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import { AudioPlayer } from '@/components/ui/audio-player';
-import { HeaderNav } from '@/components/layout/header-nav';
-import { Footer } from '@/components/layout/footer';
+import { AppShell } from '@/components/layout/app-shell';
 
 const inter = Inter({ subsets: ['latin', 'vietnamese'], variable: '--font-inter' });
 const rajdhani = Rajdhani({ weight: ['400', '500', '600', '700'], subsets: ['latin'], variable: '--font-rajdhani' });
@@ -14,7 +12,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="vi">
       <body className={`${inter.className} ${rajdhani.variable} ${jetbrains.variable} h-screen overflow-hidden bg-midnight text-gray-200`}>
-        {children}
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

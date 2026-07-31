@@ -609,19 +609,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   }));
 
   return (
-    <AppShell
-      showLeaderboard={showLeaderboard}
-      setShowLeaderboard={setShowLeaderboard}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      filter={filter}
-      setFilter={setFilter}
-      sourceFilterOptions={sourceFilterOptions}
-      sortBy={sortBy}
-      setSortBy={setSortBy}
-      totalAccs={initialAccounts.length}
-    >
-      <div className={`relative h-full flex flex-col overflow-hidden text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`relative h-full flex flex-col overflow-hidden text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
         <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
           {toasts.map((t) => (
             <div
@@ -788,6 +776,5 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         </div>
       )}
     </div>
-    </AppShell>
   );
 }

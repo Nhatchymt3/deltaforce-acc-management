@@ -11,17 +11,15 @@ export default async function FarmersPage() {
     .order('name');
 
   return (
-    <AppShell>
-      <div className="mx-auto max-w-2xl px-6 py-8 pr-16">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="font-display text-xl font-bold text-white tracking-wide">Quản lý AE</h1>
-            <p className="text-xs text-ash">Thêm, sửa, xóa tên AE cày thuê</p>
-          </div>
+    <div className="mx-auto max-w-2xl px-6 py-8 pr-16">
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-xl font-bold text-white tracking-wide">Quản lý AE</h1>
+          <p className="text-xs text-ash">Thêm, sửa, xóa tên AE cày thuê</p>
         </div>
-
-        <FarmerManager initialFarmers={(farmers ?? []) as Farmer[]} />
       </div>
-    </AppShell>
+
+      <FarmerManager initialFarmers={(farmers ?? []) as Farmer[]} />
+    </div>
   );
 }
