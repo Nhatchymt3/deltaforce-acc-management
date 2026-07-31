@@ -13,7 +13,8 @@
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--midnight); color: #d1d5db; }
+html { height: 100%; }
+body { margin: 0; height: 100%; background: var(--midnight); color: #d1d5db; }
 
 /* ─── Subtle grid background (tactical) ──────────────────── */
 .stars-bg {
