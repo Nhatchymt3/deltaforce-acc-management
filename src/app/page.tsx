@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { BoardWrapper } from '@/components/board/board-wrapper';
+import { AppShell } from '@/components/layout/app-shell';
 import { calculateFinance } from '@/lib/finance';
 import type { Account, HolderSession, Milestone, Source } from '@/lib/types';
 
@@ -118,14 +119,16 @@ export default async function HomePage() {
   }));
 
   return (
-    <BoardWrapper
-      initialAccounts={accountsWithSourceName}
-      initialSessions={serialisedSessions}
-      initialMilestones={serialisedMilestones}
-      initialSources={serialisedSources}
-      initialFarmers={serialisedFarmers}
-      initialPresetMilestones={(presetMilestones ?? []) as any}
-      holderRevenue={holderRevenue}
-    />
+    <AppShell>
+      <BoardWrapper
+        initialAccounts={accountsWithSourceName}
+        initialSessions={serialisedSessions}
+        initialMilestones={serialisedMilestones}
+        initialSources={serialisedSources}
+        initialFarmers={serialisedFarmers}
+        initialPresetMilestones={(presetMilestones ?? []) as any}
+        holderRevenue={holderRevenue}
+      />
+    </AppShell>
   );
 }

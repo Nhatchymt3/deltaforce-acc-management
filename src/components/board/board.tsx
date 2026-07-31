@@ -647,20 +647,14 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         ))}
       </div>
 
-      <header className="shrink-0 mx-auto flex max-w-full w-full items-center justify-between gap-4 px-6 pt-4 pb-2 border-b border-white/[0.04] bg-midnight/40 backdrop-blur-md">
+      <div className="shrink-0 mx-auto flex max-w-full w-full items-center justify-between gap-4 px-6 pt-3 pb-2 border-b border-white/[0.04] bg-midnight/40 backdrop-blur-md">
         <div className="flex items-center gap-3 shrink-0">
-          <h1 className="font-display text-xl font-bold tracking-wide text-white">
-            DF<span className="text-brass">△</span>
-          </h1>
-          <span className="text-[11px] font-display font-medium uppercase tracking-[0.2em] text-ash/60 hidden sm:inline">
-            Acc Management
-          </span>
           <span className="font-mono text-xs text-brass/80 bg-brass/10 border border-brass/20 rounded px-2.5 py-0.5" title="Tổng số acc đang cày/trong kho">
             {initialAccounts.length} ACC
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 pr-14">
           {/* Quick Search */}
           <div className="relative min-w-[200px] max-w-[280px]">
             <input
@@ -708,7 +702,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             />
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Right Control Dock Sidebar */}
       <aside className="fixed right-4 top-20 z-40 flex flex-col items-center gap-2 rounded-2xl border border-white/[0.08] bg-gunmetal/90 p-2 shadow-2xl backdrop-blur-xl transition-all">
