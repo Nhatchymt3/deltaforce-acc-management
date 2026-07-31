@@ -608,7 +608,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   }));
 
   return (
-    <div className={`relative h-screen flex flex-col overflow-hidden text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`relative h-full flex flex-col overflow-hidden text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-midnight" />
         <div className="stars-bg absolute inset-0" />

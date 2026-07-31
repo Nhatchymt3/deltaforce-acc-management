@@ -1,0 +1,69 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { signOut } from '@/app/actions/auth';
+
+export function HeaderNav() {
+  const pathname = usePathname();
+
+  const navItems = [
+    { href: '/', label: 'Board Acc' },
+    { href: '/finance', label: 'Tài chính' },
+    { href: '/farmers', label: 'Quản lý AE' },
+    { href: '/milestones', label: 'Mốc cày' },
+    { href: '/sources', label: 'Nguồn' },
+    { href: '/archive', label: 'Lưu trữ' },
+  ];
+
+  return (
+    <header className="shrink-0 z-30 border-b border-white/[0.06] bg-midnight/80 backdrop-blur-xl sticky top-0">
+      <div className="mx-auto flex max-w-full items-center justify-between px-6 py-3">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="flex items-baseline gap-2">
+            <span className="font-display text-xl font-bold tracking-wide text-white">
+              DF<span className="text-brass">△</span>
+            </span>
+            <span className="text-[10px] font-display font-medium uppercase tracking-[0.2em] text-ash/60 hidden sm:inline">
+              Acc Management
+            </span>
+          </Link>
+
+          <nav className="flex items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                    isActive
+                      ? 'bg-brass/20 text-brass border border-brass/30'
+                      : 'text-ash hover:text-white hover:bg-white/[0.04]'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-3 py-1.5 text-xs text-ash hover:text-white hover:border-signal-red/30 transition-all"
+              title="Đăng xuất"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Đăng xuất</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </header>
+  );
+}
