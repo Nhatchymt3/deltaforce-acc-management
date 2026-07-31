@@ -143,7 +143,7 @@ function Card({ account, targetMilestone, onOpen, index }: CardProps) {
       role="button"
       tabIndex={0}
       aria-label={`Account ${account.username}`}
-      className={`group relative overflow-hidden rounded-lg border transition-all duration-200 select-none cursor-pointer hover:border-brass/30 hover:bg-white/[0.04] ${
+      className={`group relative overflow-hidden rounded-lg border transition-all duration-200 select-none cursor-pointer shrink-0 hover:border-brass/30 hover:bg-white/[0.04] ${
         isDragging
           ? 'border-brass/50 bg-gunmetal opacity-60 scale-105 rotate-1'
           : disabled
