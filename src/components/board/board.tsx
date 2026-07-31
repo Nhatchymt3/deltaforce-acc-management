@@ -249,7 +249,6 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
           ? 'border-dashed border-white/[0.08] bg-midnight/60 shadow-inner'
           : 'border-white/[0.04] bg-midnight/40'
       }`}
-      style={{ maxHeight: '100%' }}
     >
       {/* Column header */}
       <div className="flex flex-col border-b border-white/[0.04]">
@@ -800,12 +799,12 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <section
-          className="flex-1 min-h-0 mt-4 gap-4 px-6 pb-4 overflow-x-auto"
+          className="flex-1 min-h-0 mt-4 gap-4 px-6 pb-4 overflow-x-auto overflow-y-hidden"
           style={{
             display: 'grid',
             gridAutoFlow: 'column',
             gridAutoColumns: '300px',
-            alignItems: 'start',
+            gridTemplateRows: 'minmax(0, 1fr)',
           }}
         >
           <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
