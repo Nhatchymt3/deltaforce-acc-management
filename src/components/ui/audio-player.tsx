@@ -103,7 +103,7 @@ export function AudioPlayer() {
   if (tracks.length === 0) return null;
 
   return (
-    <div className="fixed right-4 bottom-6 z-50">
+    <div className="relative">
       {/* Hidden audio element */}
       <audio
         ref={audioRef}
@@ -120,19 +120,19 @@ export function AudioPlayer() {
           e.preventDefault();
           setShowPlaylist(!showPlaylist);
         }}
-        className={`flex h-11 w-11 items-center justify-center rounded-2xl border shadow-2xl backdrop-blur-xl transition-all ${
+        className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
           isPlaying
-            ? 'border-brass/60 bg-brass/20 text-brass shadow-brass/20 animate-pulse'
-            : 'border-white/[0.08] bg-gunmetal/90 text-ash hover:text-white hover:border-brass/30'
+            ? 'border-brass bg-brass/20 text-brass shadow-md shadow-brass/20 animate-pulse'
+            : 'border-white/[0.06] bg-midnight/60 text-brass hover:border-brass/40 hover:bg-brass/10'
         }`}
         title={isPlaying ? `Đang phát: ${currentTrack?.name} (Click phải để xem ds nhạc)` : 'Phát nhạc nền (Click phải để xem ds nhạc)'}
       >
         {isPlaying ? (
-          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
             <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
           </svg>
         ) : (
-          <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
             <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" opacity="0.5" />
           </svg>
         )}

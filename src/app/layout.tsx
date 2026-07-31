@@ -19,7 +19,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           {children}
         </main>
         <Footer />
-        <AudioPlayer />
       </body>
     </html>
   );
