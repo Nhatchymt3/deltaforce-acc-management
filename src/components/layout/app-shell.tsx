@@ -58,22 +58,7 @@ export function AppShell({ children }: AppShellProps) {
           </svg>
         </Link>
 
-        {/* Leaderboard Toggle (If on board) */}
-        {setShowLeaderboard && (
-          <button
-            onClick={() => setShowLeaderboard(!showLeaderboard)}
-            className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
-              showLeaderboard
-                ? 'border-brass bg-brass text-midnight shadow-md shadow-brass/30'
-                : 'border-white/[0.06] bg-midnight/60 text-brass hover:border-brass/40 hover:bg-brass/10'
-            }`}
-            title="Bảng xếp hạng cày tiền AE"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
-          </button>
-        )}
+
 
         {/* Finance */}
         <Link
