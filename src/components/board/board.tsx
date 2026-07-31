@@ -25,6 +25,7 @@ import { signOut } from '@/app/actions/auth';
 import type { Account, HolderSession, Milestone, Source, Farmer } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
 import { AudioPlayer } from '@/components/ui/audio-player';
+import { AppShell } from '@/components/layout/app-shell';
 
 const KHO_SENTINEL = '__kho__';
 const LOCKED_STATUSES = ['done', 'da_giao_cho_ben_thu', 'da_nhan_tien'] as const;
