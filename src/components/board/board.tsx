@@ -644,6 +644,64 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
 
 
+      {/* Board Controls Toolbar */}
+      <div className="shrink-0 mx-auto flex max-w-full w-full items-center justify-between gap-4 px-6 pt-3 pb-2 border-b border-white/[0.04] bg-midnight/40 backdrop-blur-md">
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="font-mono text-xs text-brass/80 bg-brass/10 border border-brass/20 rounded px-2.5 py-0.5" title="Tổng số acc đang cày/trong kho">
+            {initialAccounts.length} ACC
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 pr-20">
+          {/* Quick Search */}
+          <div className="relative min-w-[200px] max-w-[280px]">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Tìm username, AE..."
+              className="w-full rounded-lg border border-white/[0.08] bg-gunmetal/90 px-3 py-1.5 pl-8 text-xs text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+            />
+            <svg className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-2 top-2 text-ash/50 hover:text-white text-xs"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <div className="min-w-[150px]">
+            <Dropdown
+              value={filter}
+              onChange={setFilter}
+              options={sourceFilterOptions}
+              size="sm"
+              ariaLabel="Lọc theo nguồn"
+            />
+          </div>
+
+          {/* Sort dropdown */}
+          <div className="min-w-[140px]">
+            <Dropdown
+              value={sortBy}
+              onChange={(val) => setSortBy(val as 'default' | 'newest' | 'oldest')}
+              options={[
+                { value: 'default', label: 'Mặc định' },
+                { value: 'newest', label: 'Mới nhất' },
+                { value: 'oldest', label: 'Cũ nhất' },
+              ]}
+              size="sm"
+              ariaLabel="Sắp xếp tài khoản"
+            />
+          </div>
+        </div>
+      </div>
+
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <section className="flex-1 min-h-0 mx-auto w-full my-3 flex gap-4 pl-6 pr-20 overflow-x-auto items-start">
           <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />

@@ -8,31 +8,9 @@ import { Dropdown } from '@/components/ui/dropdown';
 
 interface AppShellProps {
   children: React.ReactNode;
-  showLeaderboard?: boolean;
-  setShowLeaderboard?: (val: boolean) => void;
-  searchTerm?: string;
-  setSearchTerm?: (val: string) => void;
-  filter?: string;
-  setFilter?: (val: string) => void;
-  sourceFilterOptions?: { value: string; label: string }[];
-  sortBy?: 'default' | 'newest' | 'oldest';
-  setSortBy?: (val: 'default' | 'newest' | 'oldest') => void;
-  totalAccs?: number;
 }
 
-export function AppShell({
-  children,
-  showLeaderboard,
-  setShowLeaderboard,
-  searchTerm,
-  setSearchTerm,
-  filter,
-  setFilter,
-  sourceFilterOptions,
-  sortBy,
-  setSortBy,
-  totalAccs,
-}: AppShellProps) {
+export function AppShell({ children }: AppShellProps) {
   const pathname = usePathname();
 
   return (
@@ -44,7 +22,7 @@ export function AppShell({
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brass/30 to-transparent" />
       </div>
 
-      {/* Global Top Bar (Logo + Search/Filters when on Board) */}
+      {/* Global Top Bar */}
       <header className="shrink-0 mx-auto flex max-w-full w-full items-center justify-between gap-4 px-6 pt-3 pb-2 border-b border-white/[0.04] bg-midnight/40 backdrop-blur-md">
         <div className="flex items-center gap-3 shrink-0">
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
@@ -55,67 +33,7 @@ export function AppShell({
               Acc Management
             </span>
           </Link>
-          {totalAccs !== undefined && (
-            <span className="font-mono text-xs text-brass/80 bg-brass/10 border border-brass/20 rounded px-2.5 py-0.5" title="Tổng số acc">
-              {totalAccs} ACC
-            </span>
-          )}
         </div>
-
-        {/* Filters and Search on Top Header line */}
-        {setSearchTerm && (
-          <div className="flex items-center gap-3 pr-20">
-            {/* Quick Search */}
-            <div className="relative min-w-[180px] max-w-[260px]">
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Tìm username, AE..."
-                className="w-full rounded-lg border border-white/[0.08] bg-gunmetal/90 px-3 py-1.5 pl-8 text-xs text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
-              />
-              <svg className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-2 top-2 text-ash/50 hover:text-white text-xs"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-
-            {filter !== undefined && setFilter && sourceFilterOptions && (
-              <div className="min-w-[140px]">
-                <Dropdown
-                  value={filter}
-                  onChange={setFilter}
-                  options={sourceFilterOptions}
-                  size="sm"
-                  ariaLabel="Lọc theo nguồn"
-                />
-              </div>
-            )}
-
-            {sortBy !== undefined && setSortBy && (
-              <div className="min-w-[130px]">
-                <Dropdown
-                  value={sortBy}
-                  onChange={(val) => setSortBy(val as 'default' | 'newest' | 'oldest')}
-                  options={[
-                    { value: 'default', label: 'Mặc định' },
-                    { value: 'newest', label: 'Mới nhất' },
-                    { value: 'oldest', label: 'Cũ nhất' },
-                  ]}
-                  size="sm"
-                  ariaLabel="Sắp xếp tài khoản"
-                />
-              </div>
-            )}
-          </div>
-        )}
       </header>
 
       {/* Right Control Dock Sidebar - Persistent across pages */}
