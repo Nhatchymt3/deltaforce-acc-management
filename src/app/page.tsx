@@ -119,16 +119,14 @@ export default async function HomePage() {
   }));
 
   return (
-    <AppShell>
-      <BoardWrapper
-        initialAccounts={accountsWithSourceName}
-        initialSessions={serialisedSessions}
-        initialMilestones={serialisedMilestones}
-        initialSources={serialisedSources}
-        initialFarmers={serialisedFarmers}
-        initialPresetMilestones={(presetMilestones ?? []) as any}
-        holderRevenue={holderRevenue}
-      />
-    </AppShell>
+    <BoardWrapper
+      initialAccounts={accountsWithSourceName}
+      initialSessions={serialisedSessions}
+      initialMilestones={serialisedMilestones}
+      initialSources={serialisedSources}
+      initialFarmers={serialisedFarmers}
+      initialPresetMilestones={(presetMilestones ?? []) as any}
+      holderRevenue={holderRevenue}
+    />
   );
 }
