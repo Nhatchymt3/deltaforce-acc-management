@@ -156,28 +156,33 @@ export function FloatingLeaderboard() {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onClick={toggleModal}
-        className="fixed z-50 flex h-12 w-12 cursor-grab active:cursor-grabbing items-center justify-center rounded-full border border-brass/40 bg-midnight/90 text-brass shadow-lg shadow-brass/20 backdrop-blur-md transition-shadow hover:scale-105 hover:border-brass hover:shadow-brass/40"
+        className="fixed z-50 flex h-13 w-13 cursor-grab active:cursor-grabbing items-center justify-center rounded-2xl border border-brass/50 bg-midnight/95 text-brass shadow-2xl shadow-brass/30 backdrop-blur-xl transition-all hover:scale-110 hover:border-brass hover:shadow-brass/50 group"
         title="Bảng Xếp Hạng Thu Nhập AE"
       >
-        <span className="text-xl select-none">🏆</span>
-        <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brass text-[9px] font-bold text-midnight">
+        <span className="text-2xl select-none group-hover:rotate-12 transition-transform duration-300">🏆</span>
+        <span className="absolute -bottom-1.5 -right-1 flex h-4 w-7 items-center justify-center rounded-full bg-brass text-[9px] font-extrabold text-midnight tracking-wider border border-midnight shadow">
           TOP
         </span>
       </div>
 
       {/* Leaderboard Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-lg rounded-2xl border border-white/10 bg-gunmetal p-6 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-lg rounded-2xl border border-white/10 bg-gradient-to-b from-gunmetal via-gunmetal to-midnight p-6 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            {/* Ambient Background Glow */}
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-72 bg-brass/10 blur-[90px] rounded-full pointer-events-none" />
+
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">🏆</span>
+            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5 relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brass/10 border border-brass/30 text-xl shadow-inner">
+                  🏆
+                </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white tracking-wide font-display">
+                  <h2 className="text-base font-bold text-white tracking-wider font-display uppercase">
                     BẢNG XẾP HẠNG THU NHẬP AE
                   </h2>
-                  <p className="text-xs text-ash/70">Thống kê từ các tài khoản đã nhận tiền</p>
+                  <p className="text-[11px] text-ash/70">Thống kê từ các tài khoản đã hoàn tất thanh toán</p>
                 </div>
               </div>
               <button
@@ -189,80 +194,98 @@ export function FloatingLeaderboard() {
             </div>
 
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-12 gap-3 text-ash">
+              <div className="flex flex-col items-center justify-center py-16 gap-3 text-ash">
                 <div className="w-8 h-8 border-2 border-brass border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm">Đang tải dữ liệu...</span>
+                <span className="text-xs tracking-wide">Đang tính toán dữ liệu...</span>
               </div>
             ) : leaderboard.length === 0 ? (
-              <div className="py-12 text-center text-ash text-sm">
-                Chưa có dữ liệu thu nhập tài khoản đã nhận tiền.
+              <div className="py-16 text-center text-ash text-xs tracking-wide">
+                Chưa có dữ liệu tài khoản đã nhận tiền.
               </div>
             ) : (
-              <div className="overflow-y-auto space-y-6 pr-1 custom-scrollbar">
+              <div className="overflow-y-auto space-y-6 pr-1 custom-scrollbar relative z-10">
                 {/* Podium Top 3 */}
-                <div className="grid grid-cols-3 gap-2 pt-2 items-end">
-                  {/* Hạng 2 */}
+                <div className="grid grid-cols-3 gap-3 pt-3 items-end">
+                  {/* Hạng 2 (Bạc) */}
                   <div className="flex flex-col items-center">
                     {top2 ? (
-                      <div className="w-full flex flex-col items-center rounded-xl border border-silver/30 bg-silver/10 p-3 text-center">
-                        <span className="text-2xl mb-1">🥈</span>
-                        <span className="text-xs font-bold text-gray-200 truncate max-w-full">
+                      <div className="w-full flex flex-col items-center rounded-2xl border border-slate-400/40 bg-gradient-to-b from-slate-400/15 to-slate-900/40 p-3.5 text-center shadow-lg hover:border-slate-300/60 transition-all">
+                        <div className="relative mb-2">
+                          <span className="text-3xl">🥈</span>
+                          <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-300 text-[10px] font-black text-midnight shadow">
+                            2
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold text-slate-100 truncate max-w-full tracking-wide">
                           {top2.holder}
                         </span>
-                        <span className="text-[11px] font-bold text-silver mt-1">
+                        <span className="text-xs font-extrabold text-slate-300 mt-1.5 font-mono">
                           {formatVndString(top2.totalIncome)}
                         </span>
-                        <span className="text-[9px] text-ash/60 mt-0.5">
+                        <span className="text-[10px] text-ash/70 mt-0.5 bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
                           {top2.accountCount} acc
                         </span>
                       </div>
                     ) : (
-                      <div className="w-full h-24 rounded-xl border border-dashed border-white/10 flex items-center justify-center text-xs text-ash/40">
-                        --
+                      <div className="w-full h-28 rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center text-xs text-ash/30 gap-1 bg-white/[0.01]">
+                        <span className="text-lg opacity-40">🥈</span>
+                        <span>--</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Hạng 1 */}
-                  <div className="flex flex-col items-center -mt-3">
+                  {/* Hạng 1 (Vàng - Nổi bật cao hơn) */}
+                  <div className="flex flex-col items-center -mt-4">
                     {top1 ? (
-                      <div className="w-full flex flex-col items-center rounded-xl border border-brass bg-brass/15 p-4 text-center shadow-lg shadow-brass/20">
-                        <span className="text-3xl mb-1">🥇</span>
-                        <span className="text-sm font-bold text-brass truncate max-w-full">
+                      <div className="w-full flex flex-col items-center rounded-2xl border-2 border-brass bg-gradient-to-b from-brass/25 via-brass/10 to-midnight p-4 text-center shadow-xl shadow-brass/25 hover:border-amber-300 transition-all transform hover:-translate-y-0.5">
+                        <div className="relative mb-2">
+                          <span className="text-4xl animate-bounce-short">🥇</span>
+                          <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-brass text-[11px] font-black text-midnight shadow-md border border-midnight">
+                            1
+                          </span>
+                        </div>
+                        <span className="text-sm font-black text-brass truncate max-w-full tracking-wider uppercase font-display">
                           {top1.holder}
                         </span>
-                        <span className="text-xs font-extrabold text-brass mt-1">
+                        <span className="text-sm font-black text-amber-300 mt-1 font-mono tracking-tight drop-shadow">
                           {formatVndString(top1.totalIncome)}
                         </span>
-                        <span className="text-[10px] text-ash/80 mt-0.5">
+                        <span className="text-[10px] font-bold text-midnight bg-brass px-2.5 py-0.5 rounded-full mt-1.5 shadow-sm">
                           {top1.accountCount} acc
                         </span>
                       </div>
                     ) : (
-                      <div className="w-full h-28 rounded-xl border border-dashed border-brass/30 flex items-center justify-center text-xs text-ash/40">
-                        --
+                      <div className="w-full h-32 rounded-2xl border border-dashed border-brass/30 flex flex-col items-center justify-center text-xs text-ash/30 gap-1 bg-brass/[0.02]">
+                        <span className="text-xl opacity-40">🥇</span>
+                        <span>--</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Hạng 3 */}
+                  {/* Hạng 3 (Đồng) */}
                   <div className="flex flex-col items-center">
                     {top3 ? (
-                      <div className="w-full flex flex-col items-center rounded-xl border border-amber-700/40 bg-amber-900/20 p-3 text-center">
-                        <span className="text-2xl mb-1">🥉</span>
-                        <span className="text-xs font-bold text-amber-200 truncate max-w-full">
+                      <div className="w-full flex flex-col items-center rounded-2xl border border-amber-600/40 bg-gradient-to-b from-amber-700/20 to-slate-900/40 p-3.5 text-center shadow-lg hover:border-amber-500/60 transition-all">
+                        <div className="relative mb-2">
+                          <span className="text-3xl">🥉</span>
+                          <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-midnight shadow">
+                            3
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold text-amber-100 truncate max-w-full tracking-wide">
                           {top3.holder}
                         </span>
-                        <span className="text-[11px] font-bold text-amber-400 mt-1">
+                        <span className="text-xs font-extrabold text-amber-400 mt-1.5 font-mono">
                           {formatVndString(top3.totalIncome)}
                         </span>
-                        <span className="text-[9px] text-ash/60 mt-0.5">
+                        <span className="text-[10px] text-ash/70 mt-0.5 bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
                           {top3.accountCount} acc
                         </span>
                       </div>
                     ) : (
-                      <div className="w-full h-24 rounded-xl border border-dashed border-white/10 flex items-center justify-center text-xs text-ash/40">
-                        --
+                      <div className="w-full h-28 rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center text-xs text-ash/30 gap-1 bg-white/[0.01]">
+                        <span className="text-lg opacity-40">🥉</span>
+                        <span>--</span>
                       </div>
                     )}
                   </div>
@@ -270,26 +293,28 @@ export function FloatingLeaderboard() {
 
                 {/* Rest of the leaderboard list */}
                 {restList.length > 0 && (
-                  <div className="space-y-1.5 border-t border-white/10 pt-4">
-                    <h3 className="text-xs font-semibold text-ash/80 mb-2 uppercase tracking-wider">
-                      Vị trí tiếp theo
+                  <div className="space-y-2 border-t border-white/10 pt-4">
+                    <h3 className="text-[11px] font-bold text-ash/70 uppercase tracking-widest mb-2 font-display">
+                      BẢNG THÀNH TÍCH TIẾP THEO
                     </h3>
                     {restList.map((item, index) => (
                       <div
                         key={item.holder}
-                        className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 text-xs hover:bg-white/[0.05] transition-colors"
+                        className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] px-4 py-2.5 text-xs hover:bg-white/[0.07] hover:border-white/10 transition-all"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="font-mono text-ash/60 w-5 font-bold">
+                          <span className="font-mono text-ash/50 w-6 font-extrabold text-center">
                             #{index + 4}
                           </span>
-                          <span className="font-medium text-gray-200">{item.holder}</span>
+                          <span className="font-semibold text-gray-200">{item.holder}</span>
                         </div>
-                        <div className="text-right">
-                          <div className="font-bold text-brass">
+                        <div className="text-right flex items-center gap-4">
+                          <span className="text-[11px] text-ash/60 bg-white/5 px-2 py-0.5 rounded-md">
+                            {item.accountCount} acc
+                          </span>
+                          <span className="font-extrabold text-brass font-mono min-w-[90px]">
                             {formatVndString(item.totalIncome)}
-                          </div>
-                          <div className="text-[10px] text-ash/50">{item.accountCount} acc</div>
+                          </span>
                         </div>
                       </div>
                     ))}
