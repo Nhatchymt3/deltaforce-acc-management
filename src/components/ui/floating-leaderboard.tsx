@@ -210,11 +210,8 @@ export function FloatingLeaderboard() {
                   <div className="flex flex-col items-center">
                     {top2 ? (
                       <div className="w-full flex flex-col items-center rounded-2xl border border-slate-400/40 bg-gradient-to-b from-slate-400/15 to-slate-900/40 p-3.5 text-center shadow-lg hover:border-slate-300/60 transition-all">
-                        <div className="relative mb-2">
+                        <div className="mb-2">
                           <span className="text-3xl">🥈</span>
-                          <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-300 text-[10px] font-black text-midnight shadow">
-                            2
-                          </span>
                         </div>
                         <span className="text-xs font-bold text-slate-100 truncate max-w-full tracking-wide">
                           {top2.holder}
@@ -238,11 +235,8 @@ export function FloatingLeaderboard() {
                   <div className="flex flex-col items-center -mt-4">
                     {top1 ? (
                       <div className="w-full flex flex-col items-center rounded-2xl border-2 border-brass bg-gradient-to-b from-brass/25 via-brass/10 to-midnight p-4 text-center shadow-xl shadow-brass/25 hover:border-amber-300 transition-all transform hover:-translate-y-0.5">
-                        <div className="relative mb-2">
+                        <div className="mb-2">
                           <span className="text-4xl animate-bounce-short">🥇</span>
-                          <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-brass text-[11px] font-black text-midnight shadow-md border border-midnight">
-                            1
-                          </span>
                         </div>
                         <span className="text-sm font-black text-brass truncate max-w-full tracking-wider uppercase font-display">
                           {top1.holder}
@@ -266,11 +260,8 @@ export function FloatingLeaderboard() {
                   <div className="flex flex-col items-center">
                     {top3 ? (
                       <div className="w-full flex flex-col items-center rounded-2xl border border-amber-600/40 bg-gradient-to-b from-amber-700/20 to-slate-900/40 p-3.5 text-center shadow-lg hover:border-amber-500/60 transition-all">
-                        <div className="relative mb-2">
+                        <div className="mb-2">
                           <span className="text-3xl">🥉</span>
-                          <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-midnight shadow">
-                            3
-                          </span>
                         </div>
                         <span className="text-xs font-bold text-amber-100 truncate max-w-full tracking-wide">
                           {top3.holder}
