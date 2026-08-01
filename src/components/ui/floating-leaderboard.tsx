@@ -205,7 +205,7 @@ export function FloatingLeaderboard() {
             ) : (
               <div className="overflow-y-auto space-y-6 pr-1 custom-scrollbar relative z-10">
                 {/* Podium Top 3 */}
-                <div className="grid grid-cols-3 gap-3 pt-3 items-end">
+                <div className="grid grid-cols-3 gap-3 pt-6 items-end">
                   {/* Hạng 2 (Bạc) */}
                   <div className="flex flex-col items-center">
                     {top2 ? (
