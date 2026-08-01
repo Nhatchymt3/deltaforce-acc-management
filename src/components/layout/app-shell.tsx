@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
 import { signOut } from '@/app/actions/auth';
 import { AudioPlayer } from '@/components/ui/audio-player';
+import { FloatingLeaderboard } from '@/components/ui/floating-leaderboard';
 import { Dropdown } from '@/components/ui/dropdown';
 
 interface AppShellProps {
@@ -59,6 +60,7 @@ export function AppShell({ children }: AppShellProps) {
       </header>
 
       {/* Control Dock: Bottom bar on mobile, Right sidebar on desktop */}
+      <FloatingLeaderboard />
       <aside className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-4 md:top-16 z-40 flex flex-row md:flex-col items-center justify-around md:justify-start gap-1.5 md:gap-2 border-t md:border border-white/[0.08] bg-gunmetal/95 md:bg-gunmetal/90 p-2 shadow-2xl backdrop-blur-xl transition-all">
         {/* Background Music Player */}
         <AudioPlayer />

@@ -6,6 +6,10 @@ function normaliseHolder(name: string): string {
   return name.trim().replace(/\s+/g, ' ');
 }
 
+function normaliseHolderKey(name: string): string {
+  return name.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
 function deriveAllHolders(params: {
   initialHolders: string[];
   aeColumns: string[];
@@ -13,14 +17,14 @@ function deriveAllHolders(params: {
   sessions: Array<{ holder_name: string }>;
 }): string[] {
   const { initialHolders, aeColumns, accounts, sessions } = params;
-  const seen = new Map<string, string>(); // normalised → original casing
+  const seen = new Map<string, string>(); // normalised key → original casing
 
-  aeColumns.forEach((h) => seen.set(normaliseHolder(h), h));
-  initialHolders.forEach((h) => seen.set(normaliseHolder(h), h));
+  initialHolders.forEach((h) => seen.set(normaliseHolderKey(h), h));
+  aeColumns.forEach((h) => seen.set(normaliseHolderKey(h), h));
   accounts.forEach((a) => {
-    if (a.current_holder) seen.set(normaliseHolder(a.current_holder), a.current_holder);
+    if (a.current_holder) seen.set(normaliseHolderKey(a.current_holder), a.current_holder);
   });
-  sessions.forEach((s) => seen.set(normaliseHolder(s.holder_name), s.holder_name));
+  sessions.forEach((s) => seen.set(normaliseHolderKey(s.holder_name), s.holder_name));
 
   return Array.from(seen.values());
 }
@@ -80,9 +84,7 @@ describe('board column derivation', () => {
       ],
       sessions: [{ holder_name: 'An' }], // same again
     });
-    // Should have exactly 2 unique normalised entries
-    const normalised = holders.map(normaliseHolder);
-    expect(normalised).toEqual(['AN', 'bình']); // first-seen casing wins
+    expect(holders).toEqual(['AN', 'bình']); // initialHolders casing retained
   });
 
   it('handles null current_holder', () => {
