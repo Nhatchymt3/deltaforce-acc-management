@@ -19,12 +19,24 @@ function deriveAllHolders(params: {
   const { initialHolders, aeColumns, accounts, sessions } = params;
   const seen = new Map<string, string>(); // normalised key → original casing
 
-  initialHolders.forEach((h) => seen.set(normaliseHolderKey(h), h));
-  aeColumns.forEach((h) => seen.set(normaliseHolderKey(h), h));
-  accounts.forEach((a) => {
-    if (a.current_holder) seen.set(normaliseHolderKey(a.current_holder), a.current_holder);
+  initialHolders.forEach((h) => {
+    const key = normaliseHolderKey(h);
+    if (!seen.has(key)) seen.set(key, h);
   });
-  sessions.forEach((s) => seen.set(normaliseHolderKey(s.holder_name), s.holder_name));
+  aeColumns.forEach((h) => {
+    const key = normaliseHolderKey(h);
+    if (!seen.has(key)) seen.set(key, h);
+  });
+  accounts.forEach((a) => {
+    if (a.current_holder) {
+      const key = normaliseHolderKey(a.current_holder);
+      if (!seen.has(key)) seen.set(key, a.current_holder);
+    }
+  });
+  sessions.forEach((s) => {
+    const key = normaliseHolderKey(s.holder_name);
+    if (!seen.has(key)) seen.set(key, s.holder_name);
+  });
 
   return Array.from(seen.values());
 }
