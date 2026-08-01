@@ -15,7 +15,7 @@ describe('finance', () => {
     const result = calculateFinance([
       { id: '1', username: 'a', amount_received: '100', holders: ['An', 'Bình'] },
     ]);
-    expect(result.accounts[0].share).toBe('50.00');
+    expect(result.accounts[0]?.share).toBe('50.00');
     expect(result.byHolder.An).toBe('50.00');
     expect(result.byHolder['Bình']).toBe('50.00');
   });
@@ -29,7 +29,7 @@ describe('finance', () => {
       { id: '1', username: 'a', amount_received: '100', holders: ['An', 'An', 'Bình'] },
     ]);
     // 3 holders passed → split is 100 / 3
-    expect(result.accounts[0].share).toBe(new Decimal(100).div(3).toFixed(2));
+    expect(result.accounts[0]?.share).toBe(new Decimal(100).div(3).toFixed(2));
   });
 
   it('accumulates across multiple accounts', () => {
@@ -52,7 +52,7 @@ describe('finance', () => {
     // "100000" stored as bigint string → VND formatted
     const formatted = formatVnd('100000');
     expect(formatted).toMatch(/100\.000/); // vi-VN thousands separator
-    expect(formatted).toEndWith(' ₫');
+    expect(formatted.endsWith(' ₫')).toBe(true);
   });
 
   it('formatVnd handles a decimal string (two decimal places input)', () => {
@@ -77,7 +77,7 @@ describe('finance', () => {
   it('formatVndString works directly on a Decimal string', () => {
     const result = formatVndString('500000');
     expect(result).toMatch(/500\.000/);
-    expect(result).toEndWith(' ₫');
+    expect(result.endsWith(' ₫')).toBe(true);
   });
 
   // ── formatHolders ───────────────────────────────────────────────────────────
@@ -88,8 +88,8 @@ describe('finance', () => {
     };
     const rows = formatHolders(totals);
     expect(rows).toHaveLength(2);
-    expect(rows[0].formatted).toMatch(/150\.000.*₫/);
-    expect(rows[1].formatted).toMatch(/50\.000.*₫/);
+    expect(rows[0]?.formatted).toMatch(/150\.000.*₫/);
+    expect(rows[1]?.formatted).toMatch(/50\.000.*₫/);
   });
 
   // ── Decimal precision ────────────────────────────────────────────────────────

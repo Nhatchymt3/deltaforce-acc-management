@@ -16,11 +16,13 @@
     "@dnd-kit/utilities": "3.2.2",
     "@supabase/ssr": "0.5.2",
     "@supabase/supabase-js": "2.45.4",
+    "browser-image-compression": "^2.0.2",
     "decimal.js": "10.4.3",
     "next": "14.2.31",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "server-only": "0.0.1"
+    "server-only": "0.0.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "20.16.11",

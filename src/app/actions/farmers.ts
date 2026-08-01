@@ -1,98 +1,113 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { requireAuth, handleActionError } from '@/lib/auth-guard';
 import type { Farmer } from '@/lib/types';
+import { z } from 'zod';
+
+const farmerNameSchema = z.string().trim().min(1, 'Tên AE không được để trống').max(50, 'Tên AE quá dài');
+const uuidSchema = z.string().uuid('ID không hợp lệ');
 
 export async function getFarmers(): Promise<Farmer[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('farmers')
-    .select('id, name')
-    .order('name');
+  try {
+    const { supabase } = await requireAuth();
+    const { data, error } = await supabase
+      .from('farmers')
+      .select('id, name')
+      .order('name');
 
-  if (error) throw new Error(error.message);
-  return (data ?? []) as Farmer[];
+    if (error) throw error;
+    return (data ?? []) as Farmer[];
+  } catch (error) {
+    handleActionError(error);
+  }
 }
 
 export async function createFarmer(name: string): Promise<Farmer> {
-  const admin = createAdminClient();
-  const trimmed = name.trim();
-  if (!trimmed) throw new Error('Tên AE không được để trống');
+  try {
+    const { supabase } = await requireAuth();
+    const trimmed = farmerNameSchema.parse(name);
 
-  const { data, error } = await admin
-    .from('farmers')
-    .insert({ name: trimmed })
-    .select('id, name')
-    .single();
+    const { data, error } = await supabase
+      .from('farmers')
+      .insert({ name: trimmed })
+      .select('id, name')
+      .single();
 
-  if (error) {
-    if (error.code === '23505') throw new Error('Tên AE này đã tồn tại');
-    throw new Error(error.message);
+    if (error) {
+      if (error.code === '23505') throw new Error('Tên AE này đã tồn tại');
+      throw error;
+    }
+
+    revalidatePath('/farmers');
+    return data as Farmer;
+  } catch (error) {
+    handleActionError(error);
   }
-
-  revalidatePath('/');
-  revalidatePath('/farmers');
-  return data as Farmer;
 }
 
 export async function updateFarmer(id: string, name: string): Promise<Farmer> {
-  const admin = createAdminClient();
-  const trimmed = name.trim();
-  if (!trimmed) throw new Error('Tên AE không được để trống');
+  try {
+    const { supabase } = await requireAuth();
+    const validatedId = uuidSchema.parse(id);
+    const trimmed = farmerNameSchema.parse(name);
 
-  const { data: oldFarmer } = await admin
-    .from('farmers')
-    .select('name')
-    .eq('id', id)
-    .single();
+    const { data: oldFarmer } = await supabase
+      .from('farmers')
+      .select('name')
+      .eq('id', validatedId)
+      .single();
 
-  const { data, error } = await admin
-    .from('farmers')
-    .update({ name: trimmed })
-    .eq('id', id)
-    .select('id, name')
-    .single();
+    const { data, error } = await supabase
+      .from('farmers')
+      .update({ name: trimmed })
+      .eq('id', validatedId)
+      .select('id, name')
+      .single();
 
-  if (error) {
-    if (error.code === '23505') throw new Error('Tên AE này đã tồn tại');
-    throw new Error(error.message);
+    if (error) {
+      if (error.code === '23505') throw new Error('Tên AE này đã tồn tại');
+      throw error;
+    }
+
+    if (oldFarmer && oldFarmer.name !== trimmed) {
+      await supabase
+        .from('accounts')
+        .update({ current_holder: trimmed })
+        .ilike('current_holder', oldFarmer.name);
+
+      await supabase
+        .from('accounts')
+        .update({ added_by: trimmed })
+        .ilike('added_by', oldFarmer.name);
+
+      await supabase
+        .from('holder_sessions')
+        .update({ holder_name: trimmed })
+        .ilike('holder_name', oldFarmer.name);
+    }
+
+    revalidatePath('/farmers');
+    return data as Farmer;
+  } catch (error) {
+    handleActionError(error);
   }
-
-  if (oldFarmer && oldFarmer.name !== trimmed) {
-    // Update all accounts where current_holder matches old name (or matches any non-empty holder if only 1 farmer)
-    await admin
-      .from('accounts')
-      .update({ current_holder: trimmed })
-      .ilike('current_holder', oldFarmer.name);
-
-    await admin
-      .from('accounts')
-      .update({ added_by: trimmed })
-      .ilike('added_by', oldFarmer.name);
-
-    await admin
-      .from('holder_sessions')
-      .update({ holder_name: trimmed })
-      .ilike('holder_name', oldFarmer.name);
-  }
-
-  revalidatePath('/');
-  revalidatePath('/farmers');
-  return data as Farmer;
 }
 
 export async function deleteFarmer(id: string): Promise<void> {
-  const admin = createAdminClient();
+  try {
+    const { supabase } = await requireAuth();
+    const validatedId = uuidSchema.parse(id);
 
-  const { error } = await admin
-    .from('farmers')
-    .delete()
-    .eq('id', id);
+    const { error } = await supabase
+      .from('farmers')
+      .delete()
+      .eq('id', validatedId);
 
-  if (error) throw new Error(error.message);
+    if (error) throw error;
 
-  revalidatePath('/');
-  revalidatePath('/farmers');
+    revalidatePath('/farmers');
+  } catch (error) {
+    handleActionError(error);
+  }
 }

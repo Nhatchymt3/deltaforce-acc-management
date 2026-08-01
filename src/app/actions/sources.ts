@@ -1,84 +1,100 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
+import { requireAuth, handleActionError } from '@/lib/auth-guard';
 import type { Source } from '@/lib/types';
+import { z } from 'zod';
+
+const sourceNameSchema = z.string().trim().min(1, 'Tên nguồn không được để trống').max(50, 'Tên nguồn quá dài');
+const uuidSchema = z.string().uuid('ID không hợp lệ');
 
 export async function getSources(): Promise<Source[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from('sources')
-    .select('id, name')
-    .order('name');
+  try {
+    const { supabase } = await requireAuth();
+    const { data, error } = await supabase
+      .from('sources')
+      .select('id, name')
+      .order('name');
 
-  if (error) throw new Error(error.message);
-  return (data ?? []) as Source[];
+    if (error) throw error;
+    return (data ?? []) as Source[];
+  } catch (error) {
+    handleActionError(error);
+  }
 }
 
 export async function createSource(name: string): Promise<Source> {
-  const supabase = await createClient();
-  const trimmed = name.trim();
-  if (!trimmed) throw new Error('Tên nguồn không được để trống');
+  try {
+    const { supabase } = await requireAuth();
+    const trimmed = sourceNameSchema.parse(name);
 
-  const { data, error } = await supabase
-    .from('sources')
-    .insert({ name: trimmed })
-    .select('id, name')
-    .single();
+    const { data, error } = await supabase
+      .from('sources')
+      .insert({ name: trimmed })
+      .select('id, name')
+      .single();
 
-  if (error) {
-    if (error.code === '23505') throw new Error('Nguồn này đã tồn tại');
-    throw new Error(error.message);
+    if (error) {
+      if (error.code === '23505') throw new Error('Nguồn này đã tồn tại');
+      throw error;
+    }
+
+    revalidatePath('/sources');
+    return data as Source;
+  } catch (error) {
+    handleActionError(error);
   }
-
-  revalidatePath('/');
-  revalidatePath('/sources');
-  return data as Source;
 }
 
 export async function updateSource(id: string, name: string): Promise<Source> {
-  const supabase = await createClient();
-  const trimmed = name.trim();
-  if (!trimmed) throw new Error('Tên nguồn không được để trống');
+  try {
+    const { supabase } = await requireAuth();
+    const validatedId = uuidSchema.parse(id);
+    const trimmed = sourceNameSchema.parse(name);
 
-  const { data, error } = await supabase
-    .from('sources')
-    .update({ name: trimmed })
-    .eq('id', id)
-    .select('id, name')
-    .single();
+    const { data, error } = await supabase
+      .from('sources')
+      .update({ name: trimmed })
+      .eq('id', validatedId)
+      .select('id, name')
+      .single();
 
-  if (error) {
-    if (error.code === '23505') throw new Error('Nguồn này đã tồn tại');
-    throw new Error(error.message);
+    if (error) {
+      if (error.code === '23505') throw new Error('Nguồn này đã tồn tại');
+      throw error;
+    }
+
+    revalidatePath('/sources');
+    return data as Source;
+  } catch (error) {
+    handleActionError(error);
   }
-
-  revalidatePath('/');
-  revalidatePath('/sources');
-  return data as Source;
 }
 
 export async function deleteSource(id: string): Promise<void> {
-  const supabase = await createClient();
+  try {
+    const { supabase } = await requireAuth();
+    const validatedId = uuidSchema.parse(id);
 
-  // Check if any accounts reference this source
-  const { data: accounts } = await supabase
-    .from('accounts')
-    .select('id')
-    .eq('source', id)
-    .limit(1);
+    const { data: accounts } = await supabase
+      .from('accounts')
+      .select('id')
+      .eq('source', validatedId)
+      .limit(1);
 
-  if (accounts && accounts.length > 0) {
-    throw new Error('Không thể xóa: còn tài khoản thuộc nguồn này');
+    if (accounts && accounts.length > 0) {
+      throw new Error('Không thể xóa: còn tài khoản thuộc nguồn này');
+    }
+
+    const { error } = await supabase
+      .from('sources')
+      .delete()
+      .eq('id', validatedId);
+
+    if (error) throw error;
+
+    revalidatePath('/sources');
+  } catch (error) {
+    handleActionError(error);
   }
-
-  const { error } = await supabase
-    .from('sources')
-    .delete()
-    .eq('id', id);
-
-  if (error) throw new Error(error.message);
-
-  revalidatePath('/');
-  revalidatePath('/sources');
 }

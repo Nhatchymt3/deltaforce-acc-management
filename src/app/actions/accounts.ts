@@ -222,28 +222,40 @@ export async function uploadAccountImages(
   }
 
   const admin = createAdminClient();
-  const uploadedPaths: string[] = [];
-  let latestPath = '';
+  const timestamp = Date.now();
 
-  let i = 0;
-  for (const file of files) {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const ext = file.name.split('.').pop() ?? 'jpg';
-    const path = `${accountId}/${Date.now()}-${i}.${ext}`;
-    i++;
-    const { error: uploadError } = await admin.storage
-      .from('account-results')
-      .upload(path, buffer, { contentType: file.type, upsert: false });
-    if (uploadError) {
-      // best-effort cleanup of anything already uploaded in this batch
+  // Read buffers in parallel
+  const fileDataList = await Promise.all(
+    files.map(async (file, idx) => {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const ext = file.name.split('.').pop() ?? 'jpg';
+      const path = `${accountId}/${timestamp}-${idx}.${ext}`;
+      return { file, buffer, path };
+    })
+  );
+
+  // Upload to Supabase Storage in parallel
+  const uploadResults = await Promise.all(
+    fileDataList.map(({ file, buffer, path }) =>
+      admin.storage.from('account-results').upload(path, buffer, {
+        contentType: file.type,
+        upsert: false,
+      }).then((res) => ({ ...res, path }))
+    )
+  );
+
+  const uploadedPaths: string[] = [];
+  for (const res of uploadResults) {
+    if (res.error) {
       if (uploadedPaths.length > 0) {
         await admin.storage.from('account-results').remove(uploadedPaths);
       }
-      throw new Error(uploadError.message);
+      throw new Error(res.error.message);
     }
-    uploadedPaths.push(path);
-    latestPath = path;
+    uploadedPaths.push(res.path);
   }
+
+  const latestPath = uploadedPaths[uploadedPaths.length - 1];
 
   // Point image_url at the latest upload (bumps version once) so the row still
   // signals "has image" to the expiry cron and legacy consumers. Tolerate a
