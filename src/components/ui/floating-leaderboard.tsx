@@ -116,17 +116,21 @@ export function FloatingLeaderboard() {
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
-    const dx = e.clientX - dragStartRef.current.x;
-    const dy = e.clientY - dragStartRef.current.y;
 
-    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
-      hasMovedRef.current = true;
-    }
+    // Use requestAnimationFrame for smoother updates
+    requestAnimationFrame(() => {
+      const dx = e.clientX - dragStartRef.current.x;
+      const dy = e.clientY - dragStartRef.current.y;
 
-    const newX = Math.max(10, Math.min(window.innerWidth - 60, posStartRef.current.x + dx));
-    const newY = Math.max(10, Math.min(window.innerHeight - 60, posStartRef.current.y + dy));
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+        hasMovedRef.current = true;
+      }
 
-    setPosition({ x: newX, y: newY });
+      const newX = Math.max(10, Math.min(window.innerWidth - 60, posStartRef.current.x + dx));
+      const newY = Math.max(10, Math.min(window.innerHeight - 60, posStartRef.current.y + dy));
+
+      setPosition({ x: newX, y: newY });
+    });
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -148,15 +152,16 @@ export function FloatingLeaderboard() {
       {/* Draggable Icon Button */}
       <div
         style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
+          transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
           touchAction: 'none',
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onClick={toggleModal}
-        className="fixed z-50 flex h-13 w-13 cursor-grab active:cursor-grabbing items-center justify-center rounded-2xl border border-brass/50 bg-midnight/95 text-brass shadow-2xl shadow-brass/30 backdrop-blur-xl transition-all hover:scale-110 hover:border-brass hover:shadow-brass/50 group"
+        className={`fixed top-0 left-0 z-50 flex h-13 w-13 cursor-grab active:cursor-grabbing items-center justify-center rounded-2xl border border-brass/50 bg-midnight/95 text-brass shadow-2xl shadow-brass/30 backdrop-blur-xl hover:scale-110 hover:border-brass hover:shadow-brass/50 group ${
+          isDragging ? 'transition-none' : 'transition-transform duration-200'
+        }`}
         title="Bảng Xếp Hạng Thu Nhập AE"
       >
         <span className="text-2xl select-none group-hover:rotate-12 transition-transform duration-300">🏆</span>
