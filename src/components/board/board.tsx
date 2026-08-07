@@ -24,6 +24,7 @@ import { moveAccount } from '@/app/actions/accounts';
 import { signOut } from '@/app/actions/auth';
 import type { Account, HolderSession, Milestone, Source, Farmer } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
+import { MultiDropdown } from '@/components/ui/multi-dropdown';
 import { AudioPlayer } from '@/components/ui/audio-player';
 import { AppShell } from '@/components/layout/app-shell';
 
@@ -355,7 +356,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const [sessions] = useState<HolderSession[]>(initialSessions);
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
   const [filter, setFilter] = useState<string>('all');
-  const [filterFarmer, setFilterFarmer] = useState<string>('all');
+  const [filterFarmers, setFilterFarmers] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<'default' | 'newest' | 'oldest'>('default');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -363,17 +364,24 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const [mounted, setMounted] = useState(false);
   const { toasts, addToast } = useToast();
 
-  // Local Storage cho bộ lọc AE
+  // Local Storage cho bộ lọc AE (mảng các id/tên)
   useEffect(() => {
-    const savedFilter = localStorage.getItem('df_farmer_filter');
+    const savedFilter = localStorage.getItem('df_farmer_filters');
     if (savedFilter) {
-      setFilterFarmer(savedFilter);
+      try {
+        const parsed = JSON.parse(savedFilter);
+        if (Array.isArray(parsed)) {
+          setFilterFarmers(parsed);
+        }
+      } catch {
+        // ignore
+      }
     }
   }, []);
 
-  const handleFarmerFilterChange = (val: string) => {
-    setFilterFarmer(val);
-    localStorage.setItem('df_farmer_filter', val);
+  const handleFarmerFilterChange = (selected: string[]) => {
+    setFilterFarmers(selected);
+    localStorage.setItem('df_farmer_filters', JSON.stringify(selected));
   };
 
   // Sync state when parent (BoardWrapper) updates initialAccounts (e.g., via AccountModal actions)
@@ -431,10 +439,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   }, [initialSources]);
 
   const farmerFilterOptions = useMemo(() => {
-    return [
-      { value: 'all', label: 'Tất cả AE' },
-      ...allFarmers.map((f) => ({ value: f.id, label: f.name })),
-    ];
+    return allFarmers.map((f) => ({ value: f.id, label: f.name }));
   }, [allFarmers]);
 
   const revenueByNormHolder = useMemo(() => {
@@ -590,24 +595,31 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   }, []);
 
   const displayedFarmers = useMemo(() => {
-    if (filterFarmer === 'all') return allFarmers;
-    return allFarmers.filter((f) => f.id === filterFarmer || f.name === filterFarmer);
-  }, [allFarmers, filterFarmer]);
+    if (filterFarmers.length === 0) return allFarmers; // [] nghĩa là "all"
+    return allFarmers.filter((f) => filterFarmers.includes(f.id) || filterFarmers.includes(f.name));
+  }, [allFarmers, filterFarmers]);
 
   const sortedAccounts = useMemo(() => {
     let list = accounts.filter((a) => !deletedIds.includes(a.id));
     if (filter !== 'all') {
       list = list.filter((a) => a.source === filter);
     }
-    if (filterFarmer !== 'all') {
-      const selectedFarmerObj = allFarmers.find((f) => f.id === filterFarmer || f.name === filterFarmer);
-      if (selectedFarmerObj) {
-        const normSelected = normaliseHolder(selectedFarmerObj.name);
-        list = list.filter(
-          (a) => a.current_holder && normaliseHolder(a.current_holder) === normSelected
-        );
-      }
+
+    // Khi có lọc, vẫn PHẢI trả về acc trong kho để hiển thị cột "Kho"
+    if (filterFarmers.length > 0) {
+      const selectedFarmerNorms = new Set(
+        allFarmers
+          .filter((f) => filterFarmers.includes(f.id) || filterFarmers.includes(f.name))
+          .map((f) => normaliseHolder(f.name))
+      );
+
+      list = list.filter(
+        (a) =>
+          a.status === 'kho' || // Luôn giữ acc kho
+          (a.current_holder && selectedFarmerNorms.has(normaliseHolder(a.current_holder)))
+      );
     }
+
     if (searchTerm.trim()) {
       const term = searchTerm.trim().toLowerCase();
       list = list.filter((a) =>
@@ -630,9 +642,9 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     }
 
     return list;
-  }, [accounts, deletedIds, filter, filterFarmer, allFarmers, searchTerm, sortBy]);
+  }, [accounts, deletedIds, filter, filterFarmers, allFarmers, searchTerm, sortBy]);
 
-  const khoAccounts = filterFarmer === 'all' ? sortedAccounts.filter((a) => a.status === 'kho' && !a.current_holder) : [];
+  const khoAccounts = sortedAccounts.filter((a) => a.status === 'kho' && !a.current_holder);
   const holderColumns = displayedFarmers.map((f) => ({
     id: f.id,
     label: farmerMap[f.id] ?? f.name,
@@ -715,11 +727,10 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           </div>
 
           <div className="min-w-[150px]">
-            <Dropdown
-              value={filterFarmer}
+            <MultiDropdown
+              selectedValues={filterFarmers}
               onChange={handleFarmerFilterChange}
               options={farmerFilterOptions}
-              size="sm"
               ariaLabel="Lọc theo AE"
             />
           </div>
@@ -742,9 +753,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <section className="flex-1 min-h-0 mx-auto w-full py-3 flex gap-4 pl-6 pr-20 overflow-x-auto items-stretch">
-          {filterFarmer === 'all' && (
-            <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
-          )}
+          <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
           {holderColumns.map((col) => (
             <Column
               key={col.id}
