@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git clone *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'docs: update README with full tech stack, project structure, and features *)",
+      "Bash(git config *)"
+    ]
+  }
+}

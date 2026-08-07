@@ -9,6 +9,7 @@ export type FinanceAccount = {
   amount_received: string;
   sourceName?: string;
   holders: string[];
+  lastHolder?: string | null;
   completed_at?: string | null;
   delivered_at?: string | null;
   paid_at?: string | null;
@@ -144,7 +145,7 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
                   <th className="px-4 py-3 font-medium">Username</th>
                   <th className="px-4 py-3 font-medium">AE cày chung</th>
                   <th className="px-4 py-3 font-medium text-right">Tổng tiền thu</th>
-                  <th className="px-4 py-3 font-medium text-right">Chia cho mỗi AE</th>
+                  <th className="px-4 py-3 font-medium text-right">Tiền mỗi AE nhận</th>
                 </tr>
               </thead>
               <tbody>

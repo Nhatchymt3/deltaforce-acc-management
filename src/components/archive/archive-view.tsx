@@ -23,15 +23,28 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [modalAccount, setModalAccount] = useState<Account | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSource, setSelectedSource] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+
+  const sourcesList = Array.from(
+    new Set(accounts.map((a) => (a as any).sourceName).filter(Boolean))
+  );
 
   const filteredAccounts = accounts.filter((a) => {
     const term = searchTerm.toLowerCase();
     const sourceName = (a as any).sourceName ?? '';
-    return (
+    const matchesSearch =
       a.username.toLowerCase().includes(term) ||
       sourceName.toLowerCase().includes(term) ||
-      (a.current_holder && a.current_holder.toLowerCase().includes(term))
-    );
+      (a.current_holder && a.current_holder.toLowerCase().includes(term));
+
+    const matchesSource =
+      selectedSource === 'all' || sourceName === selectedSource;
+
+    const matchesStatus =
+      selectedStatus === 'all' || a.status === selectedStatus;
+
+    return matchesSearch && matchesSource && matchesStatus;
   });
 
   const totalReceived = filteredAccounts.reduce(
@@ -76,9 +89,9 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
         </div>
       </div>
 
-      {/* Search bar */}
-      <div className="mb-6">
-        <div className="relative max-w-md">
+      {/* Search and Filters */}
+      <div className="mb-6 flex flex-wrap gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-md">
           <input
             type="text"
             value={searchTerm}
@@ -95,6 +108,32 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
+
+        <select
+          value={selectedSource}
+          onChange={(e) => setSelectedSource(e.target.value)}
+          className="rounded-lg border border-white/[0.06] bg-gunmetal px-3.5 py-2 text-sm text-white focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+        >
+          <option value="all">Tất cả nguồn</option>
+          {sourcesList.map((src) => (
+            <option key={src as string} value={src as string}>
+              {src as string}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedStatus}
+          onChange={(e) => setSelectedStatus(e.target.value)}
+          className="rounded-lg border border-white/[0.06] bg-gunmetal px-3.5 py-2 text-sm text-white focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+        >
+          <option value="all">Tất cả trạng thái</option>
+          <option value="kho">Kho</option>
+          <option value="dang_cay">Đang cày</option>
+          <option value="done">Done</option>
+          <option value="da_giao_cho_ben_thu">Đã giao bên thứ 3</option>
+          <option value="da_nhan_tien">Đã nhận tiền</option>
+        </select>
       </div>
 
       {/* Archive table */}
@@ -105,6 +144,7 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
               <tr className="border-b border-white/[0.06] text-left text-ash text-xs uppercase tracking-wide bg-midnight/40">
                 <th className="px-4 py-3 font-medium">Username</th>
                 <th className="px-4 py-3 font-medium">Nguồn</th>
+                <th className="px-4 py-3 font-medium">Trạng thái</th>
                 <th className="px-4 py-3 font-medium text-right">Tổng tiền</th>
                 <th className="px-4 py-3 font-medium">Hoàn tất</th>
                 <th className="px-4 py-3 font-medium text-right">Chi tiết</th>
@@ -113,7 +153,7 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
             <tbody>
               {filteredAccounts.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-10 text-center text-ash/50">
+                  <td colSpan={6} className="py-10 text-center text-ash/50">
                     Không tìm thấy acc lưu trữ phù hợp.
                   </td>
                 </tr>
@@ -137,6 +177,13 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
                       </div>
                     </td>
                     <td className="px-4 py-3 text-ash text-xs">{(acc as any).sourceName ?? '—'}</td>
+                    <td className="px-4 py-3">
+                      {acc.status === 'kho' && <span className="text-ash/60 bg-ash/10 px-2 py-0.5 rounded text-xs">Kho</span>}
+                      {acc.status === 'dang_cay' && <span className="text-brass bg-brass/10 px-2 py-0.5 rounded text-xs">Đang cày</span>}
+                      {acc.status === 'done' && <span className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded text-xs">Done</span>}
+                      {acc.status === 'da_giao_cho_ben_thu' && <span className="text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded text-xs">Đã giao</span>}
+                      {acc.status === 'da_nhan_tien' && <span className="text-green-400 bg-green-400/10 px-2 py-0.5 rounded text-xs">Đã nhận tiền</span>}
+                    </td>
                     <td className="px-4 py-3 text-right font-mono font-semibold text-brass">
                       {formatVnd(Number(acc.amount_received ?? 0))}
                     </td>

@@ -11,13 +11,12 @@ describe('finance', () => {
     expect(result.byHolder.An).toBe('100000.00');
   });
 
-  it('splits multiple holders with Decimal (no Number conversion)', () => {
+  it('credits only lastHolder if provided', () => {
     const result = calculateFinance([
-      { id: '1', username: 'a', amount_received: '100', holders: ['An', 'Bình'] },
+      { id: '1', username: 'a', amount_received: '100', holders: ['An', 'Bình'], lastHolder: 'Bình' },
     ]);
-    expect(result.accounts[0]?.share).toBe('50.00');
-    expect(result.byHolder.An).toBe('50.00');
-    expect(result.byHolder['Bình']).toBe('50.00');
+    expect(result.byHolder.An).toBeUndefined();
+    expect(result.byHolder['Bình']).toBe('100.00');
   });
 
   it('deduplicates holders in the same account', () => {
@@ -28,17 +27,17 @@ describe('finance', () => {
     const result = calculateFinance([
       { id: '1', username: 'a', amount_received: '100', holders: ['An', 'An', 'Bình'] },
     ]);
-    // 3 holders passed → split is 100 / 3
-    expect(result.accounts[0]?.share).toBe(new Decimal(100).div(3).toFixed(2));
+    // 3 holders passed → split is 100
+    expect(result.accounts[0]?.share).toBe(new Decimal(100).toFixed(2));
   });
 
   it('accumulates across multiple accounts', () => {
     const result = calculateFinance([
       { id: '1', username: 'a', amount_received: '100', holders: ['An'] },
-      { id: '2', username: 'b', amount_received: '200', holders: ['An', 'Bình'] },
+      { id: '2', username: 'b', amount_received: '200', holders: ['An', 'Bình'], lastHolder: 'Bình' },
     ]);
-    expect(result.byHolder.An).toBe(new Decimal('100').plus(new Decimal('200').div(2)).toFixed(2));
-    expect(result.byHolder['Bình']).toBe(new Decimal('200').div(2).toFixed(2));
+    expect(result.byHolder.An).toBe('100.00');
+    expect(result.byHolder['Bình']).toBe('200.00');
   });
 
   it('handles zero accounts', () => {
@@ -94,19 +93,15 @@ describe('finance', () => {
 
   // ── Decimal precision ────────────────────────────────────────────────────────
   it('many splits preserve precision across repeated division', () => {
-    // Simulate 10 accounts, each split 3 ways
+    // Simulate 10 accounts
     const accounts = Array.from({ length: 10 }, (_, i) => ({
       id: String(i),
       username: `acc${i}`,
       amount_received: String(100 * (i + 1)), // 100, 200, ... 1000
       holders: ['An', 'Bình', 'Cường'],
+      lastHolder: 'An',
     }));
     const result = calculateFinance(accounts);
-    const expectedAn = new Decimal(0);
-    for (let i = 0; i < 10; i++) {
-      expectedAn.plus(new Decimal(100 * (i + 1)).div(3));
-    }
-    // Just ensure no NaN
     Object.values(result.byHolder).forEach((v) => {
       expect(v).not.toBe('NaN');
     });

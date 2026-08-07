@@ -5,6 +5,7 @@ export type PaidAccount = {
   username: string;
   amount_received: string;
   holders: string[];
+  lastHolder?: string | null;
 };
 
 export type FinanceSummary = {
@@ -14,6 +15,7 @@ export type FinanceSummary = {
 
 /**
  * Calculate finance splits.
+ * Credit full amount to lastHolder if present, otherwise credit all holders.
  * All arithmetic uses Decimal; no Number() conversion.
  */
 export function calculateFinance(accounts: PaidAccount[]): FinanceSummary {
@@ -21,12 +23,15 @@ export function calculateFinance(accounts: PaidAccount[]): FinanceSummary {
 
   const rows = accounts.map((account) => {
     const amount = new Decimal(account.amount_received);
-    const count = new Decimal(account.holders.length);
-    const share = amount.div(count);
-    account.holders.forEach((holder) => {
-      byHolder[holder] = (byHolder[holder] ?? new Decimal(0)).plus(share);
-    });
-    return { ...account, share: share.toFixed(2) };
+
+    // Chỉ người cuối cùng (người bấm done) nhận full tiền
+    const recipient = account.lastHolder || (account.holders.length === 1 ? account.holders[0] : null);
+
+    if (recipient) {
+      byHolder[recipient] = (byHolder[recipient] ?? new Decimal(0)).plus(amount);
+    }
+
+    return { ...account, share: amount.toFixed(2) };
   });
 
   return {

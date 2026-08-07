@@ -14,7 +14,6 @@ export default async function ArchivePage() {
     supabase
       .from('accounts')
       .select('*')
-      .eq('status', 'da_nhan_tien')
       .order('paid_at', { ascending: false }),
     supabase.from('sources').select('id, name'),
     supabase.from('account_milestones').select('*').order('level'),
