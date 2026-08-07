@@ -355,6 +355,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const [sessions] = useState<HolderSession[]>(initialSessions);
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
   const [filter, setFilter] = useState<string>('all');
+  const [filterFarmer, setFilterFarmer] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<'default' | 'newest' | 'oldest'>('default');
   const [showLeaderboard, setShowLeaderboard] = useState(false);
@@ -387,21 +388,6 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     return map;
   }, [milestones]);
 
-  const sourceFilterOptions = useMemo(() => {
-    return [
-      { value: 'all', label: 'Tất cả nguồn' },
-      ...initialSources.map((s) => ({ value: s.id, label: s.name })),
-    ];
-  }, [initialSources]);
-
-  const revenueByNormHolder = useMemo(() => {
-    const map: Record<string, number> = {};
-    Object.entries(holderRevenue).forEach(([holder, total]) => {
-      map[normaliseHolder(holder)] = Number(total);
-    });
-    return map;
-  }, [holderRevenue]);
-
   const farmerMap = useMemo(() => {
     const map: Record<string, string> = {};
     if (initialFarmers) {
@@ -423,6 +409,28 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
     return list;
   }, [accounts, initialFarmers]);
+
+  const sourceFilterOptions = useMemo(() => {
+    return [
+      { value: 'all', label: 'Tất cả nguồn' },
+      ...initialSources.map((s) => ({ value: s.id, label: s.name })),
+    ];
+  }, [initialSources]);
+
+  const farmerFilterOptions = useMemo(() => {
+    return [
+      { value: 'all', label: 'Tất cả AE' },
+      ...allFarmers.map((f) => ({ value: f.id, label: f.name })),
+    ];
+  }, [allFarmers]);
+
+  const revenueByNormHolder = useMemo(() => {
+    const map: Record<string, number> = {};
+    Object.entries(holderRevenue).forEach(([holder, total]) => {
+      map[normaliseHolder(holder)] = Number(total);
+    });
+    return map;
+  }, [holderRevenue]);
 
   const leaderboardItems = useMemo(() => {
     const map: Record<string, { name: string; total: number; count: number }> = {};
@@ -568,10 +576,24 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     return () => cleanup?.();
   }, []);
 
+  const displayedFarmers = useMemo(() => {
+    if (filterFarmer === 'all') return allFarmers;
+    return allFarmers.filter((f) => f.id === filterFarmer || f.name === filterFarmer);
+  }, [allFarmers, filterFarmer]);
+
   const sortedAccounts = useMemo(() => {
     let list = accounts.filter((a) => !deletedIds.includes(a.id));
     if (filter !== 'all') {
       list = list.filter((a) => a.source === filter);
+    }
+    if (filterFarmer !== 'all') {
+      const selectedFarmerObj = allFarmers.find((f) => f.id === filterFarmer || f.name === filterFarmer);
+      if (selectedFarmerObj) {
+        const normSelected = normaliseHolder(selectedFarmerObj.name);
+        list = list.filter(
+          (a) => a.current_holder && normaliseHolder(a.current_holder) === normSelected
+        );
+      }
     }
     if (searchTerm.trim()) {
       const term = searchTerm.trim().toLowerCase();
@@ -595,10 +617,10 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     }
 
     return list;
-  }, [accounts, deletedIds, filter, searchTerm, sortBy]);
+  }, [accounts, deletedIds, filter, filterFarmer, allFarmers, searchTerm, sortBy]);
 
-  const khoAccounts = sortedAccounts.filter((a) => a.status === 'kho' && !a.current_holder);
-  const holderColumns = allFarmers.map((f) => ({
+  const khoAccounts = filterFarmer === 'all' ? sortedAccounts.filter((a) => a.status === 'kho' && !a.current_holder) : [];
+  const holderColumns = displayedFarmers.map((f) => ({
     id: f.id,
     label: farmerMap[f.id] ?? f.name,
     accounts: sortedAccounts.filter(
@@ -679,6 +701,16 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             />
           </div>
 
+          <div className="min-w-[150px]">
+            <Dropdown
+              value={filterFarmer}
+              onChange={setFilterFarmer}
+              options={farmerFilterOptions}
+              size="sm"
+              ariaLabel="Lọc theo AE"
+            />
+          </div>
+
           <div className="min-w-[140px]">
             <Dropdown
               value={sortBy}
@@ -697,7 +729,9 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <section className="flex-1 min-h-0 mx-auto w-full py-3 flex gap-4 pl-6 pr-20 overflow-x-auto items-stretch">
-          <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
+          {filterFarmer === 'all' && (
+            <Column id={KHO_SENTINEL} label="Kho chung" accounts={khoAccounts} milestonesByAccount={milestonesByAccount} onOpen={onOpenAccount} isKho />
+          )}
           {holderColumns.map((col) => (
             <Column
               key={col.id}
