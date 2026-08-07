@@ -103,7 +103,7 @@ export function MultiDropdown({
         onClick={() => setOpen((o) => !o)}
         className="relative flex w-full items-center justify-between gap-2 rounded-lg border border-white/[0.06] bg-gunmetal/80 text-left text-white cursor-pointer hover:border-brass/30 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all px-4 py-2.5"
       >
-        <span className={`truncate text-sm ${!isAll ? 'text-white' : 'text-ash'}`}>
+        <span className="truncate text-sm text-white">
           {labelText}
         </span>
         <svg
