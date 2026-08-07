@@ -363,6 +363,19 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const [mounted, setMounted] = useState(false);
   const { toasts, addToast } = useToast();
 
+  // Local Storage cho bộ lọc AE
+  useEffect(() => {
+    const savedFilter = localStorage.getItem('df_farmer_filter');
+    if (savedFilter) {
+      setFilterFarmer(savedFilter);
+    }
+  }, []);
+
+  const handleFarmerFilterChange = (val: string) => {
+    setFilterFarmer(val);
+    localStorage.setItem('df_farmer_filter', val);
+  };
+
   // Sync state when parent (BoardWrapper) updates initialAccounts (e.g., via AccountModal actions)
   useEffect(() => {
     setAccounts(initialAccounts);
@@ -704,7 +717,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           <div className="min-w-[150px]">
             <Dropdown
               value={filterFarmer}
-              onChange={setFilterFarmer}
+              onChange={handleFarmerFilterChange}
               options={farmerFilterOptions}
               size="sm"
               ariaLabel="Lọc theo AE"
