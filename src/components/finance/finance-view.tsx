@@ -137,11 +137,11 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/[0.06] bg-gunmetal overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/[0.06] text-left text-ash text-xs uppercase tracking-wide bg-midnight/40">
+        <div className="rounded-xl border border-white/[0.06] bg-gunmetal overflow-hidden flex flex-col">
+          <div className="overflow-x-auto overflow-y-auto max-h-[600px] scrollbar-thin">
+            <table className="w-full text-sm relative">
+              <thead className="sticky top-0 z-10">
+                <tr className="border-b border-white/[0.06] text-left text-ash text-xs uppercase tracking-wide bg-gunmetal shadow-[0_1px_0_rgba(255,255,255,0.06)]">
                   <th className="px-4 py-3 font-medium">Username</th>
                   <th className="px-4 py-3 font-medium">AE cày chung</th>
                   <th className="px-4 py-3 font-medium text-right">Tổng tiền thu</th>
