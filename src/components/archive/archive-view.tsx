@@ -137,8 +137,8 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
       </div>
 
       {/* Archive table */}
-      <div className="rounded-xl border border-white/[0.06] bg-gunmetal overflow-hidden flex flex-col">
-        <div className="overflow-x-auto overflow-y-auto max-h-[600px] scrollbar-thin">
+      <div className="rounded-xl border border-white/[0.06] bg-gunmetal overflow-hidden">
+        <div className="overflow-x-auto overflow-y-auto max-h-[500px] scrollbar-thin">
           <table className="w-full text-sm relative">
             <thead className="sticky top-0 z-10">
               <tr className="border-b border-white/[0.06] text-left text-ash text-xs uppercase tracking-wide bg-gunmetal shadow-[0_1px_0_rgba(255,255,255,0.06)]">

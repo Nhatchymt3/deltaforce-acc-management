@@ -37,7 +37,7 @@ export default async function FinancePage() {
   });
 
   return (
-    <div className="h-full flex flex-col px-6 py-8 text-gray-200 pr-16 max-w-5xl mx-auto overflow-y-auto">
+    <div className="h-full flex flex-col px-6 py-8 text-gray-200 pr-16 max-w-5xl mx-auto overflow-hidden">
       <div className="mb-6 flex items-center justify-between shrink-0">
         <div>
           <h1 className="font-display text-xl font-bold text-white tracking-wide">Tài chính</h1>
@@ -45,7 +45,9 @@ export default async function FinancePage() {
         </div>
       </div>
 
-      <FinanceView initialAccounts={accounts} />
+      <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+        <FinanceView initialAccounts={accounts} />
+      </div>
     </div>
   );
 }

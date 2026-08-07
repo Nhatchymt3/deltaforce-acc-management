@@ -40,8 +40,8 @@ export default async function ArchivePage() {
   })) as any[];
 
   return (
-    <div className="h-full flex flex-col px-6 py-8 text-gray-200 pr-16 max-w-6xl mx-auto overflow-y-auto">
-      <div className="mb-6 flex items-center justify-between shrink-0">
+    <div className="relative mx-auto max-w-6xl px-6 py-8 text-gray-200 pr-16">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-display text-xl font-bold text-white tracking-wide">Kho lưu trữ</h1>
           <p className="text-xs text-ash">Các acc đã nhận tiền, đã hoàn tất</p>
