@@ -176,7 +176,7 @@ export function AppShell({ children }: AppShellProps) {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 min-h-0 relative overflow-hidden pb-16 md:pb-0">
+      <main className="flex-1 min-h-0 relative overflow-y-auto pb-16 md:pb-0 scrollbar-thin">
         {children}
       </main>
 
