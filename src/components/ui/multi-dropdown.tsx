@@ -45,7 +45,7 @@ export function MultiDropdown({
     const el = btnRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    setCoords({ top: r.bottom + 6, left: r.left, width: Math.max(r.width, 180) });
+    setCoords({ top: r.bottom + 6, left: r.left, width: r.width });
   };
 
   useEffect(() => {
@@ -101,11 +101,13 @@ export function MultiDropdown({
         aria-expanded={open}
         aria-label={ariaLabel}
         onClick={() => setOpen((o) => !o)}
-        className="relative flex w-full items-center justify-between gap-2 rounded-lg border border-white/[0.06] bg-gunmetal/80 px-3 py-1.5 text-left text-xs text-white cursor-pointer hover:border-brass/30 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+        className="relative flex w-full items-center justify-between gap-2 rounded-lg border border-white/[0.06] bg-gunmetal/80 text-left text-white cursor-pointer hover:border-brass/30 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all px-4 py-2.5"
       >
-        <span className="truncate">{labelText}</span>
+        <span className={`truncate text-sm ${!isAll ? 'text-white' : 'text-ash'}`}>
+          {labelText}
+        </span>
         <svg
-          className={`h-3.5 w-3.5 flex-shrink-0 text-ash transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 flex-shrink-0 text-ash transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -127,7 +129,7 @@ export function MultiDropdown({
             <button
               type="button"
               onClick={() => toggleOption('all')}
-              className={`flex w-full items-center gap-2.5 rounded px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-brass/10 text-gray-200 ${
+              className={`flex w-full items-center gap-2.5 rounded px-3 py-1.5 text-left text-sm transition-colors hover:bg-brass/10 text-gray-300 ${
                 isAll ? 'font-semibold text-brass' : ''
               }`}
             >
@@ -154,7 +156,9 @@ export function MultiDropdown({
                   key={opt.value}
                   type="button"
                   onClick={() => toggleOption(opt.value)}
-                  className="flex w-full items-center gap-2.5 rounded px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-brass/10 text-gray-200"
+                  className={`flex w-full items-center gap-2.5 rounded px-3 py-1.5 text-left text-sm transition-colors hover:bg-brass/10 text-gray-300 ${
+                    isChecked ? 'font-semibold' : ''
+                  }`}
                 >
                   <div
                     className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${
