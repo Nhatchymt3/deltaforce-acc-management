@@ -563,10 +563,11 @@ export async function updateGameUuid(accountId: string, gameUuid: string): Promi
 
 export async function revertToDangCay(accountId: string): Promise<Account> {
   try {
-    const { supabase } = await requireAuth();
+    await requireAuth();
     const validatedId = uuidSchema.parse(accountId);
+    const admin = createAdminClient();
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('accounts')
       .update({
         status: 'dang_cay',
@@ -586,10 +587,11 @@ export async function revertToDangCay(accountId: string): Promise<Account> {
 
 export async function revertToDelivered(accountId: string): Promise<Account> {
   try {
-    const { supabase } = await requireAuth();
+    await requireAuth();
     const validatedId = uuidSchema.parse(accountId);
+    const admin = createAdminClient();
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('accounts')
       .update({
         status: 'da_giao_cho_ben_thu',
@@ -610,10 +612,11 @@ export async function revertToDelivered(accountId: string): Promise<Account> {
 
 export async function revertToDone(accountId: string): Promise<Account> {
   try {
-    const { supabase } = await requireAuth();
+    await requireAuth();
     const validatedId = uuidSchema.parse(accountId);
+    const admin = createAdminClient();
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('accounts')
       .update({
         status: 'done',
