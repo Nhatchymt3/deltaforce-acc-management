@@ -561,11 +561,11 @@ export async function updateGameUuid(accountId: string, gameUuid: string): Promi
   }
 }
 
-export async function revertToDangCay(accountId: string, knownVersion: number, adminPw: string): Promise<Account> {
+export async function revertToDangCay(accountId: string, knownVersion: number, adminPw: string): Promise<{ data?: Account; error?: string }> {
   try {
     const { supabase } = await requireAuth();
     if (adminPw !== 'taolaadmin') {
-      throw new Error('Sai mật khẩu admin!');
+      return { error: 'Sai mật khẩu admin!' };
     }
     const validatedId = uuidSchema.parse(accountId);
 
@@ -575,18 +575,21 @@ export async function revertToDangCay(accountId: string, knownVersion: number, a
       p_known_version: knownVersion,
     });
 
-    if (error) throw error;
-    return serializeAccount(data);
+    if (error) {
+      if (isVersionConflict(error.message)) return { error: 'Tài khoản đã được người khác thao tác trước đó!' };
+      return { error: error.message };
+    }
+    return { data: serializeAccount(data) };
   } catch (error) {
-    handleActionError(error);
+    return { error: error instanceof Error ? error.message : 'Thao tác thất bại' };
   }
 }
 
-export async function revertToDelivered(accountId: string, knownVersion: number, adminPw: string): Promise<Account> {
+export async function revertToDelivered(accountId: string, knownVersion: number, adminPw: string): Promise<{ data?: Account; error?: string }> {
   try {
     const { supabase } = await requireAuth();
     if (adminPw !== 'taolaadmin') {
-      throw new Error('Sai mật khẩu admin!');
+      return { error: 'Sai mật khẩu admin!' };
     }
     const validatedId = uuidSchema.parse(accountId);
 
@@ -596,18 +599,21 @@ export async function revertToDelivered(accountId: string, knownVersion: number,
       p_known_version: knownVersion,
     });
 
-    if (error) throw error;
-    return serializeAccount(data);
+    if (error) {
+      if (isVersionConflict(error.message)) return { error: 'Tài khoản đã được người khác thao tác trước đó!' };
+      return { error: error.message };
+    }
+    return { data: serializeAccount(data) };
   } catch (error) {
-    handleActionError(error);
+    return { error: error instanceof Error ? error.message : 'Thao tác thất bại' };
   }
 }
 
-export async function revertToDone(accountId: string, knownVersion: number, adminPw: string): Promise<Account> {
+export async function revertToDone(accountId: string, knownVersion: number, adminPw: string): Promise<{ data?: Account; error?: string }> {
   try {
     const { supabase } = await requireAuth();
     if (adminPw !== 'taolaadmin') {
-      throw new Error('Sai mật khẩu admin!');
+      return { error: 'Sai mật khẩu admin!' };
     }
     const validatedId = uuidSchema.parse(accountId);
 
@@ -617,10 +623,13 @@ export async function revertToDone(accountId: string, knownVersion: number, admi
       p_known_version: knownVersion,
     });
 
-    if (error) throw error;
-    return serializeAccount(data);
+    if (error) {
+      if (isVersionConflict(error.message)) return { error: 'Tài khoản đã được người khác thao tác trước đó!' };
+      return { error: error.message };
+    }
+    return { data: serializeAccount(data) };
   } catch (error) {
-    handleActionError(error);
+    return { error: error instanceof Error ? error.message : 'Thao tác thất bại' };
   }
 }
 

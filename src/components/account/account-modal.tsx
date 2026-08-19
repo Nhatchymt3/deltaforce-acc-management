@@ -604,16 +604,19 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
     setError(null);
     setActionLoading('revert');
     try {
-      let result: Account | undefined;
+      let res: { data?: Account; error?: string } | undefined;
       if (pwModalTarget === 'dang_cay') {
-        result = await revertToDangCay(account.id, account.version, adminPasswordInput);
+        res = await revertToDangCay(account.id, account.version, adminPasswordInput);
       } else if (pwModalTarget === 'delivered') {
-        result = await revertToDelivered(account.id, account.version, adminPasswordInput);
+        res = await revertToDelivered(account.id, account.version, adminPasswordInput);
       } else if (pwModalTarget === 'done') {
-        result = await revertToDone(account.id, account.version, adminPasswordInput);
+        res = await revertToDone(account.id, account.version, adminPasswordInput);
       }
-      if (result) {
-        onUpdated(result as Account);
+
+      if (res?.error) {
+        setError(res.error);
+      } else if (res?.data) {
+        onUpdated(res.data);
         setPwModalTarget(null);
         setAdminPasswordInput('');
       }
