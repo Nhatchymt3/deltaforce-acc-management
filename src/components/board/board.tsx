@@ -356,6 +356,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   const [sessions] = useState<HolderSession[]>(initialSessions);
   const [milestones, setMilestones] = useState<Milestone[]>(initialMilestones);
   const [filter, setFilter] = useState<string>('all');
+  const [filterUser, setFilterUser] = useState<string>('all');
   const [filterFarmers, setFilterFarmers] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<'default' | 'newest' | 'oldest'>('default');
@@ -437,6 +438,14 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
       ...initialSources.map((s) => ({ value: s.id, label: s.name })),
     ];
   }, [initialSources]);
+
+  const userFilterOptions = useMemo(() => {
+    const creators = Array.from(new Set(accounts.map((a) => a.added_by).filter(Boolean))) as string[];
+    return [
+      { value: 'all', label: 'Tất cả người thêm' },
+      ...creators.map((c) => ({ value: c, label: c })),
+    ];
+  }, [accounts]);
 
   const farmerFilterOptions = useMemo(() => {
     return allFarmers.map((f) => ({ value: f.id, label: f.name }));
@@ -604,6 +613,9 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     if (filter !== 'all') {
       list = list.filter((a) => a.source === filter);
     }
+    if (filterUser !== 'all') {
+      list = list.filter((a) => a.added_by === filterUser);
+    }
 
     // Khi có lọc, vẫn PHẢI trả về acc trong kho để hiển thị cột "Kho"
     if (filterFarmers.length > 0) {
@@ -642,7 +654,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
     }
 
     return list;
-  }, [accounts, deletedIds, filter, filterFarmers, allFarmers, searchTerm, sortBy]);
+  }, [accounts, deletedIds, filter, filterUser, filterFarmers, allFarmers, searchTerm, sortBy]);
 
   const khoAccounts = sortedAccounts.filter((a) => a.status === 'kho' && !a.current_holder);
   const holderColumns = displayedFarmers.map((f) => ({
@@ -723,6 +735,16 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               options={sourceFilterOptions}
               size="sm"
               ariaLabel="Lọc theo nguồn"
+            />
+          </div>
+
+          <div className="min-w-[150px]">
+            <Dropdown
+              value={filterUser}
+              onChange={setFilterUser}
+              options={userFilterOptions}
+              size="sm"
+              ariaLabel="Lọc theo người thêm"
             />
           </div>
 

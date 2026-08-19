@@ -12,6 +12,9 @@ import {
   deleteMilestone,
   setAccountTag,
   updateGameUuid,
+  revertToDangCay,
+  revertToDelivered,
+  revertToDone,
 } from '@/app/actions/accounts';
 import type { Account, Milestone, HolderSession } from '@/lib/types';
 import { Dropdown } from '@/components/ui/dropdown';
@@ -63,6 +66,21 @@ const TIMELINE_COLORS = {
   orange: { dot: 'bg-orange-500/20 text-orange-300 border-orange-400/30', line: 'text-orange-300' },
   green: { dot: 'bg-green-500/20 text-green-300 border-green-400/30', line: 'text-green-300' },
 } as const;
+
+// ─── Image Cache ─────────────────────────────────────────────────────────────
+const imageCache = new Map<string, { version: number; images: Array<{ path: string; url: string }>; expires: number }>();
+
+function getCachedImages(accountId: string, version: number): Array<{ path: string; url: string }> | null {
+  const cached = imageCache.get(accountId);
+  if (cached && cached.version === version && cached.expires > Date.now()) {
+    return cached.images;
+  }
+  return null;
+}
+
+function setCachedImages(accountId: string, version: number, images: Array<{ path: string; url: string }>) {
+  imageCache.set(accountId, { version, images, expires: Date.now() + 280 * 1000 });
+}
 
 function TimelineRow({
   label,
@@ -455,9 +473,23 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
   // ─── Load stored result images (the storage folder is the source of truth) ───
   useEffect(() => {
     let cancelled = false;
+
+    // Check cache first
+    const cached = getCachedImages(account.id, account.version);
+    if (cached) {
+      setImages(cached);
+      setImagesLoading(false);
+      return;
+    }
+
     setImagesLoading(true);
     listAccountImages(account.id)
-      .then((imgs) => { if (!cancelled) setImages(imgs); })
+      .then((imgs) => {
+        if (!cancelled && imgs) {
+          setImages(imgs);
+          setCachedImages(account.id, account.version, imgs);
+        }
+      })
       .catch(() => { if (!cancelled) setImages([]); })
       .finally(() => { if (!cancelled) setImagesLoading(false); });
     return () => { cancelled = true; };
@@ -560,6 +592,60 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
   function handlePay() {
     if (!payAmount || Number(payAmount) <= 0) { setError('Nhập số tiền hợp lệ'); return; }
     void performAction('pay', { amountReceived: payAmount });
+  }
+
+  async function handleRevertToDangCay() {
+    const pw = window.prompt('Nhập mật khẩu admin để hoàn tác:');
+    if (pw !== 'taolaadmin') {
+      if (pw !== null) setError('Sai mật khẩu admin!');
+      return;
+    }
+    setError(null);
+    setActionLoading('revert');
+    try {
+      const result = await revertToDangCay(account.id);
+      onUpdated(result as Account);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Thao tác thất bại');
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleRevertToDelivered() {
+    const pw = window.prompt('Nhập mật khẩu admin để hoàn tác:');
+    if (pw !== 'taolaadmin') {
+      if (pw !== null) setError('Sai mật khẩu admin!');
+      return;
+    }
+    setError(null);
+    setActionLoading('revert');
+    try {
+      const result = await revertToDelivered(account.id);
+      onUpdated(result as Account);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Thao tác thất bại');
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function handleRevertToDone() {
+    const pw = window.prompt('Nhập mật khẩu admin để hoàn tác:');
+    if (pw !== 'taolaadmin') {
+      if (pw !== null) setError('Sai mật khẩu admin!');
+      return;
+    }
+    setError(null);
+    setActionLoading('revert');
+    try {
+      const result = await revertToDone(account.id);
+      onUpdated(result as Account);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Thao tác thất bại');
+    } finally {
+      setActionLoading(null);
+    }
   }
 
 async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, quality = 0.8): Promise<File> {
@@ -1341,6 +1427,18 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                             </svg>
                             Đã giao
                           </button>
+
+                          <button
+                            onClick={handleRevertToDangCay}
+                            disabled={!!actionLoading}
+                            className="ml-auto flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-all"
+                            title="Hủy trạng thái Done, quay lại Đang cày"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                            Hủy Done
+                          </button>
                         </>
                       )}
                       {account.status === 'da_giao_cho_ben_thu' && (
@@ -1366,22 +1464,48 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                             </svg>
                             Đã nhận tiền
                           </button>
+
+                          <button
+                            onClick={handleRevertToDone}
+                            disabled={!!actionLoading}
+                            className="ml-auto flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2.5 text-sm font-medium text-orange-400 hover:bg-orange-500/20 disabled:opacity-50 transition-all"
+                            title="Hoàn tác về trạng thái Done"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                            Hủy giao
+                          </button>
                         </>
                       )}
                       {account.status === 'da_nhan_tien' && (
-                        <div className="flex items-center gap-3 rounded-xl border border-green-500/20 bg-gradient-to-r from-green-950/60 to-emerald-950/60 px-4 py-2.5 shadow-lg shadow-green-500/10">
-                          <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          <span className="text-sm font-medium text-green-300">Đã nhận tiền</span>
-                          {account.target_milestone_id && (() => {
-                            const target = milestones.find(m => m.id === account.target_milestone_id);
-                            return target ? (
-                              <span className="rounded-lg bg-green-500/20 border border-green-400/20 px-2 py-0.5 text-xs font-semibold text-green-300">
-                                {formatMilestone(target)}
-                              </span>
-                            ) : null;
-                          })()}
+                        <div className="flex w-full items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 rounded-xl border border-green-500/20 bg-gradient-to-r from-green-950/60 to-emerald-950/60 px-4 py-2.5 shadow-lg shadow-green-500/10">
+                            <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-sm font-medium text-green-300">Đã nhận tiền</span>
+                            {account.target_milestone_id && (() => {
+                              const target = milestones.find(m => m.id === account.target_milestone_id);
+                              return target ? (
+                                <span className="rounded-lg bg-green-500/20 border border-green-400/20 px-2 py-0.5 text-xs font-semibold text-green-300">
+                                  {formatMilestone(target)}
+                                </span>
+                              ) : null;
+                            })()}
+                          </div>
+
+                          <button
+                            onClick={handleRevertToDelivered}
+                            disabled={!!actionLoading}
+                            className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm font-medium text-amber-400 hover:bg-amber-500/20 disabled:opacity-50 transition-all"
+                            title="Hủy nhận tiền, quay lại Đã giao"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                            Hủy nhận tiền
+                          </button>
                         </div>
                       )}
                     </div>

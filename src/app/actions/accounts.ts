@@ -561,6 +561,76 @@ export async function updateGameUuid(accountId: string, gameUuid: string): Promi
   }
 }
 
+export async function revertToDangCay(accountId: string): Promise<Account> {
+  try {
+    const { supabase } = await requireAuth();
+    const validatedId = uuidSchema.parse(accountId);
+
+    const { data, error } = await supabase
+      .from('accounts')
+      .update({
+        status: 'dang_cay',
+        completed_at: null,
+      })
+      .eq('id', validatedId)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    revalidatePath('/');
+    return serializeAccount(data);
+  } catch (error) {
+    handleActionError(error);
+  }
+}
+
+export async function revertToDelivered(accountId: string): Promise<Account> {
+  try {
+    const { supabase } = await requireAuth();
+    const validatedId = uuidSchema.parse(accountId);
+
+    const { data, error } = await supabase
+      .from('accounts')
+      .update({
+        status: 'da_giao_cho_ben_thu',
+        paid_at: null,
+        amount_received: null,
+      })
+      .eq('id', validatedId)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    revalidatePath('/');
+    return serializeAccount(data);
+  } catch (error) {
+    handleActionError(error);
+  }
+}
+
+export async function revertToDone(accountId: string): Promise<Account> {
+  try {
+    const { supabase } = await requireAuth();
+    const validatedId = uuidSchema.parse(accountId);
+
+    const { data, error } = await supabase
+      .from('accounts')
+      .update({
+        status: 'done',
+        delivered_at: null,
+      })
+      .eq('id', validatedId)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    revalidatePath('/');
+    return serializeAccount(data);
+  } catch (error) {
+    handleActionError(error);
+  }
+}
+
 export async function setAccountTag(
   accountId: string,
   tagLabel: string | null,
