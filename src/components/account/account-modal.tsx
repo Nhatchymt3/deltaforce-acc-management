@@ -463,6 +463,8 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
   const [customTagDays, setCustomTagDays] = useState('');
   const [showDoneModal, setShowDoneModal] = useState(false);
   const [doneGameUuid, setDoneGameUuid] = useState('');
+  const [pwModalTarget, setPwModalTarget] = useState<'dang_cay' | 'delivered' | 'done' | null>(null);
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
 
   function showToast(message: string) {
     setToastMessage(message);
@@ -594,44 +596,27 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
     void performAction('pay', { amountReceived: payAmount });
   }
 
-  async function handleRevertToDangCay() {
-    const pw = window.prompt('Nhập mật khẩu admin để hoàn tác:');
-    if (!pw) return;
-    setError(null);
-    setActionLoading('revert');
-    try {
-      const result = await revertToDangCay(account.id, pw);
-      onUpdated(result as Account);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Thao tác thất bại');
-    } finally {
-      setActionLoading(null);
+  async function submitRevertWithPassword() {
+    if (!adminPasswordInput) {
+      setError('Vui lòng nhập mật khẩu admin');
+      return;
     }
-  }
-
-  async function handleRevertToDelivered() {
-    const pw = window.prompt('Nhập mật khẩu admin để hoàn tác:');
-    if (!pw) return;
     setError(null);
     setActionLoading('revert');
     try {
-      const result = await revertToDelivered(account.id, pw);
-      onUpdated(result as Account);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Thao tác thất bại');
-    } finally {
-      setActionLoading(null);
-    }
-  }
-
-  async function handleRevertToDone() {
-    const pw = window.prompt('Nhập mật khẩu admin để hoàn tác:');
-    if (!pw) return;
-    setError(null);
-    setActionLoading('revert');
-    try {
-      const result = await revertToDone(account.id, pw);
-      onUpdated(result as Account);
+      let result: Account | undefined;
+      if (pwModalTarget === 'dang_cay') {
+        result = await revertToDangCay(account.id, adminPasswordInput);
+      } else if (pwModalTarget === 'delivered') {
+        result = await revertToDelivered(account.id, adminPasswordInput);
+      } else if (pwModalTarget === 'done') {
+        result = await revertToDone(account.id, adminPasswordInput);
+      }
+      if (result) {
+        onUpdated(result as Account);
+        setPwModalTarget(null);
+        setAdminPasswordInput('');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Thao tác thất bại');
     } finally {
@@ -1420,7 +1405,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                           </button>
 
                           <button
-                            onClick={handleRevertToDangCay}
+                            onClick={() => setPwModalTarget('dang_cay')}
                             disabled={!!actionLoading}
                             className="ml-auto flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-all"
                             title="Hủy trạng thái Done, quay lại Đang cày"
@@ -1457,7 +1442,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                           </button>
 
                           <button
-                            onClick={handleRevertToDone}
+                            onClick={() => setPwModalTarget('done')}
                             disabled={!!actionLoading}
                             className="ml-auto flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-2.5 text-sm font-medium text-orange-400 hover:bg-orange-500/20 disabled:opacity-50 transition-all"
                             title="Hoàn tác về trạng thái Done"
@@ -1487,7 +1472,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                           </div>
 
                           <button
-                            onClick={handleRevertToDelivered}
+                            onClick={() => setPwModalTarget('delivered')}
                             disabled={!!actionLoading}
                             className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm font-medium text-amber-400 hover:bg-amber-500/20 disabled:opacity-50 transition-all"
                             title="Hủy nhận tiền, quay lại Đã giao"
@@ -1596,6 +1581,64 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
           </div>
         </div>
       </div>
+
+      {/* Admin Password Modal */}
+      {pwModalTarget && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => { setPwModalTarget(null); setAdminPasswordInput(''); }}
+          />
+          <div className="relative w-full max-w-sm rounded-2xl border border-red-500/20 bg-slate-900/95 p-6 shadow-2xl backdrop-blur-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-400">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Xác thực Admin</h3>
+                <p className="text-xs text-slate-400">Nhập mật khẩu để hoàn tác trạng thái</p>
+              </div>
+            </div>
+
+            <form
+              onSubmit={(e) => { e.preventDefault(); void submitRevertWithPassword(); }}
+              className="space-y-4"
+            >
+              <input
+                type="password"
+                autoFocus
+                placeholder="Mật khẩu admin..."
+                value={adminPasswordInput}
+                onChange={(e) => setAdminPasswordInput(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-red-400/50 focus:outline-none focus:ring-1 focus:ring-red-400/20 transition-all"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setPwModalTarget(null); setAdminPasswordInput(''); }}
+                  className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/10 transition-all"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading === 'revert' || !adminPasswordInput}
+                  className="flex-1 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 py-2.5 text-sm font-medium text-white shadow-lg shadow-red-500/20 hover:from-red-500 hover:to-rose-500 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                >
+                  {actionLoading === 'revert' ? (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : 'Xác nhận'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }
