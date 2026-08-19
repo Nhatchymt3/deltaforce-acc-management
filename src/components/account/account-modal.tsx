@@ -606,11 +606,11 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
     try {
       let result: Account | undefined;
       if (pwModalTarget === 'dang_cay') {
-        result = await revertToDangCay(account.id, adminPasswordInput);
+        result = await revertToDangCay(account.id, account.version, adminPasswordInput);
       } else if (pwModalTarget === 'delivered') {
-        result = await revertToDelivered(account.id, adminPasswordInput);
+        result = await revertToDelivered(account.id, account.version, adminPasswordInput);
       } else if (pwModalTarget === 'done') {
-        result = await revertToDone(account.id, adminPasswordInput);
+        result = await revertToDone(account.id, account.version, adminPasswordInput);
       }
       if (result) {
         onUpdated(result as Account);

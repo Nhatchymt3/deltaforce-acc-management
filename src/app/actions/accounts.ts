@@ -7,7 +7,7 @@ import { requireAuth, handleActionError } from '@/lib/auth-guard';
 import type { Account, HolderSession, Milestone } from '@/lib/types';
 import { z } from 'zod';
 
-type Action = 'update_level' | 'done' | 'deliver' | 'pay';
+type Action = 'update_level' | 'done' | 'deliver' | 'pay' | 'revert_to_dang_cay' | 'revert_to_done' | 'revert_to_delivered';
 
 const uuidSchema = z.string().uuid('ID không hợp lệ');
 
@@ -561,7 +561,7 @@ export async function updateGameUuid(accountId: string, gameUuid: string): Promi
   }
 }
 
-export async function revertToDangCay(accountId: string, adminPw: string): Promise<Account> {
+export async function revertToDangCay(accountId: string, knownVersion: number, adminPw: string): Promise<Account> {
   try {
     const { supabase } = await requireAuth();
     if (adminPw !== 'taolaadmin') {
@@ -569,9 +569,10 @@ export async function revertToDangCay(accountId: string, adminPw: string): Promi
     }
     const validatedId = uuidSchema.parse(accountId);
 
-    const { data, error } = await supabase.rpc('revert_account_status', {
+    const { data, error } = await supabase.rpc('transition_account', {
       p_account_id: validatedId,
-      p_target_status: 'dang_cay',
+      p_action: 'revert_to_dang_cay',
+      p_known_version: knownVersion,
     });
 
     if (error) throw error;
@@ -581,7 +582,7 @@ export async function revertToDangCay(accountId: string, adminPw: string): Promi
   }
 }
 
-export async function revertToDelivered(accountId: string, adminPw: string): Promise<Account> {
+export async function revertToDelivered(accountId: string, knownVersion: number, adminPw: string): Promise<Account> {
   try {
     const { supabase } = await requireAuth();
     if (adminPw !== 'taolaadmin') {
@@ -589,9 +590,10 @@ export async function revertToDelivered(accountId: string, adminPw: string): Pro
     }
     const validatedId = uuidSchema.parse(accountId);
 
-    const { data, error } = await supabase.rpc('revert_account_status', {
+    const { data, error } = await supabase.rpc('transition_account', {
       p_account_id: validatedId,
-      p_target_status: 'da_giao_cho_ben_thu',
+      p_action: 'revert_to_delivered',
+      p_known_version: knownVersion,
     });
 
     if (error) throw error;
@@ -601,7 +603,7 @@ export async function revertToDelivered(accountId: string, adminPw: string): Pro
   }
 }
 
-export async function revertToDone(accountId: string, adminPw: string): Promise<Account> {
+export async function revertToDone(accountId: string, knownVersion: number, adminPw: string): Promise<Account> {
   try {
     const { supabase } = await requireAuth();
     if (adminPw !== 'taolaadmin') {
@@ -609,9 +611,10 @@ export async function revertToDone(accountId: string, adminPw: string): Promise<
     }
     const validatedId = uuidSchema.parse(accountId);
 
-    const { data, error } = await supabase.rpc('revert_account_status', {
+    const { data, error } = await supabase.rpc('transition_account', {
       p_account_id: validatedId,
-      p_target_status: 'done',
+      p_action: 'revert_to_done',
+      p_known_version: knownVersion,
     });
 
     if (error) throw error;
