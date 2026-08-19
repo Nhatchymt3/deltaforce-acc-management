@@ -570,18 +570,24 @@ export async function revertToDangCay(accountId: string, adminPw: string): Promi
     const validatedId = uuidSchema.parse(accountId);
     const admin = createAdminClient();
 
+    const { data: current } = await admin
+      .from('accounts')
+      .select('version')
+      .eq('id', validatedId)
+      .single();
+
     const { data, error } = await admin
       .from('accounts')
       .update({
         status: 'dang_cay',
         completed_at: null,
+        version: (current?.version ?? 0) + 1,
       })
       .eq('id', validatedId)
       .select('*')
       .single();
 
     if (error) throw error;
-    revalidatePath('/');
     return serializeAccount(data);
   } catch (error) {
     handleActionError(error);
@@ -597,19 +603,25 @@ export async function revertToDelivered(accountId: string, adminPw: string): Pro
     const validatedId = uuidSchema.parse(accountId);
     const admin = createAdminClient();
 
+    const { data: current } = await admin
+      .from('accounts')
+      .select('version')
+      .eq('id', validatedId)
+      .single();
+
     const { data, error } = await admin
       .from('accounts')
       .update({
         status: 'da_giao_cho_ben_thu',
         paid_at: null,
         amount_received: null,
+        version: (current?.version ?? 0) + 1,
       })
       .eq('id', validatedId)
       .select('*')
       .single();
 
     if (error) throw error;
-    revalidatePath('/');
     return serializeAccount(data);
   } catch (error) {
     handleActionError(error);
@@ -625,18 +637,24 @@ export async function revertToDone(accountId: string, adminPw: string): Promise<
     const validatedId = uuidSchema.parse(accountId);
     const admin = createAdminClient();
 
+    const { data: current } = await admin
+      .from('accounts')
+      .select('version')
+      .eq('id', validatedId)
+      .single();
+
     const { data, error } = await admin
       .from('accounts')
       .update({
         status: 'done',
         delivered_at: null,
+        version: (current?.version ?? 0) + 1,
       })
       .eq('id', validatedId)
       .select('*')
       .single();
 
     if (error) throw error;
-    revalidatePath('/');
     return serializeAccount(data);
   } catch (error) {
     handleActionError(error);
