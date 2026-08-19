@@ -563,29 +563,16 @@ export async function updateGameUuid(accountId: string, gameUuid: string): Promi
 
 export async function revertToDangCay(accountId: string, adminPw: string): Promise<Account> {
   try {
-    await requireAuth();
+    const { supabase } = await requireAuth();
     if (adminPw !== 'taolaadmin') {
       throw new Error('Sai mật khẩu admin!');
     }
     const validatedId = uuidSchema.parse(accountId);
-    const admin = createAdminClient();
 
-    const { data: current } = await admin
-      .from('accounts')
-      .select('version')
-      .eq('id', validatedId)
-      .single();
-
-    const { data, error } = await admin
-      .from('accounts')
-      .update({
-        status: 'dang_cay',
-        completed_at: null,
-        version: (current?.version ?? 0) + 1,
-      })
-      .eq('id', validatedId)
-      .select('*')
-      .single();
+    const { data, error } = await supabase.rpc('revert_account_status', {
+      p_account_id: validatedId,
+      p_target_status: 'dang_cay',
+    });
 
     if (error) throw error;
     return serializeAccount(data);
@@ -596,30 +583,16 @@ export async function revertToDangCay(accountId: string, adminPw: string): Promi
 
 export async function revertToDelivered(accountId: string, adminPw: string): Promise<Account> {
   try {
-    await requireAuth();
+    const { supabase } = await requireAuth();
     if (adminPw !== 'taolaadmin') {
       throw new Error('Sai mật khẩu admin!');
     }
     const validatedId = uuidSchema.parse(accountId);
-    const admin = createAdminClient();
 
-    const { data: current } = await admin
-      .from('accounts')
-      .select('version')
-      .eq('id', validatedId)
-      .single();
-
-    const { data, error } = await admin
-      .from('accounts')
-      .update({
-        status: 'da_giao_cho_ben_thu',
-        paid_at: null,
-        amount_received: null,
-        version: (current?.version ?? 0) + 1,
-      })
-      .eq('id', validatedId)
-      .select('*')
-      .single();
+    const { data, error } = await supabase.rpc('revert_account_status', {
+      p_account_id: validatedId,
+      p_target_status: 'da_giao_cho_ben_thu',
+    });
 
     if (error) throw error;
     return serializeAccount(data);
@@ -630,29 +603,16 @@ export async function revertToDelivered(accountId: string, adminPw: string): Pro
 
 export async function revertToDone(accountId: string, adminPw: string): Promise<Account> {
   try {
-    await requireAuth();
+    const { supabase } = await requireAuth();
     if (adminPw !== 'taolaadmin') {
       throw new Error('Sai mật khẩu admin!');
     }
     const validatedId = uuidSchema.parse(accountId);
-    const admin = createAdminClient();
 
-    const { data: current } = await admin
-      .from('accounts')
-      .select('version')
-      .eq('id', validatedId)
-      .single();
-
-    const { data, error } = await admin
-      .from('accounts')
-      .update({
-        status: 'done',
-        delivered_at: null,
-        version: (current?.version ?? 0) + 1,
-      })
-      .eq('id', validatedId)
-      .select('*')
-      .single();
+    const { data, error } = await supabase.rpc('revert_account_status', {
+      p_account_id: validatedId,
+      p_target_status: 'done',
+    });
 
     if (error) throw error;
     return serializeAccount(data);
