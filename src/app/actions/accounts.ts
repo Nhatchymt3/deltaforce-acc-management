@@ -561,6 +561,35 @@ export async function updateGameUuid(accountId: string, gameUuid: string): Promi
   }
 }
 
+export async function updateAccountCredentials(
+  accountId: string,
+  username: string,
+  password?: string
+): Promise<Account> {
+  try {
+    const { supabase } = await requireAuth();
+    const validatedId = uuidSchema.parse(accountId);
+    const trimmedUser = username.trim();
+    if (!trimmedUser) throw new Error('Tài khoản không được để trống');
+
+    const { data, error } = await supabase
+      .from('accounts')
+      .update({
+        username: trimmedUser,
+        password: password?.trim() || null,
+      })
+      .eq('id', validatedId)
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    revalidatePath('/');
+    return serializeAccount(data);
+  } catch (error) {
+    handleActionError(error);
+  }
+}
+
 export async function revertToDangCay(accountId: string, knownVersion: number, adminPw: string): Promise<{ data?: Account; error?: string }> {
   try {
     const { supabase } = await requireAuth();

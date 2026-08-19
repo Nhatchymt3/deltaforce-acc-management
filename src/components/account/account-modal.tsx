@@ -12,6 +12,7 @@ import {
   deleteMilestone,
   setAccountTag,
   updateGameUuid,
+  updateAccountCredentials,
   revertToDangCay,
   revertToDelivered,
   revertToDone,
@@ -998,12 +999,22 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                       label="Tài khoản"
                       value={account.username}
                       onCopy={showToast}
+                      onSave={async (newUsername) => {
+                        const updated = await updateAccountCredentials(account.id, newUsername, account.password ?? '');
+                        if (updated) onUpdated(updated);
+                        showToast('Đã cập nhật tài khoản');
+                      }}
                     />
                     <CredentialField
                       label="Mật khẩu"
                       value={account.password ?? ''}
                       onCopy={showToast}
                       isPassword
+                      onSave={async (newPassword) => {
+                        const updated = await updateAccountCredentials(account.id, account.username, newPassword);
+                        if (updated) onUpdated(updated);
+                        showToast('Đã cập nhật mật khẩu');
+                      }}
                     />
                     <CredentialField
                       label="UUID Game"
