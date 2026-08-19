@@ -596,14 +596,11 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
 
   async function handleRevertToDangCay() {
     const pw = window.prompt('Nhập mật khẩu admin để hoàn tác:');
-    if (pw !== 'taolaadmin') {
-      if (pw !== null) setError('Sai mật khẩu admin!');
-      return;
-    }
+    if (!pw) return;
     setError(null);
     setActionLoading('revert');
     try {
-      const result = await revertToDangCay(account.id);
+      const result = await revertToDangCay(account.id, pw);
       onUpdated(result as Account);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Thao tác thất bại');
@@ -614,14 +611,11 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
 
   async function handleRevertToDelivered() {
     const pw = window.prompt('Nhập mật khẩu admin để hoàn tác:');
-    if (pw !== 'taolaadmin') {
-      if (pw !== null) setError('Sai mật khẩu admin!');
-      return;
-    }
+    if (!pw) return;
     setError(null);
     setActionLoading('revert');
     try {
-      const result = await revertToDelivered(account.id);
+      const result = await revertToDelivered(account.id, pw);
       onUpdated(result as Account);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Thao tác thất bại');
@@ -632,14 +626,11 @@ export function AccountModal({ account, milestones, sessions, onClose, onUpdated
 
   async function handleRevertToDone() {
     const pw = window.prompt('Nhập mật khẩu admin để hoàn tác:');
-    if (pw !== 'taolaadmin') {
-      if (pw !== null) setError('Sai mật khẩu admin!');
-      return;
-    }
+    if (!pw) return;
     setError(null);
     setActionLoading('revert');
     try {
-      const result = await revertToDone(account.id);
+      const result = await revertToDone(account.id, pw);
       onUpdated(result as Account);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Thao tác thất bại');

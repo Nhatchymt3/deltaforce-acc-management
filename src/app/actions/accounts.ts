@@ -561,9 +561,12 @@ export async function updateGameUuid(accountId: string, gameUuid: string): Promi
   }
 }
 
-export async function revertToDangCay(accountId: string): Promise<Account> {
+export async function revertToDangCay(accountId: string, adminPw: string): Promise<Account> {
   try {
     await requireAuth();
+    if (adminPw !== 'taolaadmin') {
+      throw new Error('Sai mật khẩu admin!');
+    }
     const validatedId = uuidSchema.parse(accountId);
     const admin = createAdminClient();
 
@@ -585,9 +588,12 @@ export async function revertToDangCay(accountId: string): Promise<Account> {
   }
 }
 
-export async function revertToDelivered(accountId: string): Promise<Account> {
+export async function revertToDelivered(accountId: string, adminPw: string): Promise<Account> {
   try {
     await requireAuth();
+    if (adminPw !== 'taolaadmin') {
+      throw new Error('Sai mật khẩu admin!');
+    }
     const validatedId = uuidSchema.parse(accountId);
     const admin = createAdminClient();
 
@@ -610,9 +616,12 @@ export async function revertToDelivered(accountId: string): Promise<Account> {
   }
 }
 
-export async function revertToDone(accountId: string): Promise<Account> {
+export async function revertToDone(accountId: string, adminPw: string): Promise<Account> {
   try {
     await requireAuth();
+    if (adminPw !== 'taolaadmin') {
+      throw new Error('Sai mật khẩu admin!');
+    }
     const validatedId = uuidSchema.parse(accountId);
     const admin = createAdminClient();
 
