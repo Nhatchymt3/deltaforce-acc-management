@@ -166,11 +166,7 @@
     transition: opacity 0.2s;
   }
   .hud-frame::before {
-    top: -1.5px;
-    left: -1.5px;
-    border-top: 1.5px solid var(--hud-color);
-    border-left: 1.5px solid var(--hud-color);
-    border-top-left-radius: 4px;
+    display: none;
   }
   .hud-frame::after {
     bottom: -1.5px;
