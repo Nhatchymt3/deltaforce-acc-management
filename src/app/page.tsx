@@ -42,7 +42,7 @@ export default async function HomePage() {
     // AE columns by how much each person has earned.
     supabase
       .from('accounts')
-      .select('id, username, amount_received, holder_sessions(holder_name)')
+      .select('id, username, amount_received, holder_sessions(holder_name, ended_at)')
       .eq('status', 'da_nhan_tien'),
     supabase
       .from('preset_milestones')
@@ -95,16 +95,21 @@ export default async function HomePage() {
 
   // Per-holder revenue (VND string) from paid accounts, split equally among the
   // holders that ever cầm each acc — same rule the finance page uses.
-  const paidForFinance = (paidAccounts ?? []).map((item) => ({
-    id: item.id,
-    username: item.username,
-    amount_received: String(item.amount_received ?? '0'),
-    holders: Array.from(
-      new Set(
-        (item.holder_sessions ?? []).map((s: { holder_name: string }) => s.holder_name)
-      )
-    ),
-  }));
+  const paidForFinance = (paidAccounts ?? []).map((item) => {
+    const sessions = item.holder_sessions ?? [];
+    const holders = Array.from(new Set(sessions.map((s: { holder_name: string }) => s.holder_name))) as string[];
+    const lastSession = sessions.length > 0
+      ? [...sessions].sort((a: any, b: any) => new Date(b.ended_at || 0).getTime() - new Date(a.ended_at || 0).getTime())[0]
+      : null;
+
+    return {
+      id: item.id,
+      username: item.username,
+      amount_received: String(item.amount_received ?? '0'),
+      holders,
+      lastHolder: lastSession?.holder_name ?? null,
+    };
+  });
   const holderRevenue = calculateFinance(paidForFinance).byHolder;
 
   // Build source map: id → name
