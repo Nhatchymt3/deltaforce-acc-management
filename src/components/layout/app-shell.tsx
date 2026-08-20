@@ -100,9 +100,9 @@ export function AppShell({ children }: AppShellProps) {
       </header>
 
       {/* Body container with Side Rail */}
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 relative">
         {/* Main Content Area */}
-        <main className="flex-1 min-w-0 relative overflow-hidden pb-16 md:pb-0">
+        <main className="flex-1 min-w-0 relative overflow-hidden pb-16 md:pb-0 md:pr-16">
           {children}
         </main>
 
