@@ -281,9 +281,9 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
                 />
 
                 <ShieldAlert className="size-3.5 shrink-0 relative z-10" />
-                <span className="text-[11px] font-semibold uppercase tracking-wide relative z-10 w-full flex justify-between">
-                  <span>{account.tag_label}</span>
-                  <span className="tabular-nums opacity-90">{timeLeftStr}</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wide relative z-10 w-full flex justify-between gap-3">
+                  <span className="truncate">{account.tag_label}</span>
+                  <span className="tabular-nums opacity-90 whitespace-nowrap">{timeLeftStr}</span>
                 </span>
               </div>
             );
