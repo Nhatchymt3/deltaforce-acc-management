@@ -44,9 +44,9 @@ const STATUS_LABELS: Record<Account['status'], string> = {
 const STATUS_COLORS: Record<Account['status'], { badge: string; dot: string; bar: string; glow: string; ring: string }> = {
   kho: { badge: 'border-border text-muted-foreground bg-white/5', dot: 'bg-muted-foreground text-muted-foreground', bar: 'bg-muted-foreground/60', glow: 'before:bg-muted-foreground/40', ring: 'group-hover:border-border' },
   dang_cay: { badge: 'border-cyan/60 text-cyan bg-cyan/15 shadow-[0_0_12px_-2px_var(--cyan)]', dot: 'bg-cyan text-cyan status-pulse', bar: 'bg-cyan shadow-[0_0_10px_0_var(--cyan)]', glow: 'group-hover:shadow-[0_0_0_1px_var(--cyan)] before:bg-cyan', ring: 'group-hover:border-cyan/50' },
-  done: { badge: 'border-green/60 text-green bg-green/15 shadow-[0_0_12px_-2px_var(--green)]', dot: 'bg-green text-green', bar: 'bg-green shadow-[0_0_10px_0_var(--green)]', glow: 'group-hover:shadow-[0_0_0_1px_var(--green)] before:bg-green', ring: 'group-hover:border-green/50' },
-  da_giao_cho_ben_thu: { badge: 'border-gold/60 text-gold bg-gold/15 shadow-[0_0_12px_-2px_var(--gold)]', dot: 'bg-gold text-gold', bar: 'bg-gold shadow-[0_0_10px_0_var(--gold)]', glow: 'group-hover:shadow-[0_0_0_1px_var(--gold)] before:bg-gold', ring: 'group-hover:border-gold/50' },
-  da_nhan_tien: { badge: 'border-green/60 text-green bg-green/15 shadow-[0_0_12px_-2px_var(--green)]', dot: 'bg-green text-green', bar: 'bg-green shadow-[0_0_10px_0_var(--green)]', glow: 'group-hover:shadow-[0_0_0_1px_var(--green)] before:bg-green', ring: 'group-hover:border-green/50' },
+  done: { badge: 'border-green/60 text-green bg-green/15 shadow-[0_0_12px_-2px_var(--green)]', dot: 'bg-green text-green', bar: 'bg-green shadow-[0_0_10px_0_var(--green)]', glow: 'hud-green group-hover:shadow-[0_0_0_1px_var(--green)] before:bg-green', ring: 'group-hover:border-green/50' },
+  da_giao_cho_ben_thu: { badge: 'border-gold/60 text-gold bg-gold/15 shadow-[0_0_12px_-2px_var(--gold)]', dot: 'bg-gold text-gold', bar: 'bg-gold shadow-[0_0_10px_0_var(--gold)]', glow: 'hud-gold group-hover:shadow-[0_0_0_1px_var(--gold)] before:bg-gold', ring: 'group-hover:border-gold/50' },
+  da_nhan_tien: { badge: 'border-green/60 text-green bg-green/15 shadow-[0_0_12px_-2px_var(--green)]', dot: 'bg-green text-green', bar: 'bg-green shadow-[0_0_10px_0_var(--green)]', glow: 'hud-green group-hover:shadow-[0_0_0_1px_var(--green)] before:bg-green', ring: 'group-hover:border-green/50' },
 };
 
 function normaliseHolder(name: string): string {

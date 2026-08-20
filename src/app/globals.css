@@ -138,7 +138,11 @@
 
   .hud-frame {
     position: relative;
+    --hud-color: var(--cyan);
   }
+  .hud-frame.hud-gold { --hud-color: var(--gold); }
+  .hud-frame.hud-green { --hud-color: var(--green); }
+  .hud-frame.hud-danger { --hud-color: var(--danger); }
   .hud-frame::before,
   .hud-frame::after {
     content: '';
@@ -150,18 +154,16 @@
     transition: opacity 0.2s;
   }
   .hud-frame::before {
-    top: -1px;
-    left: -1px;
-    border-top: 1.5px solid var(--cyan);
-    border-left: 1.5px solid var(--cyan);
-    border-top-left-radius: 6px;
+    top: 4px;
+    left: 4px;
+    border-top: 1.5px solid var(--hud-color);
+    border-left: 1.5px solid var(--hud-color);
   }
   .hud-frame::after {
-    bottom: -1px;
-    right: -1px;
-    border-bottom: 1.5px solid var(--cyan);
-    border-right: 1.5px solid var(--cyan);
-    border-bottom-right-radius: 6px;
+    bottom: 4px;
+    right: 4px;
+    border-bottom: 1.5px solid var(--hud-color);
+    border-right: 1.5px solid var(--hud-color);
   }
   .group:hover .hud-frame::before,
   .group:hover .hud-frame::after {
