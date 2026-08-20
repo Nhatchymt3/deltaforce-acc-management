@@ -147,7 +147,15 @@ export function BoardWrapper({
   const stats = useMemo(() => {
     const dangCay = accounts.filter(a => a.status === 'dang_cay').length;
     const daGiao = accounts.filter(a => a.status === 'da_giao_cho_ben_thu').length;
-    const canhBao = accounts.filter(a => !!a.tag_label && (a.tag_label.toLowerCase().includes('ban') || a.tag_label.toLowerCase().includes('ban party'))).length;
+    const canhBao = accounts.filter(a => {
+      if (!a.tag_label || !a.tag_expires_at) return false;
+      const labelLower = a.tag_label.toLowerCase();
+      const isBanOrBanParty = labelLower.includes('ban') || labelLower.includes('ban party');
+      if (!isBanOrBanParty) return false;
+
+      const expires = new Date(a.tag_expires_at).getTime();
+      return expires > Date.now();
+    }).length;
     return { dangCay, daGiao, canhBao };
   }, [accounts]);
 
