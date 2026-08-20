@@ -140,7 +140,8 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!account.tag_label || !account.tag_expires_at) return;
-    const isBan = account.tag_label.toLowerCase().includes('ban');
+    const labelLower = account.tag_label.toLowerCase();
+    const isBan = labelLower.includes('ban') || labelLower.includes('ban party');
     if (!isBan) return;
 
     // Only set up interval if it's a ban that hasn't expired yet
