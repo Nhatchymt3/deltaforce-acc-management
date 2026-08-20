@@ -241,12 +241,12 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
             return (
               <div className={`relative mt-3 flex items-center gap-1.5 rounded-sm border px-2 py-1.5 overflow-hidden ${
                 isBan
-                  ? 'border-danger/50 bg-danger/5 text-danger'
-                  : 'border-gold/50 bg-gold/5 text-gold'
+                  ? 'border-danger/50 bg-danger/10 text-danger'
+                  : 'border-gold/50 bg-gold/10 text-gold'
               }`}>
                 {/* Progress bar background */}
                 <div
-                  className={`absolute inset-0 hazard-stripes opacity-20 ${
+                  className={`absolute inset-0 hazard-stripes ${
                     isBan ? 'hazard-danger' : 'hazard-warning'
                   }`}
                   style={{ width: `${progressPercent}%`, transition: 'width 1s linear' }}
