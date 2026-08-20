@@ -196,7 +196,7 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
         className={`absolute left-0 top-2 bottom-2 z-10 w-[3px] rounded-full ${colors.bar} opacity-80 group-hover:opacity-100`}
       />
 
-      <div className={`hud-frame relative rounded-md border border-panel-border bg-card px-4 py-3 transition-all before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:opacity-60 group-hover:bg-card/90 ${colors.glow} ${colors.ring}`}>
+      <div className={`hud-frame relative rounded-md border border-panel-border bg-card px-4 py-3 transition-all group-hover:bg-card/90 ${colors.glow} ${colors.ring}`}>
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <h3 className="font-mono font-semibold text-foreground text-sm truncate">{account.username}</h3>

@@ -173,7 +173,7 @@ export function BoardWrapper({
             <ShieldAlert className="size-4" />
             <div className="leading-none">
               <p className="font-mono text-lg font-bold">{stats.canhBao}</p>
-              <p className="mt-0.5 text-[9px] uppercase tracking-widest text-muted-foreground">Cảnh báo</p>
+              <p className="mt-0.5 text-[9px] uppercase tracking-widest text-muted-foreground">Ban / Ban Party</p>
             </div>
           </div>
         </>,
