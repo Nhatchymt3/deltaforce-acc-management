@@ -223,11 +223,13 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
           const now = Date.now();
           if (expires <= now) return null;
 
-          const totalDurationMs = account.created_at
-            ? expires - new Date(account.created_at).getTime()
-            : expires - now; // Fallback if no creation date
+          // Extract original days from tag label (e.g. 'BAN 23 NGÀY') if present
+          let originalDaysMatch = account.tag_label.match(/(\d+)\s*ngày/i);
+          let totalDurationMs = originalDaysMatch
+            ? parseInt(originalDaysMatch[1], 10) * 24 * 60 * 60 * 1000
+            : (account.created_at ? expires - new Date(account.created_at).getTime() : expires - now);
 
-          const elapsedMs = now - (account.created_at ? new Date(account.created_at).getTime() : now);
+          const elapsedMs = totalDurationMs - (expires - now);
           const progressPercent = Math.min(100, Math.max(0, (elapsedMs / totalDurationMs) * 100));
 
           const remainingDays = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
