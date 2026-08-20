@@ -149,7 +149,7 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
 
     const timer = setInterval(() => {
       setNow(Date.now());
-    }, 1000 * 60); // Update every minute to save CPU
+    }, 1000); // Update every second for smooth animation
     return () => clearInterval(timer);
   }, [account.tag_label, account.tag_expires_at]);
 
