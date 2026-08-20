@@ -169,6 +169,7 @@
     display: none;
   }
   .hud-frame::after {
+    z-index: 20;
     bottom: -1.5px;
     right: -1.5px;
     border-bottom: 1.5px solid var(--hud-color);
