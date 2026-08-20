@@ -17,12 +17,12 @@ export function HeaderNav() {
   ];
 
   return (
-    <header className="shrink-0 z-30 border-b border-white/[0.06] bg-background/80 backdrop-blur-xl sticky top-0">
+    <header className="shrink-0 z-30 border-b border-border bg-background/80 backdrop-blur-xl sticky top-0">
       <div className="mx-auto flex max-w-full items-center justify-between px-6 py-3">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-baseline gap-2">
-            <span className="font-display text-xl font-bold tracking-wide text-white">
-              DF<span className="text-brass">△</span>
+            <span className="font-display text-xl font-bold tracking-wide text-foreground">
+              DF<span className="text-primary">△</span>
             </span>
             <span className="text-[10px] font-display font-medium uppercase tracking-[0.2em] text-muted-foreground/60 hidden sm:inline">
               Acc Management
@@ -38,8 +38,8 @@ export function HeaderNav() {
                   href={item.href}
                   className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
                     isActive
-                      ? 'bg-primary/20 text-brass border border-primary/30'
-                      : 'text-muted-foreground hover:text-white hover:bg-white/[0.04]'
+                      ? 'bg-primary/20 text-primary border border-primary/30'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                   }`}
                 >
                   {item.label}
@@ -53,7 +53,7 @@ export function HeaderNav() {
           <form action={signOut}>
             <button
               type="submit"
-              className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-gunmetal/60 px-3 py-1.5 text-xs text-muted-foreground hover:text-white hover:border-signal-red/30 transition-all"
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-card/60 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-signal-red/30 transition-all"
               title="Đăng xuất"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

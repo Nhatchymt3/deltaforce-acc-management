@@ -166,7 +166,7 @@ export function FloatingLeaderboard() {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onClick={toggleModal}
-        className={`fixed top-0 left-0 z-50 flex h-13 w-13 cursor-grab active:cursor-grabbing items-center justify-center rounded-2xl border border-primary/50 bg-background/95 text-primary shadow-2xl shadow-brass/30 backdrop-blur-xl hover:scale-110 hover:border-primary hover:shadow-brass/50 group ${
+        className={`fixed top-0 left-0 z-50 flex h-13 w-13 cursor-grab active:cursor-grabbing items-center justify-center rounded-2xl border border-primary/50 bg-background/95 text-primary shadow-2xl shadow-primary/30 backdrop-blur-xl hover:scale-110 hover:border-primary hover:shadow-primary/50 group ${
           isDragging ? 'transition-none' : 'transition-transform duration-200'
         }`}
         title="Bảng Xếp Hạng Thu Nhập AE"
@@ -246,14 +246,14 @@ export function FloatingLeaderboard() {
                   {/* Hạng 1 (Vàng - Nổi bật cao hơn) */}
                   <div className="flex flex-col items-center -mt-4">
                     {top1 ? (
-                      <div className="w-full flex flex-col items-center rounded-2xl border-2 border-primary bg-gradient-to-b from-brass/25 via-brass/10 to-background p-4 text-center shadow-xl shadow-brass/25 hover:border-amber-300 transition-all transform hover:-translate-y-0.5">
+                      <div className="w-full flex flex-col items-center rounded-2xl border-2 border-primary bg-gradient-to-b from-brass/25 via-primary/10 to-background p-4 text-center shadow-xl shadow-primary/25 hover:border-amber-300 transition-all transform hover:-translate-y-0.5">
                         <div className="mb-2">
                           <span className="text-4xl animate-bounce-short">🥇</span>
                         </div>
                         <span className="text-sm font-black text-primary truncate max-w-full tracking-wider uppercase font-display">
                           {top1.holder}
                         </span>
-                        <span className="text-sm font-black text-amber-300 mt-1 font-mono tracking-tight drop-shadow">
+                        <span className="text-sm font-black text-amber-500 mt-1 font-mono tracking-tight drop-shadow">
                           {formatVndString(top1.totalIncome)}
                         </span>
                         <span className="text-[10px] font-bold text-primary-foreground bg-primary px-2.5 py-0.5 rounded-full mt-1.5 shadow-sm">

@@ -145,7 +145,7 @@ export function AudioPlayer() {
         }}
         className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
           isPlaying
-            ? 'border-primary bg-primary/20 text-primary shadow-md shadow-brass/20 animate-pulse'
+            ? 'border-primary bg-primary/20 text-primary shadow-md shadow-primary/20 animate-pulse'
             : 'border-border bg-background/60 text-primary hover:border-primary/40 hover:bg-primary/10'
         }`}
         title={isPlaying ? `Đang phát: ${currentTrack?.name} (Click phải để xem ds nhạc)` : 'Phát nhạc nền (Click phải để xem ds nhạc)'}

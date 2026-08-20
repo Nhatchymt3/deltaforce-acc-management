@@ -56,15 +56,15 @@ export function AppShell({ children }: AppShellProps) {
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-background" />
         <div className="stars-bg absolute inset-0" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brass/30 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
       </div>
 
       {/* Global Top Bar */}
-      <header className="shrink-0 mx-auto flex w-full items-center justify-between gap-4 px-6 pt-3 pb-2 border-b border-white/[0.04] bg-background/40 backdrop-blur-md">
+      <header className="shrink-0 mx-auto flex w-full items-center justify-between gap-4 px-6 pt-3 pb-2 border-b border-border/30 bg-background/40 backdrop-blur-md">
         <div className="flex items-center gap-3 shrink-0">
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-            <h1 className="font-display text-xl font-bold tracking-wide text-white">
-              DF<span className="text-brass">△</span>
+            <h1 className="font-display text-xl font-bold tracking-wide text-foreground">
+              DF<span className="text-primary">△</span>
             </h1>
             <span className="text-[11px] font-display font-medium uppercase tracking-[0.2em] text-muted-foreground/60 hidden sm:inline">
               Acc Management
@@ -75,20 +75,20 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Control Dock: Bottom bar on mobile, Right sidebar on desktop */}
       <FloatingLeaderboard />
-      <aside className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-4 md:top-16 z-40 flex flex-row md:flex-col items-center justify-around md:justify-start gap-1.5 md:gap-2 border-t md:border border-white/[0.08] bg-gunmetal/95 md:bg-gunmetal/90 p-2 shadow-2xl backdrop-blur-xl transition-all">
+      <aside className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-4 md:top-16 z-40 flex flex-row md:flex-col items-center justify-around md:justify-start gap-1.5 md:gap-2 border-t md:border border-white/[0.08] bg-card/95 md:bg-card/90 p-2 shadow-2xl backdrop-blur-xl transition-all">
         {/* Background Music Player */}
         <AudioPlayer />
 
-        <div className="hidden md:block w-6 h-px bg-white/10 my-0.5" />
-        <div className="block md:hidden h-6 w-px bg-white/10 mx-0.5" />
+        <div className="hidden md:block w-6 h-px bg-accent my-0.5" />
+        <div className="block md:hidden h-6 w-px bg-accent mx-0.5" />
 
         {/* Board Acc / Trang chủ */}
         <Link
           href="/"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-white hover:border-primary/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              : 'border-border bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
           }`}
           title="Board Acc (Trang chủ)"
           aria-label="Trang chủ Board Acc"
@@ -103,8 +103,8 @@ export function AppShell({ children }: AppShellProps) {
           href="/finance"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/finance'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-brass hover:border-primary/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              : 'border-border bg-background/60 text-muted-foreground hover:text-primary hover:border-primary/30'
           }`}
           title="Tài chính"
           aria-label="Quản lý Tài chính"
@@ -119,8 +119,8 @@ export function AppShell({ children }: AppShellProps) {
           href="/farmers"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/farmers'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-white hover:border-primary/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              : 'border-border bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
           }`}
           title="Quản lý AE"
           aria-label="Quản lý AE"
@@ -135,8 +135,8 @@ export function AppShell({ children }: AppShellProps) {
           href="/milestones"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/milestones'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-white hover:border-primary/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              : 'border-border bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
           }`}
           title="Quản lý Mốc cày"
           aria-label="Quản lý Mốc cày"
@@ -151,8 +151,8 @@ export function AppShell({ children }: AppShellProps) {
           href="/sources"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/sources'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-white hover:border-primary/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              : 'border-border bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
           }`}
           title="Nguồn"
           aria-label="Quản lý Nguồn"
@@ -167,8 +167,8 @@ export function AppShell({ children }: AppShellProps) {
           href="/archive"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/archive'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-white hover:border-primary/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              : 'border-border bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
           }`}
           title="Kho lưu trữ"
           aria-label="Kho lưu trữ"
@@ -178,14 +178,14 @@ export function AppShell({ children }: AppShellProps) {
           </svg>
         </Link>
 
-        <div className="hidden md:block w-6 h-px bg-white/10 my-0.5" />
-        <div className="block md:hidden h-6 w-px bg-white/10 mx-0.5" />
+        <div className="hidden md:block w-6 h-px bg-accent my-0.5" />
+        <div className="block md:hidden h-6 w-px bg-accent mx-0.5" />
 
         {/* Logout */}
         <form action={signOut}>
           <button
             type="submit"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-background/60 text-muted-foreground hover:text-signal-red hover:border-signal-red/30 hover:bg-signal-red/10 transition-all"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-background/60 text-muted-foreground hover:text-signal-red hover:border-signal-red/30 hover:bg-destructive/10 transition-all"
             title="Đăng xuất"
             aria-label="Đăng xuất"
           >
@@ -202,7 +202,7 @@ export function AppShell({ children }: AppShellProps) {
       </main>
 
       {/* Footer */}
-      <footer className="shrink-0 border-t border-white/[0.04] bg-background/90 py-2 px-6 text-center text-[10px] text-muted-foreground/50 font-mono flex items-center justify-between z-30">
+      <footer className="shrink-0 border-t border-border/30 bg-background/90 py-2 px-6 text-center text-[10px] text-muted-foreground/50 font-mono flex items-center justify-between z-30">
         <span>DF△ ACC MANAGEMENT SYSTEM</span>
         <span>Delta Force Farming & Allocation Platform</span>
       </footer>

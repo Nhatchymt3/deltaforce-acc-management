@@ -42,10 +42,10 @@ const STATUS_LABELS: Record<Account['status'], string> = {
 
 const STATUS_COLORS: Record<Account['status'], { bg: string; text: string; glow: string; strip: string }> = {
   kho: { bg: 'bg-muted/20', text: 'text-muted-foreground', glow: '', strip: 'bg-muted' },
-  dang_cay: { bg: 'bg-primary/15', text: 'text-brass', glow: '', strip: 'bg-primary' },
-  done: { bg: 'bg-od-green/20', text: 'text-emerald-300', glow: '', strip: 'bg-od-green' },
-  da_giao_cho_ben_thu: { bg: 'bg-amber-800/30', text: 'text-amber-300', glow: '', strip: 'bg-amber-500' },
-  da_nhan_tien: { bg: 'bg-od-green/25', text: 'text-green-300', glow: '', strip: 'bg-green-500' },
+  dang_cay: { bg: 'bg-primary/15', text: 'text-primary', glow: '', strip: 'bg-primary' },
+  done: { bg: 'bg-emerald-500/20', text: 'text-emerald-500', glow: '', strip: 'bg-emerald-500' },
+  da_giao_cho_ben_thu: { bg: 'bg-amber-500/20', text: 'text-amber-500', glow: '', strip: 'bg-amber-500' },
+  da_nhan_tien: { bg: 'bg-emerald-500/25', text: 'text-emerald-500', glow: '', strip: 'bg-green-500' },
 };
 
 function normaliseHolder(name: string): string {
@@ -162,12 +162,12 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
       role="button"
       tabIndex={0}
       aria-label={`Account ${account.username}`}
-      className={`group relative overflow-hidden rounded-lg border transition-all duration-200 select-none cursor-pointer shrink-0 hover:border-brass/30 hover:bg-white/[0.04] ${
+      className={`group relative overflow-hidden rounded-lg border transition-all duration-200 select-none cursor-pointer shrink-0 hover:border-primary/30 hover:bg-accent ${
         isDragging
-          ? 'border-brass/50 bg-gunmetal opacity-60 scale-105 rotate-1'
+          ? 'border-primary/50 bg-card opacity-60 scale-105 rotate-1'
           : disabled
-          ? 'border-white/5 bg-gunmetal/60'
-          : 'border-white/[0.06] bg-gunmetal/80 cursor-grab active:cursor-grabbing'
+          ? 'border-border/50 bg-card/60'
+          : 'border-border bg-card/80 cursor-grab active:cursor-grabbing'
       }`}
       style={{ ...style, animationDelay: `${index * 40}ms` }}
     >
@@ -177,7 +177,7 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
       <div className="pl-4 pr-3 py-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h3 className="font-mono font-semibold text-white text-sm truncate">{account.username}</h3>
+            <h3 className="font-mono font-semibold text-foreground text-sm truncate">{account.username}</h3>
             <p className="text-[11px] text-muted-foreground mt-0.5">
               {account.sourceName ?? account.source}
             </p>
@@ -189,8 +189,8 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
 
         {account.current_holder && (
           <div className="mt-2 flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded bg-primary/20 border border-brass/30 flex items-center justify-center">
-              <span className="text-[9px] font-bold text-brass">
+            <div className="w-5 h-5 rounded bg-primary/20 border border-primary/30 flex items-center justify-center">
+              <span className="text-[9px] font-bold text-primary">
                 {account.current_holder.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -200,7 +200,7 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
         <div className="mt-[7px] flex items-center justify-between text-[11px] text-muted-foreground font-mono">
           <div className="flex items-center gap-2">
             {targetMilestone
-              ? <span className="text-brass/90 font-semibold">LV{targetMilestone.level}–{targetMilestone.price}M</span>
+              ? <span className="text-primary/90 font-semibold">LV{targetMilestone.level}–{targetMilestone.price}M</span>
               : <span className="text-muted-foreground/50">—</span>}
             {account.added_by && (
               <span className="text-muted-foreground/60 truncate max-w-[80px]">↳ {account.added_by}</span>
@@ -222,8 +222,8 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
           return (
             <div className={`mt-1.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
               isBan
-                ? 'bg-signal-red/15 text-red-300 border border-signal-red/30'
-                : 'bg-amber-500/10 text-amber-300 border border-amber-500/25'
+                ? 'bg-destructive/15 text-red-300 border border-signal-red/30'
+                : 'bg-amber-500/10 text-amber-500 border border-amber-500/25'
             }`}>
               <span>{account.tag_label}</span>
               <span className="opacity-60">({remainingDays}d)</span>
@@ -263,25 +263,25 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
       ref={setNodeRef}
       className={`w-[300px] shrink-0 flex flex-col rounded-xl border transition-all duration-200 h-full max-h-full ${
         isOver && id === KHO_SENTINEL
-          ? 'border-brass/40 bg-primary/5'
+          ? 'border-primary/40 bg-primary/5'
           : isKho
-          ? 'border-dashed border-white/[0.08] bg-background/60 shadow-inner'
-          : 'border-white/[0.04] bg-background/40'
+          ? 'border-dashed border-border/50 bg-background/60 shadow-inner'
+          : 'border-border/30 bg-background/40'
       }`}
     >
       {/* Column header */}
-      <div className="flex flex-col border-b border-white/[0.04] shrink-0">
+      <div className="flex flex-col border-b border-border/30 shrink-0">
         <div className="flex items-center justify-between px-4 py-3">
-          <h2 className="font-display font-semibold text-white text-sm tracking-wide flex items-center gap-2">
+          <h2 className="font-display font-semibold text-foreground text-sm tracking-wide flex items-center gap-2">
             {isKho ? (
               <div className="w-6 h-6 rounded bg-muted/15 flex items-center justify-center">
-                <svg className="w-3.5 h-3.5 text-brass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
             ) : (
-              <div className="w-6 h-6 rounded bg-primary/15 border border-brass/20 flex items-center justify-center">
-                <span className="text-brass text-[10px] font-bold">
+              <div className="w-6 h-6 rounded bg-primary/15 border border-primary/20 flex items-center justify-center">
+                <span className="text-primary text-[10px] font-bold">
                   {label.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -289,14 +289,14 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
             {label}
           </h2>
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] text-muted-foreground/70 bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/[0.06]">
+            <span className="font-mono text-[11px] text-muted-foreground/70 bg-accent px-2 py-0.5 rounded-full border border-border">
               {displayedAccounts.length}{isKho && khoSearch.trim() && `/${accounts.length}`}
             </span>
             {onRemove && accounts.length === 0 && (
               <button
                 onClick={onRemove}
                 title="Xóa cột AE"
-                className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground/40 hover:bg-signal-red/10 hover:text-signal-red transition-colors"
+                className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground/40 hover:bg-destructive/10 hover:text-signal-red transition-colors"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -315,7 +315,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
                 value={khoSearch}
                 onChange={(e) => setKhoSearch(e.target.value)}
                 placeholder="Lọc nhanh acc trong kho..."
-                className="w-full rounded-md border border-white/[0.06] bg-gunmetal/90 px-2.5 py-1 pl-7 text-[11px] text-white placeholder-ash/40 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+                className="w-full rounded-md border border-border bg-card/90 px-2.5 py-1 pl-7 text-[11px] text-foreground placeholder-muted-foreground/40 focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
               />
               <svg className="w-3 h-3 absolute left-2 top-2 text-muted-foreground/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -323,7 +323,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
               {khoSearch && (
                 <button
                   onClick={() => setKhoSearch('')}
-                  className="absolute right-2 top-1.5 text-muted-foreground/40 hover:text-white text-[10px]"
+                  className="absolute right-2 top-1.5 text-muted-foreground/40 hover:text-foreground text-[10px]"
                 >
                   ✕
                 </button>
@@ -718,9 +718,9 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         </div>
 
       {/* Horizontal Header Toolbar Controls */}
-      <div className="shrink-0 mx-auto flex w-full items-center justify-between gap-4 px-6 pt-2 pb-2 border-b border-white/[0.04] bg-background/30 backdrop-blur-md">
+      <div className="shrink-0 mx-auto flex w-full items-center justify-between gap-4 px-6 pt-2 pb-2 border-b border-border/30 bg-background/30 backdrop-blur-md">
         <div className="flex items-center gap-3 shrink-0">
-          <span className="font-mono text-xs text-brass/80 bg-primary/10 border border-brass/20 rounded px-2.5 py-0.5" title="Tổng số acc">
+          <span className="font-mono text-xs text-primary/80 bg-primary/10 border border-primary/20 rounded px-2.5 py-0.5" title="Tổng số acc">
             {initialAccounts.length} ACC
           </span>
         </div>
@@ -732,13 +732,13 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Tìm username, AE..."
-              className="w-full rounded-lg border border-white/[0.08] bg-gunmetal/90 px-3 py-1.5 pl-8 text-xs text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+              className="w-full rounded-lg border border-border/50 bg-card/90 px-3 py-1.5 pl-8 text-xs text-foreground placeholder-muted-foreground/50 focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
             />
             <svg className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="absolute right-2 top-2 text-muted-foreground/50 hover:text-white text-xs">
+              <button onClick={() => setSearchTerm('')} className="absolute right-2 top-2 text-muted-foreground/50 hover:text-foreground text-xs">
                 ✕
               </button>
             )}
@@ -808,8 +808,8 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           createPortal(
             <DragOverlay>
               {activeAccount && (
-                <div className="rotate-1 rounded-lg border border-brass/40 bg-gunmetal p-3 shadow-2xl opacity-90">
-                  <h3 className="font-mono font-semibold text-white text-sm">{activeAccount.username}</h3>
+                <div className="rotate-1 rounded-lg border border-primary/40 bg-card p-3 shadow-2xl opacity-90">
+                  <h3 className="font-mono font-semibold text-foreground text-sm">{activeAccount.username}</h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     {activeAccount.sourceName ?? activeAccount.source}
                   </p>
@@ -824,21 +824,21 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
       {showLeaderboard && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/70" onClick={() => setShowLeaderboard(false)} />
-          <div className="relative z-10 w-full max-w-md rounded-xl border border-white/[0.08] bg-gunmetal p-5 shadow-2xl space-y-4">
+          <div className="relative z-10 w-full max-w-md rounded-xl border border-border/50 bg-card p-5 shadow-2xl space-y-4">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+            <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded bg-primary/20 border border-brass/30 flex items-center justify-center">
-                  <span className="text-brass font-bold text-sm">🏆</span>
+                <div className="w-8 h-8 rounded bg-primary/20 border border-primary/30 flex items-center justify-center">
+                  <span className="text-primary font-bold text-sm">🏆</span>
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-white text-base tracking-wide">Bảng Xếp Hạng AE</h3>
+                  <h3 className="font-display font-bold text-foreground text-base tracking-wide">Bảng Xếp Hạng AE</h3>
                   <p className="text-[11px] text-muted-foreground">Xếp theo tổng doanh thu cày thuê</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowLeaderboard(false)}
-                className="rounded p-1 text-muted-foreground hover:text-white transition-colors"
+                className="rounded p-1 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -862,37 +862,37 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
                       key={item.name}
                       className={`flex items-center justify-between rounded-lg border px-3.5 py-2.5 transition-all ${
                         isTop1
-                          ? 'border-brass/50 bg-primary/15'
+                          ? 'border-primary/50 bg-primary/15'
                           : isTop2
-                          ? 'border-slate-400/30 bg-white/[0.04]'
+                          ? 'border-slate-400/30 bg-accent'
                           : isTop3
                           ? 'border-amber-700/30 bg-amber-950/20'
-                          : 'border-white/[0.04] bg-background/50'
+                          : 'border-border/30 bg-background/50'
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-6 h-6 rounded flex items-center justify-center font-mono font-bold text-xs ${
                             isTop1
-                              ? 'bg-primary text-primary-foreground shadow-md shadow-brass/30'
+                              ? 'bg-primary text-primary-foreground shadow-md shadow-primary/30'
                               : isTop2
                               ? 'bg-slate-300 text-slate-900'
                               : isTop3
-                              ? 'bg-amber-700 text-white'
-                              : 'bg-white/10 text-muted-foreground'
+                              ? 'bg-amber-700 text-foreground'
+                              : 'bg-accent text-muted-foreground'
                           }`}
                         >
                           {rank}
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-white flex items-center gap-1.5">
+                          <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                             {item.name}
                             {isTop1 && <span className="text-xs">👑</span>}
                           </p>
                           <p className="text-[10px] text-muted-foreground/60 font-mono">Đang cày {item.count} acc</p>
                         </div>
                       </div>
-                      <span className={`font-mono text-sm font-bold ${isTop1 ? 'text-brass' : 'text-foreground'}`}>
+                      <span className={`font-mono text-sm font-bold ${isTop1 ? 'text-primary' : 'text-foreground'}`}>
                         {new Intl.NumberFormat('vi-VN').format(item.total)} đ
                       </span>
                     </div>
@@ -902,17 +902,17 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             </div>
 
             {/* Footer action */}
-            <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between">
+            <div className="pt-2 border-t border-border flex items-center justify-between">
               <Link
                 href="/finance"
                 onClick={() => setShowLeaderboard(false)}
-                className="text-xs text-brass hover:underline flex items-center gap-1"
+                className="text-xs text-primary hover:underline flex items-center gap-1"
               >
                 Xem chi tiết tài chính ➔
               </Link>
               <button
                 onClick={() => setShowLeaderboard(false)}
-                className="rounded-lg border border-white/[0.06] bg-background px-3.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-white transition-colors"
+                className="rounded-lg border border-border bg-background px-3.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 Đóng
               </button>

@@ -135,14 +135,14 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
             : 'translate-x-full opacity-0 pointer-events-none'
         }`}
       >
-        <div className="flex items-center gap-3 rounded-lg border border-brass/40 bg-gunmetal px-4 py-3 shadow-xl">
+        <div className="flex items-center gap-3 rounded-lg border border-primary/40 bg-card px-4 py-3 shadow-xl">
           <div className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center">
-            <svg className="w-4 h-4 text-brass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
           <div>
-            <p className="text-xs font-semibold text-brass">Thành công!</p>
+            <p className="text-xs font-semibold text-primary">Thành công!</p>
             <p className="text-[11px] text-muted-foreground">Đã tạo {successCount} tài khoản</p>
           </div>
         </div>
@@ -153,23 +153,23 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
         <div className="absolute inset-0 bg-black/70" onClick={onCancel} />
 
         <div className="relative z-10 w-full max-w-lg">
-          <div className="relative rounded-xl border border-white/[0.08] bg-gunmetal shadow-2xl">
+          <div className="relative rounded-xl border border-white/[0.08] bg-card shadow-2xl">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded bg-primary/20 border border-brass/30 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-brass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-7 h-7 rounded bg-primary/20 border border-primary/30 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                 </div>
                 <div>
-                  <h2 className="font-display text-base font-bold text-white tracking-wide">Thêm acc mới</h2>
+                  <h2 className="font-display text-base font-bold text-foreground tracking-wide">Thêm acc mới</h2>
                   <p className="text-xs text-muted-foreground">Tạo tài khoản với các mốc</p>
                 </div>
               </div>
               <button
                 onClick={onCancel}
-                className="rounded p-1 text-muted-foreground hover:text-white transition-colors"
+                className="rounded p-1 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -179,7 +179,7 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
 
             <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4 p-5">
               {error && (
-                <div className="rounded-lg border border-signal-red/30 bg-signal-red/10 px-3.5 py-2.5 text-xs text-red-300 flex items-center gap-2">
+                <div className="rounded-lg border border-signal-red/30 bg-destructive/10 px-3.5 py-2.5 text-xs text-red-300 flex items-center gap-2">
                   <svg className="w-4 h-4 text-signal-red flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
@@ -203,12 +203,12 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
                       className={`w-full rounded-lg border ${
                         invalidLines.length > 0
                           ? 'border-signal-red/50 focus:border-signal-red/70'
-                          : 'border-white/[0.06] focus:border-brass/40'
-                      } bg-background px-3.5 py-2.5 text-white placeholder-ash/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all resize-none font-mono text-xs`}
+                          : 'border-border focus:border-primary/40'
+                      } bg-background px-3.5 py-2.5 text-foreground placeholder-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all resize-none font-mono text-xs`}
                       style={{ minHeight: '80px' }}
                     />
                     {validAccounts.length > 0 && (
-                      <div className="absolute top-2 right-2 flex items-center gap-1 text-[11px] text-brass bg-primary/10 border border-brass/20 rounded px-2 py-0.5 font-mono">
+                      <div className="absolute top-2 right-2 flex items-center gap-1 text-[11px] text-primary bg-primary/10 border border-primary/20 rounded px-2 py-0.5 font-mono">
                         <span>Đã nhận <strong>{validAccounts.length}</strong> acc</span>
                       </div>
                     )}
@@ -217,7 +217,7 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
 
                 {/* Preview */}
                 {validAccounts.length > 0 && (
-                  <div className="mt-2 rounded-lg border border-white/[0.04] bg-background/50 p-2.5 space-y-1">
+                  <div className="mt-2 rounded-lg border border-border/30 bg-background/50 p-2.5 space-y-1">
                     <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground/60 flex items-center gap-1">
                       Preview ({validAccounts.length} acc)
                     </span>
@@ -228,7 +228,7 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
                           className="flex items-center justify-between rounded bg-white/[0.02] px-2.5 py-1 text-xs"
                         >
                           <div className="flex items-center gap-2">
-                            <span className="w-4 h-4 rounded bg-primary/20 flex items-center justify-center text-[10px] text-brass font-bold">
+                            <span className="w-4 h-4 rounded bg-primary/20 flex items-center justify-center text-[10px] text-primary font-bold">
                               {idx + 1}
                             </span>
                             <span className="text-muted-foreground font-mono">{acc.username}</span>
@@ -243,7 +243,7 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
                 )}
 
                 {invalidLines.length > 0 && (
-                  <div className="mt-1.5 rounded border border-signal-red/20 bg-signal-red/10 px-2.5 py-1 text-[11px] text-red-300">
+                  <div className="mt-1.5 rounded border border-signal-red/20 bg-destructive/10 px-2.5 py-1 text-[11px] text-red-300">
                     <span className="font-medium">{invalidLines.length} dòng lỗi:</span> Dòng trống hoặc không hợp lệ
                   </div>
                 )}
@@ -301,7 +301,7 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
                     onChange={(e) => setCustomAddedBy(e.target.value)}
                     placeholder="Nhập tên người thêm..."
                     autoFocus
-                    className="mt-2 w-full rounded-lg border border-brass/40 bg-background px-3 py-1.5 text-xs text-white placeholder-ash/40 focus:outline-none focus:ring-1 focus:ring-brass/20 font-medium"
+                    className="mt-2 w-full rounded-lg border border-primary/40 bg-background px-3 py-1.5 text-xs text-foreground placeholder-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/20 font-medium"
                   />
                 )}
               </label>
@@ -327,12 +327,12 @@ export function CreateAccountForm({ sources, farmers, presetMilestones = [], onS
               </div>
 
               {/* Actions */}
-              <div className="flex justify-end gap-2 pt-2 border-t border-white/[0.06]">
+              <div className="flex justify-end gap-2 pt-2 border-t border-border">
                 <button
                   type="button"
                   onClick={onCancel}
                   disabled={loading}
-                  className="rounded-lg border border-white/[0.06] bg-background px-4 py-2 text-xs text-muted-foreground hover:text-white transition-colors disabled:opacity-50"
+                  className="rounded-lg border border-border bg-background px-4 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
                 >
                   Hủy
                 </button>

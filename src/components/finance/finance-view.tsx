@@ -50,13 +50,13 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
       {/* Per-holder totals */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-display text-base font-semibold text-white tracking-wide">
+          <h2 className="font-display text-base font-semibold text-foreground tracking-wide">
             Tổng thu nhập theo AE
           </h2>
           {selectedHolder && (
             <button
               onClick={() => setSelectedHolder(null)}
-              className="text-xs text-brass hover:underline"
+              className="text-xs text-primary hover:underline"
             >
               Bỏ lọc (Xem tất cả)
             </button>
@@ -65,7 +65,7 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
 
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {holderRows.length === 0 ? (
-            <div className="col-span-full rounded-xl border border-white/[0.06] bg-gunmetal p-8 text-center text-muted-foreground/50 text-sm">
+            <div className="col-span-full rounded-xl border border-border bg-card p-8 text-center text-muted-foreground/50 text-sm">
               Chưa có dữ liệu thu nhập.
             </div>
           ) : (
@@ -77,26 +77,26 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
                   onClick={() => setSelectedHolder(isSelected ? null : holder)}
                   className={`group cursor-pointer rounded-xl border p-4 transition-all duration-200 ${
                     isSelected
-                      ? 'border-brass bg-primary/10'
-                      : 'border-white/[0.06] bg-gunmetal hover:border-brass/30'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border bg-card hover:border-primary/30'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded bg-primary/20 border border-brass/30 flex items-center justify-center">
-                        <span className="text-brass font-bold text-xs">
+                      <div className="w-6 h-6 rounded bg-primary/20 border border-primary/30 flex items-center justify-center">
+                        <span className="text-primary font-bold text-xs">
                           {holder.charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      <p className="text-sm font-medium text-white">{holder}</p>
+                      <p className="text-sm font-medium text-foreground">{holder}</p>
                     </div>
                     {isSelected && (
-                      <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-semibold text-brass">
+                      <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
                         Đang chọn
                       </span>
                     )}
                   </div>
-                  <p className="font-mono text-xl font-bold text-brass">
+                  <p className="font-mono text-xl font-bold text-primary">
                     {formatted}
                   </p>
                 </article>
@@ -109,7 +109,7 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
       {/* Per-account breakdown */}
       <section>
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-          <h2 className="font-display text-base font-semibold text-white tracking-wide">
+          <h2 className="font-display text-base font-semibold text-foreground tracking-wide">
             Chi tiết từng acc {selectedHolder ? `(của ${selectedHolder})` : ''}
           </h2>
           <div className="flex items-center gap-3">
@@ -119,7 +119,7 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Tìm username, AE..."
-                className="w-full rounded-lg border border-white/[0.06] bg-gunmetal px-3 py-1.5 pl-8 text-xs text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+                className="w-full rounded-lg border border-border bg-card px-3 py-1.5 pl-8 text-xs text-foreground placeholder-muted-foreground/50 focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
               />
               <svg className="w-3.5 h-3.5 absolute left-2.5 top-2 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -127,7 +127,7 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-2 top-1.5 text-muted-foreground/50 hover:text-white text-xs"
+                  className="absolute right-2 top-1.5 text-muted-foreground/50 hover:text-foreground text-xs"
                 >
                   ✕
                 </button>
@@ -137,11 +137,11 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/[0.06] bg-gunmetal overflow-hidden">
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="overflow-x-auto overflow-y-auto max-h-[350px] scrollbar-thin">
             <table className="w-full text-sm relative">
               <thead className="sticky top-0 z-10">
-                <tr className="border-b border-white/[0.06] text-left text-muted-foreground text-xs uppercase tracking-wide bg-gunmetal shadow-[0_1px_0_rgba(255,255,255,0.06)]">
+                <tr className="border-b border-border text-left text-muted-foreground text-xs uppercase tracking-wide bg-card shadow-[0_1px_0_rgba(255,255,255,0.06)]">
                   <th className="px-4 py-3 font-medium">Username</th>
                   <th className="px-4 py-3 font-medium">AE cày chung</th>
                   <th className="px-4 py-3 font-medium text-right">Tổng tiền thu</th>
@@ -160,16 +160,16 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
                     <tr
                       key={row.id}
                       onClick={() => setSelectedAccount(row)}
-                      className="border-b border-white/[0.04] text-muted-foreground hover:bg-white/[0.03] cursor-pointer transition-colors group"
+                      className="border-b border-border/30 text-muted-foreground hover:bg-white/[0.03] cursor-pointer transition-colors group"
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded bg-primary/15 border border-brass/20 flex items-center justify-center">
-                            <span className="text-brass font-bold text-xs">
+                          <div className="w-6 h-6 rounded bg-primary/15 border border-primary/20 flex items-center justify-center">
+                            <span className="text-primary font-bold text-xs">
                               {row.username.charAt(0).toUpperCase()}
                             </span>
                           </div>
-                          <span className="font-mono font-medium text-white group-hover:text-brass transition-colors">{row.username}</span>
+                          <span className="font-mono font-medium text-foreground group-hover:text-primary transition-colors">{row.username}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -179,8 +179,8 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
                               key={h}
                               className={`inline-flex items-center rounded px-2 py-0.5 text-xs ${
                                 h === selectedHolder
-                                  ? 'bg-primary/20 border border-brass/40 text-brass font-semibold'
-                                  : 'bg-background border border-white/[0.06] text-muted-foreground'
+                                  ? 'bg-primary/20 border border-primary/40 text-primary font-semibold'
+                                  : 'bg-background border border-border text-muted-foreground'
                               }`}
                             >
                               {h}
@@ -189,7 +189,7 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
                         </div>
                       </td>
                       <td className="px-4 py-3 text-right font-mono text-muted-foreground">{formatVnd(row.amount_received)}</td>
-                      <td className="px-4 py-3 text-right font-mono font-semibold text-brass">
+                      <td className="px-4 py-3 text-right font-mono font-semibold text-primary">
                         {formatVnd(row.share)}
                       </td>
                     </tr>
@@ -205,23 +205,23 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
       {selectedAccount && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/70" onClick={() => setSelectedAccount(null)} />
-          <div className="relative z-10 w-full max-w-md rounded-xl border border-white/[0.08] bg-gunmetal p-6 shadow-2xl space-y-4">
+          <div className="relative z-10 w-full max-w-md rounded-xl border border-white/[0.08] bg-card p-6 shadow-2xl space-y-4">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+            <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded bg-primary/20 border border-brass/30 flex items-center justify-center">
-                  <span className="text-brass font-bold text-sm">
+                <div className="w-8 h-8 rounded bg-primary/20 border border-primary/30 flex items-center justify-center">
+                  <span className="text-primary font-bold text-sm">
                     {selectedAccount.username.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-mono font-bold text-white text-base">{selectedAccount.username}</h3>
-                  <p className="text-[11px] text-brass font-medium">Đã thanh toán tài chính</p>
+                  <h3 className="font-mono font-bold text-foreground text-base">{selectedAccount.username}</h3>
+                  <p className="text-[11px] text-primary font-medium">Đã thanh toán tài chính</p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedAccount(null)}
-                className="rounded p-1 text-muted-foreground hover:text-white transition-colors"
+                className="rounded p-1 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -232,25 +232,25 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
             {/* Content info grid */}
             <div className="space-y-2.5 text-xs">
               {selectedAccount.sourceName && (
-                <div className="flex justify-between items-center py-1 border-b border-white/[0.04]">
+                <div className="flex justify-between items-center py-1 border-b border-border/30">
                   <span className="text-muted-foreground">Nguồn</span>
-                  <span className="font-medium text-white">{selectedAccount.sourceName}</span>
+                  <span className="font-medium text-foreground">{selectedAccount.sourceName}</span>
                 </div>
               )}
 
-              <div className="flex justify-between items-center py-1 border-b border-white/[0.04]">
+              <div className="flex justify-between items-center py-1 border-b border-border/30">
                 <span className="text-muted-foreground">Tổng tiền nhận</span>
-                <span className="font-mono font-bold text-brass text-sm">{formatVnd(selectedAccount.amount_received)}</span>
+                <span className="font-mono font-bold text-primary text-sm">{formatVnd(selectedAccount.amount_received)}</span>
               </div>
 
-              <div className="py-1 border-b border-white/[0.04]">
+              <div className="py-1 border-b border-border/30">
                 <span className="text-muted-foreground block mb-1">AE đã tham gia cày</span>
                 <div className="flex flex-wrap gap-1">
                   {selectedAccount.holders.length === 0 ? (
                     <span className="text-muted-foreground/40">Không có thông tin</span>
                   ) : (
                     selectedAccount.holders.map((h) => (
-                      <span key={h} className="rounded bg-background px-2 py-0.5 text-xs text-muted-foreground border border-white/[0.06]">
+                      <span key={h} className="rounded bg-background px-2 py-0.5 text-xs text-muted-foreground border border-border">
                         {h}
                       </span>
                     ))
@@ -272,7 +272,7 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Nhận tiền & lưu trữ:</span>
-                    <span className="text-brass font-medium">{formatDate(selectedAccount.paid_at)}</span>
+                    <span className="text-primary font-medium">{formatDate(selectedAccount.paid_at)}</span>
                   </div>
                 </div>
               </div>
@@ -282,7 +282,7 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
             <div className="pt-2">
               <button
                 onClick={() => setSelectedAccount(null)}
-                className="w-full rounded-lg border border-white/[0.06] bg-background py-2 text-xs font-medium text-muted-foreground hover:text-white transition-colors"
+                className="w-full rounded-lg border border-border bg-background py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 Đóng
               </button>
