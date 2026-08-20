@@ -75,7 +75,7 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* Control Dock: Bottom bar on mobile, Right sidebar on desktop */}
       <FloatingLeaderboard />
-      <aside className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-4 md:top-16 z-40 flex flex-row md:flex-col items-center justify-around md:justify-start gap-1.5 md:gap-2 border-t md:border border-white/[0.08] bg-card/95 md:bg-card/90 p-2 shadow-2xl backdrop-blur-xl transition-all">
+      <aside className="fixed bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-4 md:top-16 z-40 flex flex-row md:flex-col items-center justify-around md:justify-start gap-1.5 md:gap-2 border-t md:border border-border/50 glass-panel md:bg-card/40 p-2 shadow-2xl backdrop-blur-xl transition-all">
         {/* Background Music Player */}
         <AudioPlayer />
 
@@ -87,7 +87,7 @@ export function AppShell({ children }: AppShellProps) {
           href="/"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              ? 'border-primary bg-primary/20 text-primary glow-cyan shadow-md shadow-primary/30'
               : 'border-border bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
           }`}
           title="Board Acc (Trang chủ)"
@@ -103,7 +103,7 @@ export function AppShell({ children }: AppShellProps) {
           href="/finance"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/finance'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              ? 'border-primary bg-primary/20 text-primary glow-cyan shadow-md shadow-primary/30'
               : 'border-border bg-background/60 text-muted-foreground hover:text-primary hover:border-primary/30'
           }`}
           title="Tài chính"
@@ -119,7 +119,7 @@ export function AppShell({ children }: AppShellProps) {
           href="/farmers"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/farmers'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              ? 'border-primary bg-primary/20 text-primary glow-cyan shadow-md shadow-primary/30'
               : 'border-border bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
           }`}
           title="Quản lý AE"
@@ -135,7 +135,7 @@ export function AppShell({ children }: AppShellProps) {
           href="/milestones"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/milestones'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              ? 'border-primary bg-primary/20 text-primary glow-cyan shadow-md shadow-primary/30'
               : 'border-border bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
           }`}
           title="Quản lý Mốc cày"
@@ -151,7 +151,7 @@ export function AppShell({ children }: AppShellProps) {
           href="/sources"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/sources'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              ? 'border-primary bg-primary/20 text-primary glow-cyan shadow-md shadow-primary/30'
               : 'border-border bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
           }`}
           title="Nguồn"
@@ -167,7 +167,7 @@ export function AppShell({ children }: AppShellProps) {
           href="/archive"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/archive'
-              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30'
+              ? 'border-primary bg-primary/20 text-primary glow-cyan shadow-md shadow-primary/30'
               : 'border-border bg-background/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
           }`}
           title="Kho lưu trữ"

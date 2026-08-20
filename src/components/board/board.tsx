@@ -41,11 +41,11 @@ const STATUS_LABELS: Record<Account['status'], string> = {
 };
 
 const STATUS_COLORS: Record<Account['status'], { bg: string; text: string; glow: string; strip: string }> = {
-  kho: { bg: 'bg-muted/20', text: 'text-muted-foreground', glow: '', strip: 'bg-muted' },
-  dang_cay: { bg: 'bg-primary/15', text: 'text-primary', glow: '', strip: 'bg-primary' },
-  done: { bg: 'bg-emerald-500/20', text: 'text-emerald-500', glow: '', strip: 'bg-emerald-500' },
-  da_giao_cho_ben_thu: { bg: 'bg-amber-500/20', text: 'text-amber-500', glow: '', strip: 'bg-amber-500' },
-  da_nhan_tien: { bg: 'bg-emerald-500/25', text: 'text-emerald-500', glow: '', strip: 'bg-green-500' },
+  kho: { bg: 'bg-muted/10 border border-border', text: 'text-muted-foreground', glow: '', strip: 'bg-muted' },
+  dang_cay: { bg: 'bg-primary/10 border border-primary/50', text: 'text-primary glow-cyan-text', glow: '', strip: 'bg-primary shadow-[0_0_8px_hsla(var(--primary)/0.8)]' },
+  done: { bg: 'bg-amber-500/10 border border-amber-500/50', text: 'text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]', glow: '', strip: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]' },
+  da_giao_cho_ben_thu: { bg: 'bg-amber-500/10 border border-amber-500/50', text: 'text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]', glow: '', strip: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]' },
+  da_nhan_tien: { bg: 'bg-emerald-500/10 border border-emerald-500/50', text: 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]', glow: '', strip: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' },
 };
 
 function normaliseHolder(name: string): string {
@@ -162,12 +162,12 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
       role="button"
       tabIndex={0}
       aria-label={`Account ${account.username}`}
-      className={`group relative overflow-hidden rounded-lg border transition-all duration-200 select-none cursor-pointer shrink-0 hover:border-primary/30 hover:bg-accent ${
+      className={`group relative overflow-hidden rounded-lg border transition-all duration-200 select-none cursor-pointer shrink-0 hover:border-primary/30 hover:bg-primary/10 border-primary/40 ${
         isDragging
           ? 'border-primary/50 bg-card opacity-60 scale-105 rotate-1'
           : disabled
-          ? 'border-border/50 bg-card/60'
-          : 'border-border bg-card/80 cursor-grab active:cursor-grabbing'
+          ? 'border-border/50 glass-panel opacity-80'
+          : 'glass-panel cursor-grab active:cursor-grabbing'
       }`}
       style={{ ...style, animationDelay: `${index * 40}ms` }}
     >
@@ -265,14 +265,14 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
         isOver && id === KHO_SENTINEL
           ? 'border-primary/40 bg-primary/5'
           : isKho
-          ? 'border-dashed border-border/50 bg-background/60 shadow-inner'
-          : 'border-border/30 bg-background/40'
+          ? 'border-dashed glass-panel bg-background/80 shadow-inner'
+          : 'glass-panel'
       }`}
     >
       {/* Column header */}
       <div className="flex flex-col border-b border-border/30 shrink-0">
         <div className="flex items-center justify-between px-4 py-3">
-          <h2 className="font-display font-semibold text-foreground text-sm tracking-wide flex items-center gap-2">
+          <h2 className={`font-display font-semibold text-sm tracking-wide flex items-center gap-2 ${!isKho ? 'text-primary glow-cyan-text' : 'text-foreground'}`}>
             {isKho ? (
               <div className="w-6 h-6 rounded bg-muted/15 flex items-center justify-center">
                 <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -289,7 +289,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
             {label}
           </h2>
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] text-muted-foreground/70 bg-accent px-2 py-0.5 rounded-full border border-border">
+            <span className="font-mono text-[11px] text-muted-foreground/70 bg-primary/10 border-primary/40 px-2 py-0.5 rounded-full border border-border">
               {displayedAccounts.length}{isKho && khoSearch.trim() && `/${accounts.length}`}
             </span>
             {onRemove && accounts.length === 0 && (
@@ -864,7 +864,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
                         isTop1
                           ? 'border-primary/50 bg-primary/15'
                           : isTop2
-                          ? 'border-slate-400/30 bg-accent'
+                          ? 'border-slate-400/30 bg-primary/10 border-primary/40'
                           : isTop3
                           ? 'border-amber-700/30 bg-amber-950/20'
                           : 'border-border/30 bg-background/50'
@@ -879,7 +879,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
                               ? 'bg-slate-300 text-slate-900'
                               : isTop3
                               ? 'bg-amber-700 text-foreground'
-                              : 'bg-accent text-muted-foreground'
+                              : 'bg-primary/10 border-primary/40 text-muted-foreground'
                           }`}
                         >
                           {rank}
