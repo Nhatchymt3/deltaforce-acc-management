@@ -183,7 +183,7 @@ export function BoardWrapper({
       {/* Floating "Thêm acc" FAB */}
       <button
         onClick={() => setShowCreate(true)}
-        className="clip-corner fixed bottom-8 right-6 z-40 flex items-center gap-2 border border-cyan/60 bg-cyan/20 px-5 py-3 text-sm font-semibold uppercase tracking-wider text-cyan shadow-[0_0_28px_-4px] shadow-cyan/50 backdrop-blur-sm transition-colors hover:bg-cyan/30 sm:bottom-6"
+        className="clip-corner fixed bottom-20 md:bottom-8 right-6 md:right-24 z-40 flex items-center gap-2 border border-cyan/60 bg-cyan/20 px-5 py-3 text-sm font-semibold uppercase tracking-wider text-cyan shadow-[0_0_28px_-4px] shadow-cyan/50 backdrop-blur-sm transition-colors hover:bg-cyan/30"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
