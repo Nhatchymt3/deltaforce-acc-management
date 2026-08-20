@@ -160,16 +160,18 @@
     transition: opacity 0.2s;
   }
   .hud-frame::before {
-    top: 0px;
-    left: 0px;
+    top: -1.5px;
+    left: -1.5px;
     border-top: 1.5px solid var(--hud-color);
     border-left: 1.5px solid var(--hud-color);
+    border-top-left-radius: 6px;
   }
   .hud-frame::after {
-    bottom: 0px;
-    right: 0px;
+    bottom: -1.5px;
+    right: -1.5px;
     border-bottom: 1.5px solid var(--hud-color);
     border-right: 1.5px solid var(--hud-color);
+    border-bottom-right-radius: 6px;
   }
   .group:hover .hud-frame::before,
   .group:hover .hud-frame::after {
