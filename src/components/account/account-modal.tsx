@@ -787,6 +787,16 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
     }
   }
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && !confirmDelete && !showDoneModal && !pwModalTarget) {
+        onClose();
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, confirmDelete, showDoneModal, pwModalTarget]);
+
   const sortedSessions = [...sessions].sort(
     (a, b) => new Date(a.started_at).getTime() - new Date(b.started_at).getTime()
   );
@@ -804,7 +814,12 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
         <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
 
         {/* Modal */}
-        <div className="relative z-10 w-full max-w-4xl">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+          className="relative z-10 w-full max-w-4xl"
+        >
           <div className="relative rounded-xl border border-white/[0.08] bg-gunmetal shadow-2xl">
             {/* Delete confirmation overlay */}
             {confirmDelete && (

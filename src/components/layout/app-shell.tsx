@@ -3,11 +3,19 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/browser';
 import { signOut } from '@/app/actions/auth';
-import { AudioPlayer } from '@/components/ui/audio-player';
-import { FloatingLeaderboard } from '@/components/ui/floating-leaderboard';
-import { Dropdown } from '@/components/ui/dropdown';
+
+const AudioPlayer = dynamic(
+  () => import('@/components/ui/audio-player').then((mod) => mod.AudioPlayer),
+  { ssr: false }
+);
+
+const FloatingLeaderboard = dynamic(
+  () => import('@/components/ui/floating-leaderboard').then((mod) => mod.FloatingLeaderboard),
+  { ssr: false }
+);
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -20,10 +28,17 @@ export function AppShell({ children }: AppShellProps) {
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
-      .channel('global-db-realtime')
+      .channel('app-shell-realtime')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public' },
+        { event: '*', schema: 'public', table: 'accounts' },
+        () => {
+          router.refresh();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'account_milestones' },
         () => {
           router.refresh();
         }
@@ -34,7 +49,6 @@ export function AppShell({ children }: AppShellProps) {
       supabase.removeChannel(channel);
     };
   }, [router]);
-  const isHomePage = pathname === '/';
 
   return (
     <div className="relative h-screen flex flex-col overflow-hidden text-gray-200 bg-midnight">
@@ -46,7 +60,7 @@ export function AppShell({ children }: AppShellProps) {
       </div>
 
       {/* Global Top Bar */}
-      <header className="shrink-0 mx-auto flex max-w-full w-full items-center justify-between gap-4 px-6 pt-3 pb-2 border-b border-white/[0.04] bg-midnight/40 backdrop-blur-md">
+      <header className="shrink-0 mx-auto flex w-full items-center justify-between gap-4 px-6 pt-3 pb-2 border-b border-white/[0.04] bg-midnight/40 backdrop-blur-md">
         <div className="flex items-center gap-3 shrink-0">
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
             <h1 className="font-display text-xl font-bold tracking-wide text-white">
@@ -77,6 +91,7 @@ export function AppShell({ children }: AppShellProps) {
               : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30'
           }`}
           title="Board Acc (Trang chủ)"
+          aria-label="Trang chủ Board Acc"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -92,6 +107,7 @@ export function AppShell({ children }: AppShellProps) {
               : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-brass hover:border-brass/30'
           }`}
           title="Tài chính"
+          aria-label="Quản lý Tài chính"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -107,6 +123,7 @@ export function AppShell({ children }: AppShellProps) {
               : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30'
           }`}
           title="Quản lý AE"
+          aria-label="Quản lý AE"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -122,6 +139,7 @@ export function AppShell({ children }: AppShellProps) {
               : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30'
           }`}
           title="Quản lý Mốc cày"
+          aria-label="Quản lý Mốc cày"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -137,6 +155,7 @@ export function AppShell({ children }: AppShellProps) {
               : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30'
           }`}
           title="Nguồn"
+          aria-label="Quản lý Nguồn"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -152,6 +171,7 @@ export function AppShell({ children }: AppShellProps) {
               : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30'
           }`}
           title="Kho lưu trữ"
+          aria-label="Kho lưu trữ"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
@@ -167,6 +187,7 @@ export function AppShell({ children }: AppShellProps) {
             type="submit"
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-midnight/60 text-ash hover:text-signal-red hover:border-signal-red/30 hover:bg-signal-red/10 transition-all"
             title="Đăng xuất"
+            aria-label="Đăng xuất"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

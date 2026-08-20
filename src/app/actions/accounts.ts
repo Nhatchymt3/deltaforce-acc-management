@@ -593,7 +593,7 @@ export async function updateAccountCredentials(
 export async function revertToDangCay(accountId: string, knownVersion: number, adminPw: string): Promise<{ data?: Account; error?: string }> {
   try {
     const { supabase } = await requireAuth();
-    if (adminPw !== 'taolaadmin') {
+    if (adminPw !== process.env.ADMIN_REVERT_PASSWORD) {
       return { error: 'Sai mật khẩu admin!' };
     }
     const validatedId = uuidSchema.parse(accountId);
@@ -617,7 +617,7 @@ export async function revertToDangCay(accountId: string, knownVersion: number, a
 export async function revertToDelivered(accountId: string, knownVersion: number, adminPw: string): Promise<{ data?: Account; error?: string }> {
   try {
     const { supabase } = await requireAuth();
-    if (adminPw !== 'taolaadmin') {
+    if (adminPw !== process.env.ADMIN_REVERT_PASSWORD) {
       return { error: 'Sai mật khẩu admin!' };
     }
     const validatedId = uuidSchema.parse(accountId);
@@ -641,7 +641,7 @@ export async function revertToDelivered(accountId: string, knownVersion: number,
 export async function revertToDone(accountId: string, knownVersion: number, adminPw: string): Promise<{ data?: Account; error?: string }> {
   try {
     const { supabase } = await requireAuth();
-    if (adminPw !== 'taolaadmin') {
+    if (adminPw !== process.env.ADMIN_REVERT_PASSWORD) {
       return { error: 'Sai mật khẩu admin!' };
     }
     const validatedId = uuidSchema.parse(accountId);

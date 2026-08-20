@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { calculateFinance, formatVnd, formatHolders } from '@/lib/finance';
 
 export type FinanceAccount = {
@@ -28,22 +28,22 @@ export function FinanceView({ initialAccounts }: { initialAccounts: FinanceAccou
   const [selectedAccount, setSelectedAccount] = useState<FinanceAccount | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const summary = calculateFinance(initialAccounts);
-  const holderRows = formatHolders(summary.byHolder);
+  const summary = useMemo(() => calculateFinance(initialAccounts), [initialAccounts]);
+  const holderRows = useMemo(() => formatHolders(summary.byHolder), [summary.byHolder]);
 
-  const filteredAccounts = summary.accounts.filter((acc) => {
+  const filteredAccounts = useMemo(() => summary.accounts.filter((acc) => {
     if (!selectedHolder) return true;
     return acc.holders.includes(selectedHolder);
-  });
+  }), [summary.accounts, selectedHolder]);
 
-  const searchedAccounts = filteredAccounts.filter((acc) => {
+  const searchedAccounts = useMemo(() => filteredAccounts.filter((acc) => {
     if (!searchTerm.trim()) return true;
     const term = searchTerm.trim().toLowerCase();
     return (
       acc.username.toLowerCase().includes(term) ||
       acc.holders.some((h) => h.toLowerCase().includes(term))
     );
-  });
+  }), [filteredAccounts, searchTerm]);
 
   return (
     <div className="space-y-8">

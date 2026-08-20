@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { formatVnd } from '@/lib/finance';
 import { AccountModal } from '@/components/account/account-modal';
 import type { Account, Milestone, HolderSession } from '@/lib/types';
@@ -26,13 +26,13 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
   const [selectedSource, setSelectedSource] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
 
-  const sourcesList = Array.from(
-    new Set(accounts.map((a) => (a as any).sourceName).filter(Boolean))
-  );
+  const sourcesList = useMemo(() => Array.from(
+    new Set(accounts.map((a) => a.sourceName).filter(Boolean))
+  ), [accounts]);
 
-  const filteredAccounts = accounts.filter((a) => {
+  const filteredAccounts = useMemo(() => accounts.filter((a) => {
     const term = searchTerm.toLowerCase();
-    const sourceName = (a as any).sourceName ?? '';
+    const sourceName = a.sourceName ?? '';
     const matchesSearch =
       a.username.toLowerCase().includes(term) ||
       sourceName.toLowerCase().includes(term) ||
@@ -45,12 +45,12 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
       selectedStatus === 'all' || a.status === selectedStatus;
 
     return matchesSearch && matchesSource && matchesStatus;
-  });
+  }), [accounts, searchTerm, selectedSource, selectedStatus]);
 
-  const totalReceived = filteredAccounts.reduce(
+  const totalReceived = useMemo(() => filteredAccounts.reduce(
     (sum, a) => sum + (a.amount_received ? Number(a.amount_received) : 0),
     0
-  );
+  ), [filteredAccounts]);
 
   const accountMilestones = modalAccount
     ? milestones.filter((m) => m.account_id === modalAccount.id)
@@ -111,6 +111,7 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
 
         <select
           value={selectedSource}
+          aria-label="Lọc theo nguồn"
           onChange={(e) => setSelectedSource(e.target.value)}
           className="rounded-lg border border-white/[0.06] bg-gunmetal px-3.5 py-2 text-sm text-white focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
         >
@@ -124,6 +125,7 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
 
         <select
           value={selectedStatus}
+          aria-label="Lọc theo trạng thái"
           onChange={(e) => setSelectedStatus(e.target.value)}
           className="rounded-lg border border-white/[0.06] bg-gunmetal px-3.5 py-2 text-sm text-white focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
         >
@@ -176,7 +178,7 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-ash text-xs">{(acc as any).sourceName ?? '—'}</td>
+                    <td className="px-4 py-3 text-ash text-xs">{acc.sourceName ?? '—'}</td>
                     <td className="px-4 py-3">
                       {acc.status === 'kho' && <span className="text-ash/60 bg-ash/10 px-2 py-0.5 rounded text-xs">Kho</span>}
                       {acc.status === 'dang_cay' && <span className="text-brass bg-brass/10 px-2 py-0.5 rounded text-xs">Đang cày</span>}

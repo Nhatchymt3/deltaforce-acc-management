@@ -5,6 +5,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  memo,
 } from 'react';
 import {
   DndContext,
@@ -95,6 +96,13 @@ let toastCounter = 0;
 
 function useToast() {
   const [toasts, setToasts] = useState<ToastEntry[]>([]);
+  const intervalsRef = useRef<Record<string, NodeJS.Timeout>>({});
+
+  useEffect(() => {
+    return () => {
+      Object.values(intervalsRef.current).forEach(clearInterval);
+    };
+  }, []);
 
   function addToast(message: string, kind: ToastEntry['kind'] = 'error') {
     const id = String(++toastCounter);
@@ -104,8 +112,11 @@ function useToast() {
         prev.map((t) => (t.id === id ? { ...t, progress: t.progress - 2.5 } : t))
       );
     }, 100);
+    intervalsRef.current[id] = interval;
+
     setTimeout(() => {
       clearInterval(interval);
+      delete intervalsRef.current[id];
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4000);
   }
@@ -121,7 +132,7 @@ interface CardProps {
   index: number;
 }
 
-function Card({ account, targetMilestone, onOpen, index }: CardProps) {
+const Card = memo(function Card({ account, targetMilestone, onOpen, index }: CardProps) {
   const disabled = isLocked(account.status);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -142,7 +153,12 @@ function Card({ account, targetMilestone, onOpen, index }: CardProps) {
       ref={setNodeRef}
       {...(disabled ? {} : { ...listeners, ...attributes })}
       onClick={() => onOpen(account)}
-      onKeyDown={(e) => e.key === 'Enter' && onOpen(account)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onOpen(account);
+        }
+      }}
       role="button"
       tabIndex={0}
       aria-label={`Account ${account.username}`}
@@ -217,7 +233,7 @@ function Card({ account, targetMilestone, onOpen, index }: CardProps) {
       </div>
     </div>
   );
-}
+});
 
 // ─── Column (droppable) ───────────────────────────────────────────────────────
 interface ColumnProps {
@@ -702,7 +718,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         </div>
 
       {/* Horizontal Header Toolbar Controls */}
-      <div className="shrink-0 mx-auto flex max-w-full w-full items-center justify-between gap-4 px-6 pt-2 pb-2 border-b border-white/[0.04] bg-midnight/30 backdrop-blur-md">
+      <div className="shrink-0 mx-auto flex w-full items-center justify-between gap-4 px-6 pt-2 pb-2 border-b border-white/[0.04] bg-midnight/30 backdrop-blur-md">
         <div className="flex items-center gap-3 shrink-0">
           <span className="font-mono text-xs text-brass/80 bg-brass/10 border border-brass/20 rounded px-2.5 py-0.5" title="Tổng số acc">
             {initialAccounts.length} ACC

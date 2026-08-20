@@ -40,7 +40,7 @@ export async function middleware(request: NextRequest) {
     const redirectResponse = NextResponse.redirect(url);
 
     supabaseResponse.cookies.getAll().forEach((cookie) => {
-      redirectResponse.cookies.set(cookie.name, cookie.value);
+      redirectResponse.cookies.set(cookie);
     });
     return redirectResponse;
   }
@@ -51,7 +51,7 @@ export async function middleware(request: NextRequest) {
     const redirectResponse = NextResponse.redirect(url);
 
     supabaseResponse.cookies.getAll().forEach((cookie) => {
-      redirectResponse.cookies.set(cookie.name, cookie.value);
+      redirectResponse.cookies.set(cookie);
     });
     return redirectResponse;
   }

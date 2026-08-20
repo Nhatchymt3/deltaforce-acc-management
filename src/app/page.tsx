@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { BoardWrapper } from '@/components/board/board-wrapper';
-import { AppShell } from '@/components/layout/app-shell';
 import { calculateFinance } from '@/lib/finance';
 import type { Account, HolderSession, Milestone, Source } from '@/lib/types';
 
@@ -19,7 +18,7 @@ export default async function HomePage() {
   ] = await Promise.all([
     supabase
       .from('accounts')
-      .select('*')
+      .select('id, source, username, password, status, position, current_holder, version, current_level, target_milestone_id, added_by, tag_label, tag_expires_at, created_at, result_image_path, game_uuid, image_url, image_expires_at, completed_at, delivered_at, paid_at, amount_received')
       .neq('status', 'da_nhan_tien')
       .order('position'),
     supabase
@@ -77,20 +76,20 @@ export default async function HomePage() {
   if (serialisedFarmers.length > 0) {
     const defaultFarmerName = serialisedFarmers[0]!.name;
     const admin = createAdminClient();
-    let needsUpdate = false;
+    const accountsToUpdate: string[] = [];
 
     serialisedAccounts.forEach((acc) => {
       if (acc.current_holder && !validFarmerNames.has(acc.current_holder.trim().toLowerCase())) {
         acc.current_holder = defaultFarmerName;
-        needsUpdate = true;
+        accountsToUpdate.push(acc.id);
       }
     });
 
-    if (needsUpdate) {
+    if (accountsToUpdate.length > 0) {
       await admin
         .from('accounts')
         .update({ current_holder: defaultFarmerName })
-        .not('current_holder', 'is', null);
+        .in('id', accountsToUpdate);
     }
   }
 

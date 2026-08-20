@@ -9,7 +9,9 @@
       "Bash(git push *)",
       "Bash(supabase db *)",
       "Bash(npx supabase *)",
-      "Bash(del \"C:\\\\Users\\\\Nhatchymte\\\\Documents\\\\webmanagerdelta\\\\supabase\\\\migrations\\\\011_revert_status.sql\")"
+      "Bash(del \"C:\\\\Users\\\\Nhatchymte\\\\Documents\\\\webmanagerdelta\\\\supabase\\\\migrations\\\\011_revert_status.sql\")",
+      "Bash(npm run *)",
+      "Bash(git commit -m 'refactor: optimize UI/UX, performance, and security *)"
     ]
   }
 }

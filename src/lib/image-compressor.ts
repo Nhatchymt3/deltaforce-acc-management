@@ -1,5 +1,3 @@
-import browserImageCompression from 'browser-image-compression';
-
 export interface CompressOptions {
   maxSizeMB?: number;
   maxWidthOrHeight?: number;
@@ -18,6 +16,7 @@ export async function compressImage(file: File, options: CompressOptions = {}): 
   }
 
   try {
+    const browserImageCompression = (await import('browser-image-compression')).default;
     const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
     const compressedBlob = await browserImageCompression(file, mergedOptions);
     return new File([compressedBlob], file.name, {
