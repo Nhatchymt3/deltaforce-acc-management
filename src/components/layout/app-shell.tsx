@@ -107,7 +107,7 @@ export function AppShell({ children }: AppShellProps) {
         </main>
 
         {/* Side Rail Desktop (Bottom bar Mobile) */}
-        <aside className="fixed bottom-0 left-0 right-0 md:relative md:w-16 md:bottom-auto md:left-auto md:right-auto z-40 flex flex-row md:flex-col items-center justify-around md:justify-start gap-3 md:gap-4 border-t md:border-t-0 md:border-l border-panel-border bg-panel p-2 md:p-3 md:py-6 shadow-2xl backdrop-blur-md">
+        <aside className="fixed bottom-0 left-0 right-0 md:absolute md:top-0 md:bottom-0 md:left-auto md:right-0 md:w-16 z-[60] flex flex-row md:flex-col items-center justify-around md:justify-start gap-3 md:gap-4 border-t md:border-t-0 md:border-l border-panel-border bg-panel p-2 md:p-3 md:py-6 shadow-2xl backdrop-blur-md">
           {/* Background Music Player */}
           <AudioPlayer />
 
