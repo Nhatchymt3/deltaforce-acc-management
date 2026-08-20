@@ -147,7 +147,7 @@ export function BoardWrapper({
   const stats = useMemo(() => {
     const dangCay = accounts.filter(a => a.status === 'dang_cay').length;
     const daGiao = accounts.filter(a => a.status === 'da_giao_cho_ben_thu').length;
-    const canhBao = accounts.filter(a => !!a.tag_label && a.tag_label.toLowerCase().includes('ban')).length;
+    const canhBao = accounts.filter(a => !!a.tag_label && (a.tag_label.toLowerCase().includes('ban') || a.tag_label.toLowerCase().includes('ban party'))).length;
     return { dangCay, daGiao, canhBao };
   }, [accounts]);
 
