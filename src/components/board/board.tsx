@@ -136,6 +136,23 @@ interface CardProps {
 const Card = memo(function Card({ account, targetMilestone, onOpen, index }: CardProps) {
   const disabled = isLocked(account.status);
 
+  // Hook for live progress updates
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!account.tag_label || !account.tag_expires_at) return;
+    const isBan = account.tag_label.toLowerCase().includes('ban');
+    if (!isBan) return;
+
+    // Only set up interval if it's a ban that hasn't expired yet
+    const expires = new Date(account.tag_expires_at).getTime();
+    if (expires <= Date.now()) return;
+
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 1000 * 60); // Update every minute to save CPU
+    return () => clearInterval(timer);
+  }, [account.tag_label, account.tag_expires_at]);
+
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: account.id,
@@ -220,7 +237,7 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
         {(() => {
           if (!account.tag_label || !account.tag_expires_at) return null;
           const expires = new Date(account.tag_expires_at).getTime();
-          const now = Date.now();
+
           if (expires <= now) return null;
 
           // Extract original days from tag label (e.g. 'BAN 23 NGÀY') if present
@@ -238,6 +255,17 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
           const isBan = labelLower.includes('ban') && !isBanParty && !labelLower.includes('cấm');
 
           if (isBan || isBanParty) {
+            // Format time left dynamically
+            const msLeft = Math.max(0, expires - now);
+            const days = Math.floor(msLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((msLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+
+            let timeLeftStr = '';
+            if (days > 0) timeLeftStr += `${days}d `;
+            if (hours > 0) timeLeftStr += `${hours}h `;
+            timeLeftStr += `${mins}m`;
+
             return (
               <div className={`relative mt-3 flex items-center gap-1.5 rounded-sm border px-2 py-1.5 overflow-hidden ${
                 isBan
@@ -253,8 +281,9 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
                 />
 
                 <ShieldAlert className="size-3.5 shrink-0 relative z-10" />
-                <span className="text-[11px] font-semibold uppercase tracking-wide relative z-10">
-                  {account.tag_label} [{remainingDays}]
+                <span className="text-[11px] font-semibold uppercase tracking-wide relative z-10 w-full flex justify-between">
+                  <span>{account.tag_label}</span>
+                  <span className="tabular-nums opacity-90">{timeLeftStr}</span>
                 </span>
               </div>
             );
