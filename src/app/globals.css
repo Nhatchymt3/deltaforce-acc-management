@@ -4,170 +4,233 @@
 
 :root {
   color-scheme: dark;
+  --radius: 0.5rem;
+
+  /* warm gunmetal / charcoal base — Delta Force tactical UI */
+  --background: oklch(0.15 0.006 70);
+  --foreground: oklch(0.92 0.012 80);
+
+  --panel: oklch(0.19 0.008 70 / 55%);
+  --panel-border: oklch(0.42 0.02 75 / 30%);
+
+  --card: oklch(0.22 0.01 70 / 62%);
+  --card-foreground: oklch(0.92 0.012 80);
+
+  --popover: oklch(0.18 0.008 70);
+  --popover-foreground: oklch(0.92 0.012 80);
+
+  /* signature tactical amber-orange */
+  --primary: oklch(0.74 0.16 58);
+  --primary-foreground: oklch(0.15 0.006 70);
+
+  --secondary: oklch(0.26 0.012 70);
+  --secondary-foreground: oklch(0.92 0.012 80);
+
+  --muted: oklch(0.24 0.008 70);
+  --muted-foreground: oklch(0.62 0.015 78);
+
+  --accent: oklch(0.3 0.02 65);
+  --accent-foreground: oklch(0.92 0.012 80);
+
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(0.95 0.02 20);
+
+  --border: oklch(0.4 0.018 75 / 28%);
+  --input: oklch(0.38 0.018 75 / 35%);
+  --ring: oklch(0.74 0.16 58);
+
+  /* custom tactical colors */
+  --cyan: oklch(0.76 0.16 195);
+  --cyan-dim: oklch(0.55 0.1 195 / 35%);
+  --gold: oklch(0.82 0.1 92);
+  --gold-dim: oklch(0.6 0.08 92 / 25%);
+  --green: oklch(0.76 0.15 155);
+  --green-dim: oklch(0.55 0.1 155 / 30%);
+  --danger: oklch(0.66 0.2 25);
+  --danger-dim: oklch(0.5 0.17 25 / 25%);
 }
 
-* { box-sizing: border-box; }
-html { height: 100%; }
-body { margin: 0; height: 100%; @apply bg-background text-foreground; }
+.dark {
+  /* Use same variables since the design is dark by default */
+  --background: oklch(0.15 0.006 70);
+  --foreground: oklch(0.92 0.012 80);
+  --panel: oklch(0.19 0.008 70 / 55%);
+  --panel-border: oklch(0.42 0.02 75 / 30%);
+  --card: oklch(0.22 0.01 70 / 62%);
+  --card-foreground: oklch(0.92 0.012 80);
+  --popover: oklch(0.18 0.008 70);
+  --popover-foreground: oklch(0.92 0.012 80);
+  --primary: oklch(0.74 0.16 58);
+  --primary-foreground: oklch(0.15 0.006 70);
+  --secondary: oklch(0.26 0.012 70);
+  --secondary-foreground: oklch(0.92 0.012 80);
+  --muted: oklch(0.24 0.008 70);
+  --muted-foreground: oklch(0.62 0.015 78);
+  --accent: oklch(0.3 0.02 65);
+  --accent-foreground: oklch(0.92 0.012 80);
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(0.95 0.02 20);
+  --border: oklch(0.4 0.018 75 / 28%);
+  --input: oklch(0.38 0.018 75 / 35%);
+  --ring: oklch(0.74 0.16 58);
 
-/* ─── Sci-Fi Dot Grid Background ──────────────────── */
-.stars-bg {
-  background-color: hsl(var(--background));
-  background-image: radial-gradient(circle at 2px 2px, hsla(var(--primary)/0.15) 1px, transparent 0);
-  background-size: 32px 32px;
-}
-
-/* ─── Scrollbar ────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: hsla(var(--primary) / 0.3); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: hsla(var(--primary) / 0.6); }
-
-/* ─── Custom animations ────────────────────────────────────── */
-@keyframes slideInRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.97); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* ─── Shimmer / Loading skeleton ────────────────────────────── */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    hsla(var(--muted) / 0.5) 25%,
-    hsla(var(--muted) / 0.8) 50%,
-    hsla(var(--muted) / 0.5) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-/* ─── Card entrance animation ──────────────────────────────── */
-.card-animate {
-  animation: fadeInUp 0.3s ease-out both;
-}
-
-/* ─── Scrollbar thin for modal ─────────────────────────────── */
-.scrollbar-thin::-webkit-scrollbar { width: 4px; }
-.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-.scrollbar-thin::-webkit-scrollbar-thumb { background: hsla(var(--primary) / 0.3); border-radius: 2px; }
-
-/* ─── Selection ────────────────────────────────────────────── */
-::selection {
-  background: hsla(var(--primary) / 0.4);
-  color: hsl(var(--foreground));
-}
-
-@layer base {
-  :root {
-    --background: 211 40% 6%;
-    --foreground: 210 20% 85%;
-    
-    --card: 211 30% 12%;
-    --card-foreground: 210 20% 85%;
-    
-    --popover: 211 30% 12%;
-    --popover-foreground: 210 20% 85%;
-    
-    /* Neon Cyan */
-    --primary: 180 100% 50%;
-    --primary-foreground: 211 40% 6%;
-    
-    --secondary: 211 20% 20%;
-    --secondary-foreground: 210 20% 85%;
-    
-    --muted: 211 20% 20%;
-    --muted-foreground: 211 15% 55%;
-    
-    --accent: 180 100% 50% / 0.1;
-    --accent-foreground: 180 100% 50%;
-    
-    --destructive: 0 100% 60%;
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 211 25% 25%;
-    --input: 211 25% 25%;
-    
-    --ring: 180 100% 50%;
-    --radius: 0.5rem;
-  }
-  .dark {
-    --background: 211 40% 6%;
-    --foreground: 210 20% 85%;
-    --card: 211 30% 12%;
-    --card-foreground: 210 20% 85%;
-    --popover: 211 30% 12%;
-    --popover-foreground: 210 20% 85%;
-    --primary: 180 100% 50%;
-    --primary-foreground: 211 40% 6%;
-    --secondary: 211 20% 20%;
-    --secondary-foreground: 210 20% 85%;
-    --muted: 211 20% 20%;
-    --muted-foreground: 211 15% 55%;
-    --accent: 180 100% 50% / 0.1;
-    --accent-foreground: 180 100% 50%;
-    --destructive: 0 100% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 211 25% 25%;
-    --input: 211 25% 25%;
-    --ring: 180 100% 50%;
-  }
+  --cyan: oklch(0.76 0.16 195);
+  --cyan-dim: oklch(0.55 0.1 195 / 35%);
+  --gold: oklch(0.82 0.1 92);
+  --gold-dim: oklch(0.6 0.08 92 / 25%);
+  --green: oklch(0.76 0.15 155);
+  --green-dim: oklch(0.55 0.1 155 / 30%);
+  --danger: oklch(0.66 0.2 25);
+  --danger-dim: oklch(0.5 0.17 25 / 25%);
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+  html {
+    @apply bg-background;
+  }
   body {
     @apply bg-background text-foreground;
+    position: relative;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, oklch(0.55 0.12 58 / 16%), transparent),
+      linear-gradient(oklch(0.55 0.03 75 / 4%) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.55 0.03 75 / 4%) 1px, transparent 1px);
+    background-size: 100% 100%, 44px 44px, 44px 44px;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    /* We don't have df-hex-texture.png in our public folder, use the previous radial gradient */
+    background-image: url('/df-hex-texture.png');
+    background-size: 480px;
+    opacity: 0.05;
+    mix-blend-mode: screen;
+  }
+  body > * {
+    position: relative;
+    z-index: 1;
   }
 }
 
 @layer utilities {
-  .glass-panel {
-    @apply bg-gradient-to-br from-card to-background border border-border/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_4px_15px_-4px_rgba(0,0,0,0.5)];
+  .clip-corner {
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
   }
-  .glow-cyan {
-    @apply shadow-[0_0_15px_hsla(var(--primary)/0.5)];
+  .clip-notch {
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
   }
-  .glow-cyan-text {
-    @apply drop-shadow-[0_0_6px_hsla(var(--primary)/0.7)];
-  }
-}
 
-@layer utilities {
-  .sci-fi-clip {
-    clip-path: polygon(
-      0 0, 
-      calc(100% - 12px) 0, 
-      100% 12px, 
-      100% 100%, 
-      12px 100%, 
-      0 calc(100% - 12px)
+  .hazard-stripes {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      oklch(0.66 0.2 25 / 22%) 0px,
+      oklch(0.66 0.2 25 / 22%) 8px,
+      transparent 8px,
+      transparent 16px
     );
   }
-  .sci-fi-clip-sm {
-    clip-path: polygon(
-      0 0, 
-      calc(100% - 8px) 0, 
-      100% 8px, 
-      100% 100%, 
-      8px 100%, 
-      0 calc(100% - 8px)
+
+  .hud-frame {
+    position: relative;
+  }
+  .hud-frame::before,
+  .hud-frame::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+    opacity: 0.55;
+    transition: opacity 0.2s;
+  }
+  .hud-frame::before {
+    top: -1px;
+    left: -1px;
+    border-top: 1.5px solid var(--cyan);
+    border-left: 1.5px solid var(--cyan);
+    border-top-left-radius: 6px;
+  }
+  .hud-frame::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 1.5px solid var(--cyan);
+    border-right: 1.5px solid var(--cyan);
+    border-bottom-right-radius: 6px;
+  }
+  .group:hover .hud-frame::before,
+  .group:hover .hud-frame::after {
+    opacity: 1;
+  }
+
+  .scanlines {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      oklch(1 0 0 / 3%) 0px,
+      oklch(1 0 0 / 3%) 1px,
+      transparent 1px,
+      transparent 3px
     );
+  }
+
+  .text-glow {
+    text-shadow: 0 0 18px oklch(0.74 0.16 58 / 55%);
+  }
+  .text-glow-cyan {
+    text-shadow: 0 0 18px oklch(0.76 0.16 195 / 55%);
+  }
+
+  .status-pulse {
+    position: relative;
+  }
+  .status-pulse::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.5;
+    animation: statusPing 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+  @keyframes statusPing {
+    0% { transform: scale(1); opacity: 0.5; }
+    75%, 100% { transform: scale(2.4); opacity: 0; }
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.55 0.1 58 / 40%) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: oklch(0.55 0.1 58 / 40%);
+    border-radius: 999px;
+  }
+
+  /* Shimmer */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      oklch(0.24 0.008 70 / 50%) 25%,
+      oklch(0.24 0.008 70 / 80%) 50%,
+      oklch(0.24 0.008 70 / 50%) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 }

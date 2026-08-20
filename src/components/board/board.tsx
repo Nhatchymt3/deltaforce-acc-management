@@ -21,6 +21,7 @@ import {
 } from '@dnd-kit/core';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import { Search } from 'lucide-react';
 import { moveAccount } from '@/app/actions/accounts';
 import { signOut } from '@/app/actions/auth';
 import type { Account, HolderSession, Milestone, Source, Farmer } from '@/lib/types';
@@ -40,12 +41,12 @@ const STATUS_LABELS: Record<Account['status'], string> = {
   da_nhan_tien: 'Đã nhận tiền',
 };
 
-const STATUS_COLORS: Record<Account['status'], { bg: string; text: string; glow: string; strip: string }> = {
-  kho: { bg: 'bg-muted/10 border border-border', text: 'text-muted-foreground', glow: '', strip: 'bg-muted' },
-  dang_cay: { bg: 'bg-primary/10 border border-primary/50', text: 'text-primary glow-cyan-text', glow: '', strip: 'bg-primary shadow-[0_0_8px_hsla(var(--primary)/0.8)]' },
-  done: { bg: 'bg-amber-500/10 border border-amber-500/50', text: 'text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]', glow: '', strip: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]' },
-  da_giao_cho_ben_thu: { bg: 'bg-amber-500/10 border border-amber-500/50', text: 'text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]', glow: '', strip: 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]' },
-  da_nhan_tien: { bg: 'bg-emerald-500/10 border border-emerald-500/50', text: 'text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.6)]', glow: '', strip: 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' },
+const STATUS_COLORS: Record<Account['status'], { badge: string; dot: string; bar: string; glow: string; ring: string }> = {
+  kho: { badge: 'border-border text-muted-foreground bg-white/5', dot: 'bg-muted-foreground text-muted-foreground', bar: 'bg-muted-foreground/60', glow: 'before:bg-muted-foreground/40', ring: 'group-hover:border-border' },
+  dang_cay: { badge: 'border-cyan/60 text-cyan bg-cyan/15 shadow-[0_0_12px_-2px_var(--cyan)]', dot: 'bg-cyan text-cyan status-pulse', bar: 'bg-cyan shadow-[0_0_10px_0_var(--cyan)]', glow: 'group-hover:shadow-[0_0_0_1px_var(--cyan)] before:bg-cyan', ring: 'group-hover:border-cyan/50' },
+  done: { badge: 'border-gold/60 text-gold bg-gold/15 shadow-[0_0_12px_-2px_var(--gold)]', dot: 'bg-gold text-gold', bar: 'bg-gold shadow-[0_0_10px_0_var(--gold)]', glow: 'group-hover:shadow-[0_0_0_1px_var(--gold)] before:bg-gold', ring: 'group-hover:border-gold/50' },
+  da_giao_cho_ben_thu: { badge: 'border-gold/60 text-gold bg-gold/15 shadow-[0_0_12px_-2px_var(--gold)]', dot: 'bg-gold text-gold', bar: 'bg-gold shadow-[0_0_10px_0_var(--gold)]', glow: 'group-hover:shadow-[0_0_0_1px_var(--gold)] before:bg-gold', ring: 'group-hover:border-gold/50' },
+  da_nhan_tien: { badge: 'border-green/60 text-green bg-green/15 shadow-[0_0_12px_-2px_var(--green)]', dot: 'bg-green text-green', bar: 'bg-green shadow-[0_0_10px_0_var(--green)]', glow: 'group-hover:shadow-[0_0_0_1px_var(--green)] before:bg-green', ring: 'group-hover:border-green/50' },
 };
 
 function normaliseHolder(name: string): string {
@@ -171,10 +172,13 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
       }`}
       style={{ ...style, animationDelay: `${index * 40}ms` }}
     >
-      {/* Tactical status strip */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${colors.strip}`} />
+      {/* left accent */}
+      <span
+        aria-hidden
+        className={`absolute left-0 top-2 bottom-2 z-10 w-[3px] rounded-full ${colors.bar} opacity-80 group-hover:opacity-100`}
+      />
 
-      <div className="pl-4 pr-3 py-3">
+      <div className={`hud-frame relative overflow-hidden rounded-md border border-panel-border bg-card px-4 py-3 pl-5 transition-all before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:opacity-60 group-hover:bg-card/90 ${colors.glow} ${colors.ring}`}>
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <h3 className="font-mono font-semibold text-foreground text-sm truncate">{account.username}</h3>
@@ -182,7 +186,8 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
               {account.sourceName ?? account.source}
             </p>
           </div>
-          <span className={`flex-shrink-0 rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${colors.bg} ${colors.text}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded-sm border px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${colors.badge}`}>
+            <span className={`inline-block size-1.5 rounded-full ${colors.dot}`} />
             {STATUS_LABELS[account.status]}
           </span>
         </div>
@@ -261,26 +266,22 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
   return (
     <div
       ref={setNodeRef}
-      className={`w-[300px] shrink-0 flex flex-col rounded-xl border transition-all duration-200 h-full max-h-full ${
-        isOver && id === KHO_SENTINEL
-          ? 'border-primary/40 bg-primary/5'
-          : isKho
-          ? 'border-dashed glass-panel bg-background/80 shadow-inner'
-          : 'glass-panel'
+      className={`w-[300px] shrink-0 flex flex-col h-full max-h-full transition-all duration-200 ${
+        isOver && id === KHO_SENTINEL ? 'opacity-80 scale-[1.02]' : ''
       }`}
     >
       {/* Column header */}
-      <div className="flex flex-col border-b border-border/30 shrink-0">
+      <header className="mb-3 flex flex-col shrink-0 rounded-md border border-panel-border bg-panel backdrop-blur-sm">
         <div className="flex items-center justify-between px-4 py-3">
-          <h2 className={`font-display font-semibold text-sm tracking-wide flex items-center gap-2 ${!isKho ? 'text-primary glow-cyan-text' : 'text-foreground'}`}>
+          <h2 className="text-sm font-semibold tracking-wide text-foreground flex items-center gap-2">
             {isKho ? (
-              <div className="w-6 h-6 rounded bg-muted/15 flex items-center justify-center">
+              <div className="flex size-7 items-center justify-center rounded-md border border-border bg-white/5 text-muted-foreground">
                 <svg className="w-3.5 h-3.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
             ) : (
-              <div className="w-6 h-6 rounded bg-primary/15 border border-primary/20 flex items-center justify-center">
+              <div className="flex size-7 items-center justify-center rounded-md border border-cyan/40 bg-cyan/10 font-semibold text-cyan">
                 <span className="text-primary text-[10px] font-bold">
                   {label.charAt(0).toUpperCase()}
                 </span>
@@ -306,32 +307,23 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
           </div>
         </div>
 
-        {/* Quick Search for Kho chung */}
-        {isKho && accounts.length > 5 && (
-          <div className="px-3 pb-2.5">
-            <div className="relative">
-              <input
-                type="text"
-                value={khoSearch}
-                onChange={(e) => setKhoSearch(e.target.value)}
-                placeholder="Lọc nhanh acc trong kho..."
-                className="w-full rounded-md border border-border bg-card/90 px-2.5 py-1 pl-7 text-[11px] text-foreground placeholder-muted-foreground/40 focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
-              />
-              <svg className="w-3 h-3 absolute left-2 top-2 text-muted-foreground/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              {khoSearch && (
-                <button
-                  onClick={() => setKhoSearch('')}
-                  className="absolute right-2 top-1.5 text-muted-foreground/40 hover:text-foreground text-[10px]"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+        {/* warehouse filter */}
+      </header>
+
+      {isKho ? (
+        <div className="mb-3 flex items-center gap-2 rounded-md border border-panel-border bg-panel px-3 py-2">
+          <Search className="size-4 text-muted-foreground" />
+          <input
+            placeholder="Lọc nhanh acc trong kho..."
+            value={khoSearch}
+            onChange={(e) => setKhoSearch(e.target.value)}
+            className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
+          />
+          {khoSearch && (
+            <button onClick={() => setKhoSearch('')} className="text-muted-foreground/60 hover:text-foreground text-[10px]">✕</button>
+          )}
+        </div>
+      ) : null}
 
       {/* Card list */}
       <div className="flex flex-col gap-2.5 p-3 overflow-y-auto min-h-0 flex-1 scrollbar-thin pb-6">
