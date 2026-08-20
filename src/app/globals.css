@@ -134,6 +134,12 @@
       transparent 8px,
       transparent 16px
     );
+    background-size: 22.6px 22.6px;
+    animation: hazard-scroll 2s linear infinite;
+  }
+  @keyframes hazard-scroll {
+    from { background-position: 0 0; }
+    to { background-position: 22.6px 0; }
   }
   .hazard-danger {
     --hazard-color: oklch(0.66 0.2 25 / 22%);
