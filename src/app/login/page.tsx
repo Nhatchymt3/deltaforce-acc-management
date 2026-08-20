@@ -32,14 +32,14 @@ export default async function LoginPage({
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-6 text-foreground">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brass/30 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
       <form action={signIn} className="w-full max-w-sm space-y-5 rounded-xl border border-border bg-card p-7">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground tracking-wide">DF<span className="text-primary">△</span></h1>
           <p className="mt-1 text-xs text-muted-foreground">Đăng nhập bằng mật khẩu dùng chung.</p>
         </div>
         {errorMessage && (
-          <div role="alert" className="flex items-center gap-2 rounded-lg border border-signal-red/30 bg-signal-red/10 px-3 py-2.5 text-xs text-red-300">
+          <div role="alert" className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-xs text-destructive">
             <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
