@@ -225,7 +225,7 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
 
           // Extract original days from tag label (e.g. 'BAN 23 NGÀY') if present
           let originalDaysMatch = account.tag_label.match(/(\d+)\s*ngày/i);
-          let totalDurationMs = originalDaysMatch
+          let totalDurationMs = originalDaysMatch && originalDaysMatch[1]
             ? parseInt(originalDaysMatch[1], 10) * 24 * 60 * 60 * 1000
             : (account.created_at ? expires - new Date(account.created_at).getTime() : expires - now);
 
