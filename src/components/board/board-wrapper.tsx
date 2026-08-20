@@ -4,6 +4,8 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Board } from '@/components/board/board';
 import dynamic from 'next/dynamic';
+import { createPortal } from 'react-dom';
+import { Activity, Radio, ShieldAlert } from 'lucide-react';
 
 const AccountModal = dynamic(() => import('@/components/account/account-modal').then(mod => mod.AccountModal), { ssr: false });
 const CreateAccountForm = dynamic(() => import('@/components/account/create-account-form').then(mod => mod.CreateAccountForm), { ssr: false });
@@ -139,8 +141,45 @@ export function BoardWrapper({
     router.refresh();
   }, [router]);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  const stats = useMemo(() => {
+    const dangCay = accounts.filter(a => a.status === 'dang_cay').length;
+    const daGiao = accounts.filter(a => a.status === 'da_giao_cho_ben_thu').length;
+    const canhBao = accounts.filter(a => !!a.tag_label && a.tag_label.toLowerCase().includes('ban')).length;
+    return { dangCay, daGiao, canhBao };
+  }, [accounts]);
+
   return (
     <>
+      {mounted && document.getElementById('header-stats-portal') && createPortal(
+        <>
+          <div className="clip-notch flex items-center gap-2.5 border border-cyan/40 text-cyan bg-background/70 px-3.5 py-2 backdrop-blur-sm">
+            <Activity className="size-4" />
+            <div className="leading-none">
+              <p className="font-mono text-lg font-bold">{stats.dangCay}</p>
+              <p className="mt-0.5 text-[9px] uppercase tracking-widest text-muted-foreground">Đang cày</p>
+            </div>
+          </div>
+          <div className="clip-notch flex items-center gap-2.5 border border-gold/40 text-gold bg-background/70 px-3.5 py-2 backdrop-blur-sm">
+            <Radio className="size-4" />
+            <div className="leading-none">
+              <p className="font-mono text-lg font-bold">{stats.daGiao}</p>
+              <p className="mt-0.5 text-[9px] uppercase tracking-widest text-muted-foreground">Đã giao</p>
+            </div>
+          </div>
+          <div className="clip-notch flex items-center gap-2.5 border border-danger/50 text-danger bg-background/70 px-3.5 py-2 backdrop-blur-sm">
+            <ShieldAlert className="size-4" />
+            <div className="leading-none">
+              <p className="font-mono text-lg font-bold">{stats.canhBao}</p>
+              <p className="mt-0.5 text-[9px] uppercase tracking-widest text-muted-foreground">Cảnh báo</p>
+            </div>
+          </div>
+        </>,
+        document.getElementById('header-stats-portal')!
+      )}
+
       {/* Floating "Thêm acc" FAB */}
       <button
         onClick={() => setShowCreate(true)}

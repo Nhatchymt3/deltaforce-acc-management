@@ -95,6 +95,8 @@ export function AppShell({ children }: AppShellProps) {
               </div>
             </Link>
           </div>
+          {/* live readout portal */}
+          <div id="header-stats-portal" className="hidden items-center gap-3 md:flex" />
         </div>
       </header>
 
