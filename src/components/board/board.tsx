@@ -162,7 +162,7 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
       role="button"
       tabIndex={0}
       aria-label={`Account ${account.username}`}
-      className={`group relative overflow-hidden rounded-lg border transition-all duration-200 select-none cursor-pointer shrink-0 hover:border-primary/30 hover:bg-primary/10 border-primary/40 ${
+      className={`group relative overflow-hidden sci-fi-clip-sm border transition-all duration-200 select-none cursor-pointer shrink-0 hover:border-primary/30 hover:bg-primary/10 border-primary/40 ${
         isDragging
           ? 'border-primary/50 bg-card opacity-60 scale-105 rotate-1'
           : disabled
@@ -261,7 +261,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
   return (
     <div
       ref={setNodeRef}
-      className={`w-[300px] shrink-0 flex flex-col rounded-xl border transition-all duration-200 h-full max-h-full ${
+      className={`w-[300px] shrink-0 flex flex-col sci-fi-clip border transition-all duration-200 h-full max-h-full ${
         isOver && id === KHO_SENTINEL
           ? 'border-primary/40 bg-primary/5'
           : isKho
@@ -689,7 +689,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           {toasts.map((t) => (
             <div
               key={t.id}
-              className={`relative overflow-hidden rounded-xl border px-4 py-3 pr-10 shadow-2xl backdrop-blur-xl min-w-[300px] animate-[slideInRight_0.3s_ease-out] ${
+              className={`relative overflow-hidden sci-fi-clip border px-4 py-3 pr-10 shadow-2xl backdrop-blur-xl min-w-[300px] animate-[slideInRight_0.3s_ease-out] ${
                 t.kind === 'error'
                   ? 'border-red-500/30 bg-red-950/60 text-red-200'
                   : 'border-green-500/30 bg-emerald-950/60 text-emerald-200'
@@ -732,7 +732,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Tìm username, AE..."
-              className="w-full rounded-lg border border-border/50 bg-card/90 px-3 py-1.5 pl-8 text-xs text-foreground placeholder-muted-foreground/50 focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
+              className="w-full sci-fi-clip-sm border border-border/50 bg-card/90 px-3 py-1.5 pl-8 text-xs text-foreground placeholder-muted-foreground/50 focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all"
             />
             <svg className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -808,7 +808,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
           createPortal(
             <DragOverlay>
               {activeAccount && (
-                <div className="rotate-1 rounded-lg border border-primary/40 bg-card p-3 shadow-2xl opacity-90">
+                <div className="rotate-1 sci-fi-clip-sm border border-primary/40 bg-card p-3 shadow-2xl opacity-90">
                   <h3 className="font-mono font-semibold text-foreground text-sm">{activeAccount.username}</h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     {activeAccount.sourceName ?? activeAccount.source}
@@ -824,7 +824,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
       {showLeaderboard && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/70" onClick={() => setShowLeaderboard(false)} />
-          <div className="relative z-10 w-full max-w-md rounded-xl border border-border/50 bg-card p-5 shadow-2xl space-y-4">
+          <div className="relative z-10 w-full max-w-md sci-fi-clip border border-border/50 bg-card p-5 shadow-2xl space-y-4">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div className="flex items-center gap-2.5">
@@ -860,7 +860,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
                   return (
                     <div
                       key={item.name}
-                      className={`flex items-center justify-between rounded-lg border px-3.5 py-2.5 transition-all ${
+                      className={`flex items-center justify-between sci-fi-clip-sm border px-3.5 py-2.5 transition-all ${
                         isTop1
                           ? 'border-primary/50 bg-primary/15'
                           : isTop2
@@ -912,7 +912,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               </Link>
               <button
                 onClick={() => setShowLeaderboard(false)}
-                className="rounded-lg border border-border bg-background px-3.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="sci-fi-clip-sm border border-border bg-background px-3.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 Đóng
               </button>

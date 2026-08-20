@@ -10,14 +10,11 @@
 html { height: 100%; }
 body { margin: 0; height: 100%; @apply bg-background text-foreground; }
 
-/* ─── Sci-Fi Grid Background ──────────────────── */
+/* ─── Sci-Fi Dot Grid Background ──────────────────── */
 .stars-bg {
   background-color: hsl(var(--background));
-  background-image:
-    linear-gradient(hsla(var(--primary) / 0.15) 1px, transparent 1px),
-    linear-gradient(90deg, hsla(var(--primary) / 0.15) 1px, transparent 1px);
-  background-size: 40px 40px;
-  background-position: center center;
+  background-image: radial-gradient(circle at 2px 2px, hsla(var(--primary)/0.15) 1px, transparent 0);
+  background-size: 32px 32px;
 }
 
 /* ─── Scrollbar ────────────────────────────────────────────── */
@@ -77,69 +74,57 @@ body { margin: 0; height: 100%; @apply bg-background text-foreground; }
 
 @layer base {
   :root {
-    --background: 210 50% 6%;
-    --foreground: 190 20% 90%;
-    --card: 210 40% 11%;
-    --card-foreground: 190 20% 90%;
-    --popover: 210 40% 11%;
-    --popover-foreground: 190 20% 90%;
+    --background: 211 40% 6%;
+    --foreground: 210 20% 85%;
+    
+    --card: 211 30% 12%;
+    --card-foreground: 210 20% 85%;
+    
+    --popover: 211 30% 12%;
+    --popover-foreground: 210 20% 85%;
     
     /* Neon Cyan */
-    --primary: 175 100% 45%; 
-    --primary-foreground: 210 50% 6%;
+    --primary: 180 100% 50%;
+    --primary-foreground: 211 40% 6%;
     
-    /* Subtle blue-gray for secondary */
-    --secondary: 210 30% 18%;
-    --secondary-foreground: 190 20% 90%;
+    --secondary: 211 20% 20%;
+    --secondary-foreground: 210 20% 85%;
     
-    --muted: 210 30% 18%;
-    --muted-foreground: 190 15% 60%;
+    --muted: 211 20% 20%;
+    --muted-foreground: 211 15% 55%;
     
-    /* Hover accent */
-    --accent: 175 100% 45% / 0.15;
-    --accent-foreground: 175 100% 55%;
+    --accent: 180 100% 50% / 0.1;
+    --accent-foreground: 180 100% 50%;
     
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 0 0% 100%;
     
-    --border: 210 30% 20%;
-    --input: 210 30% 20%;
+    --border: 211 25% 25%;
+    --input: 211 25% 25%;
     
-    /* Glowing ring */
-    --ring: 175 100% 45%;
-    --radius: 0.75rem;
+    --ring: 180 100% 50%;
+    --radius: 0.5rem;
   }
   .dark {
-    --background: 210 50% 6%;
-    --foreground: 190 20% 90%;
-    --card: 210 40% 11%;
-    --card-foreground: 190 20% 90%;
-    --popover: 210 40% 11%;
-    --popover-foreground: 190 20% 90%;
-    
-    /* Neon Cyan */
-    --primary: 175 100% 45%; 
-    --primary-foreground: 210 50% 6%;
-    
-    /* Subtle blue-gray for secondary */
-    --secondary: 210 30% 18%;
-    --secondary-foreground: 190 20% 90%;
-    
-    --muted: 210 30% 18%;
-    --muted-foreground: 190 15% 60%;
-    
-    /* Hover accent */
-    --accent: 175 100% 45% / 0.15;
-    --accent-foreground: 175 100% 55%;
-    
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    
-    --border: 210 30% 20%;
-    --input: 210 30% 20%;
-    
-    /* Glowing ring */
-    --ring: 175 100% 45%;
+    --background: 211 40% 6%;
+    --foreground: 210 20% 85%;
+    --card: 211 30% 12%;
+    --card-foreground: 210 20% 85%;
+    --popover: 211 30% 12%;
+    --popover-foreground: 210 20% 85%;
+    --primary: 180 100% 50%;
+    --primary-foreground: 211 40% 6%;
+    --secondary: 211 20% 20%;
+    --secondary-foreground: 210 20% 85%;
+    --muted: 211 20% 20%;
+    --muted-foreground: 211 15% 55%;
+    --accent: 180 100% 50% / 0.1;
+    --accent-foreground: 180 100% 50%;
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 211 25% 25%;
+    --input: 211 25% 25%;
+    --ring: 180 100% 50%;
   }
 }
 
@@ -154,12 +139,35 @@ body { margin: 0; height: 100%; @apply bg-background text-foreground; }
 
 @layer utilities {
   .glass-panel {
-    @apply bg-card/80 backdrop-blur-md border border-border shadow-[0_4px_20px_-4px_hsla(var(--primary)/0.1)];
+    @apply bg-gradient-to-br from-card to-background border border-border/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_4px_15px_-4px_rgba(0,0,0,0.5)];
   }
   .glow-cyan {
-    @apply shadow-[0_0_15px_hsla(var(--primary)/0.4)];
+    @apply shadow-[0_0_15px_hsla(var(--primary)/0.5)];
   }
   .glow-cyan-text {
-    @apply drop-shadow-[0_0_8px_hsla(var(--primary)/0.6)];
+    @apply drop-shadow-[0_0_6px_hsla(var(--primary)/0.7)];
+  }
+}
+
+@layer utilities {
+  .sci-fi-clip {
+    clip-path: polygon(
+      0 0, 
+      calc(100% - 12px) 0, 
+      100% 12px, 
+      100% 100%, 
+      12px 100%, 
+      0 calc(100% - 12px)
+    );
+  }
+  .sci-fi-clip-sm {
+    clip-path: polygon(
+      0 0, 
+      calc(100% - 8px) 0, 
+      100% 8px, 
+      100% 100%, 
+      8px 100%, 
+      0 calc(100% - 8px)
+    );
   }
 }
