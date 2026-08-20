@@ -31,8 +31,8 @@ const STATUS_LABELS: Record<Account['status'], string> = {
 };
 
 const STATUS_COLORS: Record<Account['status'], { bg: string; border: string; text: string }> = {
-  kho: { bg: 'bg-ash/15', border: 'border-ash/30', text: 'text-ash' },
-  dang_cay: { bg: 'bg-brass/15', border: 'border-brass/30', text: 'text-brass' },
+  kho: { bg: 'bg-muted/15', border: 'border-ash/30', text: 'text-muted-foreground' },
+  dang_cay: { bg: 'bg-primary/15', border: 'border-brass/30', text: 'text-brass' },
   done: { bg: 'bg-od-green/20', border: 'border-od-green/40', text: 'text-emerald-300' },
   da_giao_cho_ben_thu: { bg: 'bg-amber-500/15', border: 'border-amber-500/30', text: 'text-amber-300' },
   da_nhan_tien: { bg: 'bg-green-500/15', border: 'border-green-500/30', text: 'text-green-300' },
@@ -98,14 +98,14 @@ function TimelineRow({
   const done = !!time;
   return (
     <div className={`flex items-center gap-3 ${done ? '' : 'opacity-40'}`}>
-      <div className={`w-8 h-8 shrink-0 rounded-full border flex items-center justify-center ${done ? c.dot : 'bg-white/5 text-slate-500 border-white/10'}`}>
+      <div className={`w-8 h-8 shrink-0 rounded-full border flex items-center justify-center ${done ? c.dot : 'bg-white/5 text-muted-foreground border-white/10'}`}>
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon} />
         </svg>
       </div>
       <div className="flex-1 flex items-center justify-between">
-        <span className={`text-sm font-medium ${done ? 'text-white' : 'text-slate-500'}`}>{label}</span>
-        <span className={`text-xs ${done ? c.line : 'text-slate-600'}`}>
+        <span className={`text-sm font-medium ${done ? 'text-white' : 'text-muted-foreground'}`}>{label}</span>
+        <span className={`text-xs ${done ? c.line : 'text-muted-foreground'}`}>
           {done ? formatDate(time) : 'Chưa có'}
         </span>
       </div>
@@ -155,8 +155,8 @@ function CopyButton({ text, label, onCopy }: { text: string; label: string; onCo
       onClick={handleCopy}
       className={`rounded p-1 transition-all duration-200 ${
         copied
-          ? 'bg-brass/20 text-brass'
-          : 'text-ash hover:text-white hover:bg-white/5'
+          ? 'bg-primary/20 text-brass'
+          : 'text-muted-foreground hover:text-white hover:bg-white/5'
       }`}
       title={`Copy ${label}`}
     >
@@ -192,8 +192,8 @@ function CredentialField({ label, value, isPassword = false, onSave }: Credentia
 
   if (editing && onSave) {
     return (
-      <div className="rounded-lg border border-brass/40 bg-midnight p-2.5 space-y-1.5 min-w-0">
-        <div className="text-[11px] font-medium uppercase tracking-wide text-ash">
+      <div className="rounded-lg border border-brass/40 bg-background p-2.5 space-y-1.5 min-w-0">
+        <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           {label}
         </div>
         <div className="flex items-center gap-1.5 min-w-0">
@@ -218,7 +218,7 @@ function CredentialField({ label, value, isPassword = false, onSave }: Credentia
               }
             }}
             disabled={loading}
-            className="shrink-0 rounded bg-brass px-2 py-1 text-xs font-bold text-midnight hover:bg-brass/90 disabled:opacity-50 transition-colors"
+            className="shrink-0 rounded bg-primary px-2 py-1 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
           >
             {loading ? '...' : 'Lưu'}
           </button>
@@ -227,7 +227,7 @@ function CredentialField({ label, value, isPassword = false, onSave }: Credentia
               setEditVal(value);
               setEditing(false);
             }}
-            className="shrink-0 rounded border border-white/[0.06] bg-midnight px-1.5 py-1 text-xs text-ash hover:text-white transition-colors"
+            className="shrink-0 rounded border border-white/[0.06] bg-background px-1.5 py-1 text-xs text-muted-foreground hover:text-white transition-colors"
           >
             Hủy
           </button>
@@ -237,8 +237,8 @@ function CredentialField({ label, value, isPassword = false, onSave }: Credentia
   }
 
   return (
-    <div className="rounded-lg border border-white/[0.04] bg-midnight/50 p-3 group/cred">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-ash mb-1.5 flex items-center justify-between">
+    <div className="rounded-lg border border-white/[0.04] bg-background/50 p-3 group/cred">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-1.5 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           {isPassword ? (
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,7 +257,7 @@ function CredentialField({ label, value, isPassword = false, onSave }: Credentia
               setEditVal(value);
               setEditing(true);
             }}
-            className="text-ash hover:text-brass opacity-60 group-hover/cred:opacity-100 transition-opacity p-0.5"
+            className="text-muted-foreground hover:text-brass opacity-60 group-hover/cred:opacity-100 transition-opacity p-0.5"
             title={`Sửa ${label.toLowerCase()}`}
           >
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -267,8 +267,8 @@ function CredentialField({ label, value, isPassword = false, onSave }: Credentia
         )}
       </div>
       <div className="flex items-center justify-between gap-3">
-        <span className={`font-mono text-xs ${isPassword && !visible ? 'tracking-widest' : 'text-gray-200'} transition-all duration-200`}>
-          {displayValue || <span className="text-ash/40 italic">Chưa nhập</span>}
+        <span className={`font-mono text-xs ${isPassword && !visible ? 'tracking-widest' : 'text-foreground'} transition-all duration-200`}>
+          {displayValue || <span className="text-muted-foreground/40 italic">Chưa nhập</span>}
         </span>
         <div className="flex items-center gap-1">
           <CopyButton text={value} label={label} onCopy={() => {}} />
@@ -277,8 +277,8 @@ function CredentialField({ label, value, isPassword = false, onSave }: Credentia
               onClick={() => setVisible(!visible)}
               className={`rounded p-1 transition-all duration-200 ${
                 visible
-                  ? 'bg-brass/20 text-brass'
-                  : 'text-ash hover:text-white'
+                  ? 'bg-primary/20 text-brass'
+                  : 'text-muted-foreground hover:text-white'
               }`}
               title={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
             >
@@ -318,14 +318,14 @@ function MilestoneBadge({
 
   if (editing) {
     return (
-      <div className="flex flex-col gap-2 rounded-lg border border-brass/40 bg-midnight p-2">
+      <div className="flex flex-col gap-2 rounded-lg border border-brass/40 bg-background p-2">
         <div className="flex items-center gap-1.5">
           <input
             type="number"
             value={level}
             onChange={(e) => setLevel(e.target.value)}
             placeholder="Lv"
-            className="w-14 rounded border border-white/[0.06] bg-midnight px-2 py-0.5 text-xs text-white font-mono focus:outline-none"
+            className="w-14 rounded border border-white/[0.06] bg-background px-2 py-0.5 text-xs text-white font-mono focus:outline-none"
           />
           <input
             type="number"
@@ -333,7 +333,7 @@ function MilestoneBadge({
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="Tiền"
-            className="w-20 rounded border border-white/[0.06] bg-midnight px-2 py-0.5 text-xs text-white font-mono focus:outline-none"
+            className="w-20 rounded border border-white/[0.06] bg-background px-2 py-0.5 text-xs text-white font-mono focus:outline-none"
           />
           <button
             onClick={async () => {
@@ -349,7 +349,7 @@ function MilestoneBadge({
               }
             }}
             disabled={loading || !level || !price}
-            className="rounded bg-brass px-2.5 py-0.5 text-xs font-semibold text-midnight hover:bg-brass/90 disabled:opacity-50 transition-colors"
+            className="rounded bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
           >
             {loading ? '...' : 'Lưu'}
           </button>
@@ -360,7 +360,7 @@ function MilestoneBadge({
               setNote(milestone.note ?? '');
               setEditing(false);
             }}
-            className="rounded border border-white/[0.06] px-2 py-0.5 text-xs text-ash hover:text-white transition-colors"
+            className="rounded border border-white/[0.06] px-2 py-0.5 text-xs text-muted-foreground hover:text-white transition-colors"
           >
             Hủy
           </button>
@@ -370,7 +370,7 @@ function MilestoneBadge({
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Chú thích / Ghi chú..."
-          className="w-full rounded border border-white/[0.06] bg-midnight px-2 py-1 text-xs text-white placeholder-ash/40 focus:outline-none focus:border-brass/40"
+          className="w-full rounded border border-white/[0.06] bg-background px-2 py-1 text-xs text-white placeholder-ash/40 focus:outline-none focus:border-brass/40"
         />
       </div>
     );
@@ -380,14 +380,14 @@ function MilestoneBadge({
     <div
       className={`flex items-center justify-between rounded-lg border px-3 py-2 text-xs transition-all duration-200 group/badge ${
         isTarget
-          ? 'border-brass/40 bg-brass/10'
-          : 'border-white/[0.04] bg-midnight/50'
+          ? 'border-brass/40 bg-primary/10'
+          : 'border-white/[0.04] bg-background/50'
       }`}
     >
       <div className="flex flex-col min-w-0 pr-2">
         <div className="flex items-center gap-2">
           {isTarget && (
-            <div className="w-4 h-4 rounded-full bg-brass/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
               <svg className="w-2.5 h-2.5 text-brass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
@@ -409,7 +409,7 @@ function MilestoneBadge({
         )}
         <button
           onClick={() => setEditing(true)}
-          className="rounded p-1 text-ash hover:text-white hover:bg-white/10 opacity-60 group-hover/badge:opacity-100 transition-all"
+          className="rounded p-1 text-muted-foreground hover:text-white hover:bg-white/10 opacity-60 group-hover/badge:opacity-100 transition-all"
           title="Chỉnh sửa mốc & chú thích"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -833,14 +833,14 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                     </div>
                     <h3 className="text-base font-bold text-white">Xóa tài khoản?</h3>
                   </div>
-                  <p className="text-sm text-slate-400 mb-5">
-                    Tài khoản <span className="font-semibold text-slate-200">{account.username}</span> cùng toàn bộ mốc level, lịch sử và ảnh sẽ bị xóa vĩnh viễn. Không thể hoàn tác.
+                  <p className="text-sm text-muted-foreground mb-5">
+                    Tài khoản <span className="font-semibold text-foreground">{account.username}</span> cùng toàn bộ mốc level, lịch sử và ảnh sẽ bị xóa vĩnh viễn. Không thể hoàn tác.
                   </p>
                   <div className="flex justify-end gap-2">
                     <button
                       onClick={() => setConfirmDelete(false)}
                       disabled={deleting}
-                      className="rounded-xl border border-white/10 px-4 py-2 text-sm text-slate-300 hover:bg-white/5 disabled:opacity-50 transition-all"
+                      className="rounded-xl border border-white/10 px-4 py-2 text-sm text-muted-foreground hover:bg-white/5 disabled:opacity-50 transition-all"
                     >
                       Hủy
                     </button>
@@ -867,17 +867,17 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
               <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-black/80 backdrop-blur-md p-6">
                 <div className="w-full max-w-sm rounded-2xl border border-brass/40 bg-gunmetal p-6 shadow-2xl space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-brass/20 border border-brass/30 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-primary/20 border border-brass/30 flex items-center justify-center">
                       <span className="text-brass text-lg font-bold">🎮</span>
                     </div>
                     <div>
                       <h3 className="text-base font-bold text-white">Xác nhận Hoàn tất (Done)</h3>
-                      <p className="text-xs text-ash">Vui lòng nhập UUID Game của tài khoản</p>
+                      <p className="text-xs text-muted-foreground">Vui lòng nhập UUID Game của tài khoản</p>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block mb-1.5 text-xs font-medium uppercase tracking-wide text-ash">
+                    <label className="block mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                       UUID Game <span className="text-signal-red">*</span>
                     </label>
                     <input
@@ -887,7 +887,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                       onKeyDown={(e) => e.key === 'Enter' && void submitDoneWithUuid()}
                       placeholder="Dán UUID Game vào đây..."
                       autoFocus
-                      className="w-full rounded-lg border border-brass/40 bg-midnight px-3 py-2 text-xs text-white placeholder-ash/40 font-mono focus:outline-none focus:ring-1 focus:ring-brass/30"
+                      className="w-full rounded-lg border border-brass/40 bg-background px-3 py-2 text-xs text-white placeholder-ash/40 font-mono focus:outline-none focus:ring-1 focus:ring-brass/30"
                     />
                   </div>
 
@@ -904,14 +904,14 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                         setError(null);
                       }}
                       disabled={actionLoading === 'done'}
-                      className="rounded-lg border border-white/[0.06] bg-midnight px-4 py-2 text-xs text-ash hover:text-white transition-colors"
+                      className="rounded-lg border border-white/[0.06] bg-background px-4 py-2 text-xs text-muted-foreground hover:text-white transition-colors"
                     >
                       Hủy
                     </button>
                     <button
                       onClick={() => void submitDoneWithUuid()}
                       disabled={actionLoading === 'done' || !doneGameUuid.trim()}
-                      className="flex items-center gap-1.5 rounded-lg bg-brass px-4 py-2 text-xs font-bold text-midnight hover:bg-brass/90 disabled:opacity-40 transition-all shadow-md shadow-brass/20"
+                      className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-40 transition-all shadow-md shadow-brass/20"
                     >
                       {actionLoading === 'done' ? 'Đang lưu...' : 'Lưu & Bấm Done'}
                     </button>
@@ -923,7 +923,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded bg-brass/20 border border-brass/30 flex items-center justify-center">
+                <div className="w-8 h-8 rounded bg-primary/20 border border-brass/30 flex items-center justify-center">
                   <span className="text-base font-bold text-brass">
                     {account.username.charAt(0).toUpperCase()}
                   </span>
@@ -931,17 +931,17 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                 <div>
                   <h2 className="font-display text-base font-bold text-white tracking-wide">{account.username}</h2>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-ash flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-brass inline-block" />
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
                       {account.sourceName ?? account.source}
                     </span>
                     {account.added_by && (
-                      <span className="text-xs text-ash">
-                        • Thêm bởi: <strong className="text-gray-200 font-medium">{account.added_by}</strong>
+                      <span className="text-xs text-muted-foreground">
+                        • Thêm bởi: <strong className="text-foreground font-medium">{account.added_by}</strong>
                       </span>
                     )}
                     {account.created_at && (
-                      <span className="text-xs text-slate-500 font-mono">
+                      <span className="text-xs text-muted-foreground font-mono">
                         • {new Date(account.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                       </span>
                     )}
@@ -954,7 +954,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  className="rounded-lg p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                  className="rounded-lg p-2 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all"
                   aria-label="Xóa tài khoản"
                   title="Xóa tài khoản"
                 >
@@ -964,7 +964,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                 </button>
                 <button
                   onClick={onClose}
-                  className="rounded-lg p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                  className="rounded-lg p-2 text-muted-foreground hover:text-white hover:bg-white/10 transition-all"
                   aria-label="Đóng"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -993,7 +993,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                   className={`px-4 py-3 text-sm font-medium transition-all relative ${
                     tab === t
                       ? 'text-cyan-400'
-                      : 'text-slate-500 hover:text-slate-300'
+                      : 'text-muted-foreground hover:text-muted-foreground'
                   }`}
                 >
                   {tab === t && (
@@ -1051,14 +1051,14 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
 
                   {/* Milestones */}
                   <section>
-                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
                       Mốc Level
                     </h3>
                     {sortedMilestones.length === 0 ? (
-                      <p className="text-sm text-slate-600 py-4 text-center">Chưa có mốc nào.</p>
+                      <p className="text-sm text-muted-foreground py-4 text-center">Chưa có mốc nào.</p>
                     ) : (
                       <div className="grid gap-2 sm:grid-cols-2">
                         {sortedMilestones.map((m) => (
@@ -1082,7 +1082,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
 
                   {/* Incident Tag */}
                   <section className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
                       <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                       </svg>
@@ -1107,7 +1107,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                             <span className="text-base">{isBan ? '🚫' : '⚠️'}</span>
                             <div>
                               <span className="font-bold text-white text-sm">{account.tag_label}</span>
-                              <p className="text-xs text-slate-400">
+                              <p className="text-xs text-muted-foreground">
                                 Hạn còn: <strong className="text-cyan-300 font-mono">{daysLeft} ngày {hoursLeft} giờ</strong>
                               </p>
                             </div>
@@ -1180,7 +1180,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
 
                       {/* Custom Days Input */}
                       <div className="pt-2.5 border-t border-white/5 flex flex-wrap items-center gap-2">
-                        <span className="text-[11px] font-medium text-slate-400">Tùy chỉnh số ngày:</span>
+                        <span className="text-[11px] font-medium text-muted-foreground">Tùy chỉnh số ngày:</span>
                         <input
                           type="number"
                           min="1"
@@ -1231,7 +1231,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
 
                   {/* Images */}
                   <section>
-                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
@@ -1265,7 +1265,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
 
                     {/* Uploaded gallery */}
                     {imagesLoading ? (
-                      <p className="text-sm text-slate-600 py-4 text-center">Đang tải ảnh…</p>
+                      <p className="text-sm text-muted-foreground py-4 text-center">Đang tải ảnh…</p>
                     ) : images.length > 0 ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
                         {images.map((img) => (
@@ -1300,7 +1300,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                         ))}
                       </div>
                     ) : staged.length === 0 ? (
-                      <p className="text-sm text-slate-600 py-2">Chưa có ảnh nào.</p>
+                      <p className="text-sm text-muted-foreground py-2">Chưa có ảnh nào.</p>
                     ) : null}
 
                     {/* Staged previews (not yet uploaded) */}
@@ -1317,7 +1317,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                               <button
                                 onClick={() => handleUnstage(s.id)}
                                 disabled={uploading}
-                                className="absolute top-1.5 right-1.5 rounded-lg bg-black/60 backdrop-blur-sm p-1.5 text-slate-200 hover:bg-red-500/30 hover:text-red-300 disabled:opacity-50 transition-all"
+                                className="absolute top-1.5 right-1.5 rounded-lg bg-black/60 backdrop-blur-sm p-1.5 text-foreground hover:bg-red-500/30 hover:text-red-300 disabled:opacity-50 transition-all"
                                 title="Bỏ ảnh này"
                               >
                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1332,7 +1332,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
 
                     {/* Actions: add + confirm */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2 text-sm text-slate-400 cursor-pointer hover:border-cyan-400/30 hover:text-cyan-300 hover:bg-white/[0.04] transition-all">
+                      <label className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2 text-sm text-muted-foreground cursor-pointer hover:border-cyan-400/30 hover:text-cyan-300 hover:bg-white/[0.04] transition-all">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
@@ -1346,7 +1346,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                           onChange={(e) => { handleStageFiles(e.target.files); e.target.value = ''; }}
                         />
                       </label>
-                      <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
@@ -1376,7 +1376,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
 
                   {/* Action buttons */}
                   <section>
-                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-2">
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
@@ -1521,7 +1521,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                   {/* Status timeline: mốc thời gian chuyển trạng thái */}
                   {(account.completed_at || account.delivered_at || account.paid_at) && (
                     <div className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Mốc thời gian
                       </h3>
                       <div className="space-y-3">
@@ -1548,7 +1548,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                   )}
 
                   {sortedSessions.length === 0 ? (
-                    <p className="text-sm text-slate-600 py-8 text-center">Chưa có lịch sử.</p>
+                    <p className="text-sm text-muted-foreground py-8 text-center">Chưa có lịch sử.</p>
                   ) : (
                     sortedSessions.map((s) => (
                       <div
@@ -1564,7 +1564,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                               s.ended_at == null
                                 ? 'bg-yellow-500/20 text-yellow-300'
-                                : 'bg-white/10 text-slate-400'
+                                : 'bg-white/10 text-muted-foreground'
                             }`}>
                               {s.holder_name.charAt(0).toUpperCase()}
                             </div>
@@ -1576,7 +1576,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-4 text-xs text-slate-500">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <span>{formatDate(s.started_at)}</span>
                           {s.ended_at && (
                             <>
@@ -1588,15 +1588,15 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                           )}
                         </div>
                         {s.duration_seconds != null && (
-                          <div className="mt-1.5 flex items-center gap-2 text-xs text-slate-500">
+                          <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span>Thời gian: <span className="text-slate-300">{formatDuration(s.duration_seconds)}</span></span>
+                            <span>Thời gian: <span className="text-muted-foreground">{formatDuration(s.duration_seconds)}</span></span>
                             {s.handed_to && (
                               <>
                                 <span>·</span>
-                                <span>Giao cho <span className="text-slate-300">{s.handed_to}</span></span>
+                                <span>Giao cho <span className="text-muted-foreground">{s.handed_to}</span></span>
                               </>
                             )}
                           </div>
@@ -1627,7 +1627,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
               </div>
               <div>
                 <h3 className="text-base font-bold text-white">Xác thực Admin</h3>
-                <p className="text-xs text-slate-400">Nhập mật khẩu để hoàn tác trạng thái</p>
+                <p className="text-xs text-muted-foreground">Nhập mật khẩu để hoàn tác trạng thái</p>
               </div>
             </div>
 
@@ -1647,7 +1647,7 @@ async function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, qual
                 <button
                   type="button"
                   onClick={() => { setPwModalTarget(null); setAdminPasswordInput(''); }}
-                  className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/10 transition-all"
+                  className="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-medium text-muted-foreground hover:bg-white/10 transition-all"
                 >
                   Hủy
                 </button>

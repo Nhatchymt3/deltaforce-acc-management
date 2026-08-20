@@ -75,14 +75,14 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
       {/* Summary cards */}
       <div className="mb-6 grid gap-4 sm:grid-cols-2">
         <div className="rounded-xl border border-white/[0.06] bg-gunmetal p-4">
-          <p className="text-xs uppercase tracking-wide text-ash mb-1">Tổng acc hiển thị</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Tổng acc hiển thị</p>
           <p className="font-mono text-xl font-bold text-white">
             {filteredAccounts.length}{' '}
-            <span className="text-xs font-normal text-ash/60">/ {accounts.length}</span>
+            <span className="text-xs font-normal text-muted-foreground/60">/ {accounts.length}</span>
           </p>
         </div>
         <div className="rounded-xl border border-brass/30 bg-gunmetal p-4">
-          <p className="text-xs uppercase tracking-wide text-ash mb-1">Tổng tiền thu về</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">Tổng tiền thu về</p>
           <p className="font-mono text-xl font-bold text-brass">
             {formatVnd(totalReceived)}
           </p>
@@ -100,7 +100,7 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
             className="w-full rounded-lg border border-white/[0.06] bg-gunmetal px-3.5 py-2 pl-9 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
           />
           <svg
-            className="w-4 h-4 absolute left-3 top-2.5 text-ash/50"
+            className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground/50"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -143,7 +143,7 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
         <div className="overflow-x-auto overflow-y-auto max-h-[500px] scrollbar-thin">
           <table className="w-full text-sm relative">
             <thead className="sticky top-0 z-10">
-              <tr className="border-b border-white/[0.06] text-left text-ash text-xs uppercase tracking-wide bg-gunmetal shadow-[0_1px_0_rgba(255,255,255,0.06)]">
+              <tr className="border-b border-white/[0.06] text-left text-muted-foreground text-xs uppercase tracking-wide bg-gunmetal shadow-[0_1px_0_rgba(255,255,255,0.06)]">
                 <th className="px-4 py-3 font-medium">Username</th>
                 <th className="px-4 py-3 font-medium">Nguồn</th>
                 <th className="px-4 py-3 font-medium">Trạng thái</th>
@@ -155,7 +155,7 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
             <tbody>
               {filteredAccounts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-10 text-center text-ash/50">
+                  <td colSpan={6} className="py-10 text-center text-muted-foreground/50">
                     Không tìm thấy acc lưu trữ phù hợp.
                   </td>
                 </tr>
@@ -164,11 +164,11 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
                   <tr
                     key={acc.id}
                     onClick={() => setModalAccount(acc)}
-                    className="border-b border-white/[0.04] text-gray-300 hover:bg-white/[0.03] cursor-pointer transition-colors group"
+                    className="border-b border-white/[0.04] text-muted-foreground hover:bg-white/[0.03] cursor-pointer transition-colors group"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-brass/15 border border-brass/20 flex items-center justify-center">
+                        <div className="w-6 h-6 rounded bg-primary/15 border border-brass/20 flex items-center justify-center">
                           <span className="text-brass font-bold text-xs">
                             {acc.username.charAt(0).toUpperCase()}
                           </span>
@@ -178,10 +178,10 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-ash text-xs">{acc.sourceName ?? '—'}</td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs">{acc.sourceName ?? '—'}</td>
                     <td className="px-4 py-3">
-                      {acc.status === 'kho' && <span className="text-ash/60 bg-ash/10 px-2 py-0.5 rounded text-xs">Kho</span>}
-                      {acc.status === 'dang_cay' && <span className="text-brass bg-brass/10 px-2 py-0.5 rounded text-xs">Đang cày</span>}
+                      {acc.status === 'kho' && <span className="text-muted-foreground/60 bg-muted/10 px-2 py-0.5 rounded text-xs">Kho</span>}
+                      {acc.status === 'dang_cay' && <span className="text-brass bg-primary/10 px-2 py-0.5 rounded text-xs">Đang cày</span>}
                       {acc.status === 'done' && <span className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded text-xs">Done</span>}
                       {acc.status === 'da_giao_cho_ben_thu' && <span className="text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded text-xs">Đã giao</span>}
                       {acc.status === 'da_nhan_tien' && <span className="text-green-400 bg-green-400/10 px-2 py-0.5 rounded text-xs">Đã nhận tiền</span>}
@@ -189,11 +189,11 @@ export function ArchiveView({ accounts: initialAccounts, milestones, sessions }:
                     <td className="px-4 py-3 text-right font-mono font-semibold text-brass">
                       {formatVnd(Number(acc.amount_received ?? 0))}
                     </td>
-                    <td className="px-4 py-3 text-xs text-ash font-mono whitespace-nowrap">
+                    <td className="px-4 py-3 text-xs text-muted-foreground font-mono whitespace-nowrap">
                       {formatDate(acc.paid_at)}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button className="rounded p-1 text-ash hover:text-white hover:bg-white/10 transition-colors">
+                      <button className="rounded p-1 text-muted-foreground hover:text-white hover:bg-white/10 transition-colors">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />

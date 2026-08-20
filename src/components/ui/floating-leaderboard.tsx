@@ -166,13 +166,13 @@ export function FloatingLeaderboard() {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onClick={toggleModal}
-        className={`fixed top-0 left-0 z-50 flex h-13 w-13 cursor-grab active:cursor-grabbing items-center justify-center rounded-2xl border border-brass/50 bg-midnight/95 text-brass shadow-2xl shadow-brass/30 backdrop-blur-xl hover:scale-110 hover:border-brass hover:shadow-brass/50 group ${
+        className={`fixed top-0 left-0 z-50 flex h-13 w-13 cursor-grab active:cursor-grabbing items-center justify-center rounded-2xl border border-primary/50 bg-background/95 text-primary shadow-2xl shadow-brass/30 backdrop-blur-xl hover:scale-110 hover:border-primary hover:shadow-brass/50 group ${
           isDragging ? 'transition-none' : 'transition-transform duration-200'
         }`}
         title="Bảng Xếp Hạng Thu Nhập AE"
       >
         <span className="text-2xl select-none group-hover:rotate-12 transition-transform duration-300">🏆</span>
-        <span className="absolute -bottom-1.5 -right-1 flex h-4 w-7 items-center justify-center rounded-full bg-brass text-[9px] font-extrabold text-midnight tracking-wider border border-midnight shadow">
+        <span className="absolute -bottom-1.5 -right-1 flex h-4 w-7 items-center justify-center rounded-full bg-primary text-[9px] font-extrabold text-primary-foreground tracking-wider border border-background shadow">
           TOP
         </span>
       </div>
@@ -180,38 +180,38 @@ export function FloatingLeaderboard() {
       {/* Leaderboard Modal */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-lg rounded-2xl border border-white/10 bg-gradient-to-b from-gunmetal via-gunmetal to-midnight p-6 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+          <div className="relative w-full max-w-lg rounded-2xl border border-border bg-gradient-to-b from-card via-card to-background p-6 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
             {/* Ambient Background Glow */}
-            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-72 bg-brass/10 blur-[90px] rounded-full pointer-events-none" />
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-72 bg-primary/10 blur-[90px] rounded-full pointer-events-none" />
 
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5 relative z-10">
+            <div className="flex items-center justify-between border-b border-border pb-4 mb-5 relative z-10">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brass/10 border border-brass/30 text-xl shadow-inner">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/30 text-xl shadow-inner">
                   🏆
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white tracking-wider font-display uppercase">
+                  <h2 className="text-base font-bold text-foreground tracking-wider font-display uppercase">
                     BẢNG XẾP HẠNG THU NHẬP AE
                   </h2>
-                  <p className="text-[11px] text-ash/70">Thống kê từ các tài khoản đã hoàn tất thanh toán</p>
+                  <p className="text-[11px] text-muted-foreground/70">Thống kê từ các tài khoản đã hoàn tất thanh toán</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-ash hover:text-white hover:bg-white/10 transition-colors"
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
               >
                 ✕
               </button>
             </div>
 
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-3 text-ash">
-                <div className="w-8 h-8 border-2 border-brass border-t-transparent rounded-full animate-spin" />
+              <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                 <span className="text-xs tracking-wide">Đang tính toán dữ liệu...</span>
               </div>
             ) : leaderboard.length === 0 ? (
-              <div className="py-16 text-center text-ash text-xs tracking-wide">
+              <div className="py-16 text-center text-muted-foreground text-xs tracking-wide">
                 Chưa có dữ liệu tài khoản đã nhận tiền.
               </div>
             ) : (
@@ -228,15 +228,15 @@ export function FloatingLeaderboard() {
                         <span className="text-xs font-bold text-slate-100 truncate max-w-full tracking-wide">
                           {top2.holder}
                         </span>
-                        <span className="text-xs font-extrabold text-slate-300 mt-1.5 font-mono">
+                        <span className="text-xs font-extrabold text-muted-foreground mt-1.5 font-mono">
                           {formatVndString(top2.totalIncome)}
                         </span>
-                        <span className="text-[10px] text-ash/70 mt-0.5 bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
+                        <span className="text-[10px] text-muted-foreground/70 mt-0.5 bg-muted px-2 py-0.5 rounded-full border border-border">
                           {top2.accountCount} acc
                         </span>
                       </div>
                     ) : (
-                      <div className="w-full h-28 rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center text-xs text-ash/30 gap-1 bg-white/[0.01]">
+                      <div className="w-full h-28 rounded-2xl border border-dashed border-border flex flex-col items-center justify-center text-xs text-muted-foreground/30 gap-1 bg-muted/50">
                         <span className="text-lg opacity-40">🥈</span>
                         <span>--</span>
                       </div>
@@ -246,22 +246,22 @@ export function FloatingLeaderboard() {
                   {/* Hạng 1 (Vàng - Nổi bật cao hơn) */}
                   <div className="flex flex-col items-center -mt-4">
                     {top1 ? (
-                      <div className="w-full flex flex-col items-center rounded-2xl border-2 border-brass bg-gradient-to-b from-brass/25 via-brass/10 to-midnight p-4 text-center shadow-xl shadow-brass/25 hover:border-amber-300 transition-all transform hover:-translate-y-0.5">
+                      <div className="w-full flex flex-col items-center rounded-2xl border-2 border-primary bg-gradient-to-b from-brass/25 via-brass/10 to-background p-4 text-center shadow-xl shadow-brass/25 hover:border-amber-300 transition-all transform hover:-translate-y-0.5">
                         <div className="mb-2">
                           <span className="text-4xl animate-bounce-short">🥇</span>
                         </div>
-                        <span className="text-sm font-black text-brass truncate max-w-full tracking-wider uppercase font-display">
+                        <span className="text-sm font-black text-primary truncate max-w-full tracking-wider uppercase font-display">
                           {top1.holder}
                         </span>
                         <span className="text-sm font-black text-amber-300 mt-1 font-mono tracking-tight drop-shadow">
                           {formatVndString(top1.totalIncome)}
                         </span>
-                        <span className="text-[10px] font-bold text-midnight bg-brass px-2.5 py-0.5 rounded-full mt-1.5 shadow-sm">
+                        <span className="text-[10px] font-bold text-primary-foreground bg-primary px-2.5 py-0.5 rounded-full mt-1.5 shadow-sm">
                           {top1.accountCount} acc
                         </span>
                       </div>
                     ) : (
-                      <div className="w-full h-32 rounded-2xl border border-dashed border-brass/30 flex flex-col items-center justify-center text-xs text-ash/30 gap-1 bg-brass/[0.02]">
+                      <div className="w-full h-32 rounded-2xl border border-dashed border-primary/30 flex flex-col items-center justify-center text-xs text-muted-foreground/30 gap-1 bg-primary/[0.02]">
                         <span className="text-xl opacity-40">🥇</span>
                         <span>--</span>
                       </div>
@@ -281,12 +281,12 @@ export function FloatingLeaderboard() {
                         <span className="text-xs font-extrabold text-amber-400 mt-1.5 font-mono">
                           {formatVndString(top3.totalIncome)}
                         </span>
-                        <span className="text-[10px] text-ash/70 mt-0.5 bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
+                        <span className="text-[10px] text-muted-foreground/70 mt-0.5 bg-muted px-2 py-0.5 rounded-full border border-border">
                           {top3.accountCount} acc
                         </span>
                       </div>
                     ) : (
-                      <div className="w-full h-28 rounded-2xl border border-dashed border-white/10 flex flex-col items-center justify-center text-xs text-ash/30 gap-1 bg-white/[0.01]">
+                      <div className="w-full h-28 rounded-2xl border border-dashed border-border flex flex-col items-center justify-center text-xs text-muted-foreground/30 gap-1 bg-muted/50">
                         <span className="text-lg opacity-40">🥉</span>
                         <span>--</span>
                       </div>
@@ -296,26 +296,26 @@ export function FloatingLeaderboard() {
 
                 {/* Rest of the leaderboard list */}
                 {restList.length > 0 && (
-                  <div className="space-y-2 border-t border-white/10 pt-4">
-                    <h3 className="text-[11px] font-bold text-ash/70 uppercase tracking-widest mb-2 font-display">
+                  <div className="space-y-2 border-t border-border pt-4">
+                    <h3 className="text-[11px] font-bold text-muted-foreground/70 uppercase tracking-widest mb-2 font-display">
                       BẢNG THÀNH TÍCH TIẾP THEO
                     </h3>
                     {restList.map((item, index) => (
                       <div
                         key={item.holder}
-                        className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] px-4 py-2.5 text-xs hover:bg-white/[0.07] hover:border-white/10 transition-all"
+                        className="flex items-center justify-between rounded-xl border border-border bg-muted px-4 py-2.5 text-xs hover:bg-muted/80 hover:border-border transition-all"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="font-mono text-ash/50 w-6 font-extrabold text-center">
+                          <span className="font-mono text-muted-foreground/50 w-6 font-extrabold text-center">
                             #{index + 4}
                           </span>
-                          <span className="font-semibold text-gray-200">{item.holder}</span>
+                          <span className="font-semibold text-foreground">{item.holder}</span>
                         </div>
                         <div className="text-right flex items-center gap-4">
-                          <span className="text-[11px] text-ash/60 bg-white/5 px-2 py-0.5 rounded-md">
+                          <span className="text-[11px] text-muted-foreground/60 bg-muted px-2 py-0.5 rounded-md">
                             {item.accountCount} acc
                           </span>
-                          <span className="font-extrabold text-brass font-mono min-w-[90px]">
+                          <span className="font-extrabold text-primary font-mono min-w-[90px]">
                             {formatVndString(item.totalIncome)}
                           </span>
                         </div>

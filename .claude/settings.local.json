@@ -14,7 +14,19 @@
       "Bash(git commit -m 'refactor: optimize UI/UX, performance, and security *)",
       "Bash(npm install *)",
       "Bash(npm audit *)",
-      "Bash(npm approve-scripts *)"
+      "Bash(npm approve-scripts *)",
+      "WebSearch",
+      "Bash(npm search *)",
+      "Bash(claude mcp *)",
+      "Bash(rm -f .claude/settings.json)",
+      "Bash(rmdir .claude 2>/dev/null || true)",
+      "Bash(cat C:/Users/Nhatchymte/.claude.json)",
+      "Bash(npx -y @jpisnice/shadcn-ui-mcp-server --help)",
+      "Bash(npx -y shadcn@latest init -d)",
+      "Bash(npx -y shadcn@latest add card input label select switch table dropdown-menu dialog tabs toast)",
+      "Bash(npx -y shadcn@latest add dashboard-01 --dry-run)",
+      "Bash(curl -s \"https://registry.npmjs.org/-/v1/search?text=shadcn+table\")",
+      "Bash(npx eslint *)"
     ]
   }
 }

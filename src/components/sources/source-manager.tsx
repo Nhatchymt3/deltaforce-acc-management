@@ -105,12 +105,12 @@ export function SourceManager({ initialSources }: { initialSources: Source[] }) 
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && void handleCreate()}
             placeholder="Tên nguồn mới..."
-            className="flex-1 rounded-lg border border-white/[0.06] bg-midnight px-3.5 py-2 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
+            className="flex-1 rounded-lg border border-white/[0.06] bg-background px-3.5 py-2 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
           />
           <button
             onClick={() => void handleCreate()}
             disabled={loading === 'create' || !newName.trim()}
-            className="rounded-lg bg-brass px-4 py-2 text-xs font-semibold text-midnight hover:bg-brass/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             Thêm
           </button>
@@ -118,15 +118,15 @@ export function SourceManager({ initialSources }: { initialSources: Source[] }) 
 
         {/* Sources list */}
         {sources.length === 0 ? (
-          <div className="text-center py-8 rounded-lg border border-dashed border-white/[0.06] bg-midnight/50">
-            <p className="text-xs text-ash">Chưa có nguồn nào trong hệ thống</p>
+          <div className="text-center py-8 rounded-lg border border-dashed border-white/[0.06] bg-background/50">
+            <p className="text-xs text-muted-foreground">Chưa có nguồn nào trong hệ thống</p>
           </div>
         ) : (
           <div className="space-y-1.5">
             {sources.map((source) => (
               <div
                 key={source.id}
-                className="group flex items-center justify-between rounded-lg border border-white/[0.04] bg-midnight/40 px-3.5 py-2.5 hover:border-white/[0.08] transition-colors"
+                className="group flex items-center justify-between rounded-lg border border-white/[0.04] bg-background/40 px-3.5 py-2.5 hover:border-white/[0.08] transition-colors"
               >
                 {editingId === source.id ? (
                   <div className="flex flex-1 items-center gap-2">
@@ -139,18 +139,18 @@ export function SourceManager({ initialSources }: { initialSources: Source[] }) 
                         if (e.key === 'Escape') { setEditingId(null); setEditingName(''); }
                       }}
                       autoFocus
-                      className="flex-1 rounded border border-brass/40 bg-midnight px-2.5 py-1 text-xs text-white focus:outline-none"
+                      className="flex-1 rounded border border-brass/40 bg-background px-2.5 py-1 text-xs text-white focus:outline-none"
                     />
                     <button
                       onClick={() => void handleSaveEdit(source.id)}
                       disabled={loading === `edit-${source.id}`}
-                      className="rounded bg-brass px-2.5 py-1 text-xs font-medium text-midnight hover:bg-brass/90 disabled:opacity-50"
+                      className="rounded bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                     >
                       Lưu
                     </button>
                     <button
                       onClick={() => { setEditingId(null); setEditingName(''); }}
-                      className="rounded border border-white/[0.06] px-2.5 py-1 text-xs text-ash hover:text-white"
+                      className="rounded border border-white/[0.06] px-2.5 py-1 text-xs text-muted-foreground hover:text-white"
                     >
                       Hủy
                     </button>
@@ -158,17 +158,17 @@ export function SourceManager({ initialSources }: { initialSources: Source[] }) 
                 ) : (
                   <>
                     <div className="flex items-center gap-2.5">
-                      <div className="w-6 h-6 rounded bg-brass/15 border border-brass/20 flex items-center justify-center">
+                      <div className="w-6 h-6 rounded bg-primary/15 border border-brass/20 flex items-center justify-center">
                         <span className="text-brass font-bold text-xs">
                           {source.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
-                      <span className="text-sm font-medium text-gray-200">{source.name}</span>
+                      <span className="text-sm font-medium text-foreground">{source.name}</span>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => { setEditingId(source.id); setEditingName(source.name); }}
-                        className="rounded p-1 text-ash hover:text-white transition-colors"
+                        className="rounded p-1 text-muted-foreground hover:text-white transition-colors"
                         title="Sửa"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,7 +177,7 @@ export function SourceManager({ initialSources }: { initialSources: Source[] }) 
                       </button>
                       <button
                         onClick={() => setDeletingId(source.id)}
-                        className="rounded p-1 text-ash hover:text-signal-red transition-colors"
+                        className="rounded p-1 text-muted-foreground hover:text-signal-red transition-colors"
                         title="Xóa"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,11 +199,11 @@ export function SourceManager({ initialSources }: { initialSources: Source[] }) 
           <div className="absolute inset-0 bg-black/70" onClick={() => setDeletingId(null)} />
           <div className="relative z-10 w-full max-w-sm rounded-xl border border-white/[0.08] bg-gunmetal p-5 shadow-2xl space-y-4">
             <h3 className="font-display font-semibold text-white text-base">Xóa nguồn?</h3>
-            <p className="text-xs text-ash">Hành động này không thể hoàn tác.</p>
+            <p className="text-xs text-muted-foreground">Hành động này không thể hoàn tác.</p>
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setDeletingId(null)}
-                className="rounded-lg border border-white/[0.06] bg-midnight px-3.5 py-1.5 text-xs text-ash hover:text-white transition-colors"
+                className="rounded-lg border border-white/[0.06] bg-background px-3.5 py-1.5 text-xs text-muted-foreground hover:text-white transition-colors"
               >
                 Hủy
               </button>

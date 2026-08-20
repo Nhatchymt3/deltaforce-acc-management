@@ -41,8 +41,8 @@ const STATUS_LABELS: Record<Account['status'], string> = {
 };
 
 const STATUS_COLORS: Record<Account['status'], { bg: string; text: string; glow: string; strip: string }> = {
-  kho: { bg: 'bg-ash/20', text: 'text-ash', glow: '', strip: 'bg-ash' },
-  dang_cay: { bg: 'bg-brass/15', text: 'text-brass', glow: '', strip: 'bg-brass' },
+  kho: { bg: 'bg-muted/20', text: 'text-muted-foreground', glow: '', strip: 'bg-muted' },
+  dang_cay: { bg: 'bg-primary/15', text: 'text-brass', glow: '', strip: 'bg-primary' },
   done: { bg: 'bg-od-green/20', text: 'text-emerald-300', glow: '', strip: 'bg-od-green' },
   da_giao_cho_ben_thu: { bg: 'bg-amber-800/30', text: 'text-amber-300', glow: '', strip: 'bg-amber-500' },
   da_nhan_tien: { bg: 'bg-od-green/25', text: 'text-green-300', glow: '', strip: 'bg-green-500' },
@@ -178,7 +178,7 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <h3 className="font-mono font-semibold text-white text-sm truncate">{account.username}</h3>
-            <p className="text-[11px] text-ash mt-0.5">
+            <p className="text-[11px] text-muted-foreground mt-0.5">
               {account.sourceName ?? account.source}
             </p>
           </div>
@@ -189,25 +189,25 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
 
         {account.current_holder && (
           <div className="mt-2 flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded bg-brass/20 border border-brass/30 flex items-center justify-center">
+            <div className="w-5 h-5 rounded bg-primary/20 border border-brass/30 flex items-center justify-center">
               <span className="text-[9px] font-bold text-brass">
                 {account.current_holder.charAt(0).toUpperCase()}
               </span>
             </div>
-            <span className="text-xs text-gray-400">{account.current_holder}</span>
+            <span className="text-xs text-muted-foreground">{account.current_holder}</span>
           </div>
         )}
-        <div className="mt-[7px] flex items-center justify-between text-[11px] text-ash font-mono">
+        <div className="mt-[7px] flex items-center justify-between text-[11px] text-muted-foreground font-mono">
           <div className="flex items-center gap-2">
             {targetMilestone
               ? <span className="text-brass/90 font-semibold">LV{targetMilestone.level}–{targetMilestone.price}M</span>
-              : <span className="text-ash/50">—</span>}
+              : <span className="text-muted-foreground/50">—</span>}
             {account.added_by && (
-              <span className="text-ash/60 truncate max-w-[80px]">↳ {account.added_by}</span>
+              <span className="text-muted-foreground/60 truncate max-w-[80px]">↳ {account.added_by}</span>
             )}
           </div>
           {account.created_at && (
-            <span className="text-[10px] text-ash/50 font-sans font-medium flex-shrink-0" title={new Date(account.created_at).toLocaleString('vi-VN')}>
+            <span className="text-[10px] text-muted-foreground/50 font-sans font-medium flex-shrink-0" title={new Date(account.created_at).toLocaleString('vi-VN')}>
               {formatTimeAgo(account.created_at)}
             </span>
           )}
@@ -263,10 +263,10 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
       ref={setNodeRef}
       className={`w-[300px] shrink-0 flex flex-col rounded-xl border transition-all duration-200 h-full max-h-full ${
         isOver && id === KHO_SENTINEL
-          ? 'border-brass/40 bg-brass/5'
+          ? 'border-brass/40 bg-primary/5'
           : isKho
-          ? 'border-dashed border-white/[0.08] bg-midnight/60 shadow-inner'
-          : 'border-white/[0.04] bg-midnight/40'
+          ? 'border-dashed border-white/[0.08] bg-background/60 shadow-inner'
+          : 'border-white/[0.04] bg-background/40'
       }`}
     >
       {/* Column header */}
@@ -274,13 +274,13 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
         <div className="flex items-center justify-between px-4 py-3">
           <h2 className="font-display font-semibold text-white text-sm tracking-wide flex items-center gap-2">
             {isKho ? (
-              <div className="w-6 h-6 rounded bg-ash/15 flex items-center justify-center">
+              <div className="w-6 h-6 rounded bg-muted/15 flex items-center justify-center">
                 <svg className="w-3.5 h-3.5 text-brass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
             ) : (
-              <div className="w-6 h-6 rounded bg-brass/15 border border-brass/20 flex items-center justify-center">
+              <div className="w-6 h-6 rounded bg-primary/15 border border-brass/20 flex items-center justify-center">
                 <span className="text-brass text-[10px] font-bold">
                   {label.charAt(0).toUpperCase()}
                 </span>
@@ -289,14 +289,14 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
             {label}
           </h2>
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] text-ash/70 bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/[0.06]">
+            <span className="font-mono text-[11px] text-muted-foreground/70 bg-white/[0.04] px-2 py-0.5 rounded-full border border-white/[0.06]">
               {displayedAccounts.length}{isKho && khoSearch.trim() && `/${accounts.length}`}
             </span>
             {onRemove && accounts.length === 0 && (
               <button
                 onClick={onRemove}
                 title="Xóa cột AE"
-                className="flex h-5 w-5 items-center justify-center rounded text-ash/40 hover:bg-signal-red/10 hover:text-signal-red transition-colors"
+                className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground/40 hover:bg-signal-red/10 hover:text-signal-red transition-colors"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -317,13 +317,13 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
                 placeholder="Lọc nhanh acc trong kho..."
                 className="w-full rounded-md border border-white/[0.06] bg-gunmetal/90 px-2.5 py-1 pl-7 text-[11px] text-white placeholder-ash/40 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
               />
-              <svg className="w-3 h-3 absolute left-2 top-2 text-ash/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 absolute left-2 top-2 text-muted-foreground/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               {khoSearch && (
                 <button
                   onClick={() => setKhoSearch('')}
-                  className="absolute right-2 top-1.5 text-ash/40 hover:text-white text-[10px]"
+                  className="absolute right-2 top-1.5 text-muted-foreground/40 hover:text-white text-[10px]"
                 >
                   ✕
                 </button>
@@ -336,7 +336,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
       {/* Card list */}
       <div className="flex flex-col gap-2.5 p-3 overflow-y-auto min-h-0 flex-1 scrollbar-thin pb-6">
         {displayedAccounts.length === 0 && (
-          <div className="flex items-center justify-center py-12 text-ash/30">
+          <div className="flex items-center justify-center py-12 text-muted-foreground/30">
             <span className="text-xs font-mono">{isKho && khoSearch.trim() ? 'Không tìm thấy acc' : '—'}</span>
           </div>
         )}
@@ -684,7 +684,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
   }));
 
   return (
-    <div className={`relative h-full flex flex-col overflow-hidden text-gray-200 transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`relative h-full flex flex-col overflow-hidden text-foreground transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
         <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
           {toasts.map((t) => (
             <div
@@ -718,9 +718,9 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
         </div>
 
       {/* Horizontal Header Toolbar Controls */}
-      <div className="shrink-0 mx-auto flex w-full items-center justify-between gap-4 px-6 pt-2 pb-2 border-b border-white/[0.04] bg-midnight/30 backdrop-blur-md">
+      <div className="shrink-0 mx-auto flex w-full items-center justify-between gap-4 px-6 pt-2 pb-2 border-b border-white/[0.04] bg-background/30 backdrop-blur-md">
         <div className="flex items-center gap-3 shrink-0">
-          <span className="font-mono text-xs text-brass/80 bg-brass/10 border border-brass/20 rounded px-2.5 py-0.5" title="Tổng số acc">
+          <span className="font-mono text-xs text-brass/80 bg-primary/10 border border-brass/20 rounded px-2.5 py-0.5" title="Tổng số acc">
             {initialAccounts.length} ACC
           </span>
         </div>
@@ -734,11 +734,11 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               placeholder="Tìm username, AE..."
               className="w-full rounded-lg border border-white/[0.08] bg-gunmetal/90 px-3 py-1.5 pl-8 text-xs text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all"
             />
-            <svg className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-ash/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             {searchTerm && (
-              <button onClick={() => setSearchTerm('')} className="absolute right-2 top-2 text-ash/50 hover:text-white text-xs">
+              <button onClick={() => setSearchTerm('')} className="absolute right-2 top-2 text-muted-foreground/50 hover:text-white text-xs">
                 ✕
               </button>
             )}
@@ -810,7 +810,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               {activeAccount && (
                 <div className="rotate-1 rounded-lg border border-brass/40 bg-gunmetal p-3 shadow-2xl opacity-90">
                   <h3 className="font-mono font-semibold text-white text-sm">{activeAccount.username}</h3>
-                  <p className="text-[11px] text-ash mt-0.5">
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
                     {activeAccount.sourceName ?? activeAccount.source}
                   </p>
                 </div>
@@ -828,17 +828,17 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded bg-brass/20 border border-brass/30 flex items-center justify-center">
+                <div className="w-8 h-8 rounded bg-primary/20 border border-brass/30 flex items-center justify-center">
                   <span className="text-brass font-bold text-sm">🏆</span>
                 </div>
                 <div>
                   <h3 className="font-display font-bold text-white text-base tracking-wide">Bảng Xếp Hạng AE</h3>
-                  <p className="text-[11px] text-ash">Xếp theo tổng doanh thu cày thuê</p>
+                  <p className="text-[11px] text-muted-foreground">Xếp theo tổng doanh thu cày thuê</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowLeaderboard(false)}
-                className="rounded p-1 text-ash hover:text-white transition-colors"
+                className="rounded p-1 text-muted-foreground hover:text-white transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -849,7 +849,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
             {/* List */}
             <div className="max-h-80 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
               {leaderboardItems.length === 0 ? (
-                <div className="py-8 text-center text-ash/50 text-xs">Chưa có dữ liệu AE</div>
+                <div className="py-8 text-center text-muted-foreground/50 text-xs">Chưa có dữ liệu AE</div>
               ) : (
                 leaderboardItems.map((item, index) => {
                   const rank = index + 1;
@@ -862,24 +862,24 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
                       key={item.name}
                       className={`flex items-center justify-between rounded-lg border px-3.5 py-2.5 transition-all ${
                         isTop1
-                          ? 'border-brass/50 bg-brass/15'
+                          ? 'border-brass/50 bg-primary/15'
                           : isTop2
                           ? 'border-slate-400/30 bg-white/[0.04]'
                           : isTop3
                           ? 'border-amber-700/30 bg-amber-950/20'
-                          : 'border-white/[0.04] bg-midnight/50'
+                          : 'border-white/[0.04] bg-background/50'
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-6 h-6 rounded flex items-center justify-center font-mono font-bold text-xs ${
                             isTop1
-                              ? 'bg-brass text-midnight shadow-md shadow-brass/30'
+                              ? 'bg-primary text-primary-foreground shadow-md shadow-brass/30'
                               : isTop2
                               ? 'bg-slate-300 text-slate-900'
                               : isTop3
                               ? 'bg-amber-700 text-white'
-                              : 'bg-white/10 text-ash'
+                              : 'bg-white/10 text-muted-foreground'
                           }`}
                         >
                           {rank}
@@ -889,10 +889,10 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
                             {item.name}
                             {isTop1 && <span className="text-xs">👑</span>}
                           </p>
-                          <p className="text-[10px] text-ash/60 font-mono">Đang cày {item.count} acc</p>
+                          <p className="text-[10px] text-muted-foreground/60 font-mono">Đang cày {item.count} acc</p>
                         </div>
                       </div>
-                      <span className={`font-mono text-sm font-bold ${isTop1 ? 'text-brass' : 'text-gray-200'}`}>
+                      <span className={`font-mono text-sm font-bold ${isTop1 ? 'text-brass' : 'text-foreground'}`}>
                         {new Intl.NumberFormat('vi-VN').format(item.total)} đ
                       </span>
                     </div>
@@ -912,7 +912,7 @@ export function Board({ initialAccounts, initialSessions, initialSources, initia
               </Link>
               <button
                 onClick={() => setShowLeaderboard(false)}
-                className="rounded-lg border border-white/[0.06] bg-midnight px-3.5 py-1.5 text-xs font-medium text-ash hover:text-white transition-colors"
+                className="rounded-lg border border-white/[0.06] bg-background px-3.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-white transition-colors"
               >
                 Đóng
               </button>

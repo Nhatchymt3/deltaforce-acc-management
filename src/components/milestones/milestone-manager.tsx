@@ -103,7 +103,7 @@ export function PresetMilestoneManager({ initialMilestones }: { initialMilestone
             value={level}
             onChange={(e) => setLevel(e.target.value)}
             placeholder="Lv (VD: 30)"
-            className="w-24 rounded-lg border border-white/[0.06] bg-midnight px-3 py-2 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none font-mono"
+            className="w-24 rounded-lg border border-white/[0.06] bg-background px-3 py-2 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none font-mono"
           />
           <input
             type="number"
@@ -111,7 +111,7 @@ export function PresetMilestoneManager({ initialMilestones }: { initialMilestone
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="Tiền (VD: 20)"
-            className="w-28 rounded-lg border border-white/[0.06] bg-midnight px-3 py-2 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none font-mono"
+            className="w-28 rounded-lg border border-white/[0.06] bg-background px-3 py-2 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none font-mono"
           />
           <input
             type="text"
@@ -119,12 +119,12 @@ export function PresetMilestoneManager({ initialMilestones }: { initialMilestone
             onChange={(e) => setNote(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && void handleCreate()}
             placeholder="Ghi chú / Chú thích (tùy chọn)..."
-            className="flex-1 min-w-[160px] rounded-lg border border-white/[0.06] bg-midnight px-3 py-2 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none"
+            className="flex-1 min-w-[160px] rounded-lg border border-white/[0.06] bg-background px-3 py-2 text-sm text-white placeholder-ash/50 focus:border-brass/40 focus:outline-none"
           />
           <button
             onClick={() => void handleCreate()}
             disabled={loading === 'create' || !level || !price}
-            className="rounded-lg bg-brass px-4 py-2 text-xs font-semibold text-midnight hover:bg-brass/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             Thêm mốc
           </button>
@@ -132,15 +132,15 @@ export function PresetMilestoneManager({ initialMilestones }: { initialMilestone
 
         {/* Milestones list */}
         {milestones.length === 0 ? (
-          <div className="text-center py-8 rounded-lg border border-dashed border-white/[0.06] bg-midnight/50">
-            <p className="text-xs text-ash">Chưa có mốc cày nào. Tạo mốc mới để chọn nhanh khi thêm acc.</p>
+          <div className="text-center py-8 rounded-lg border border-dashed border-white/[0.06] bg-background/50">
+            <p className="text-xs text-muted-foreground">Chưa có mốc cày nào. Tạo mốc mới để chọn nhanh khi thêm acc.</p>
           </div>
         ) : (
           <div className="space-y-1.5">
             {milestones.map((m) => (
               <div
                 key={m.id}
-                className="group flex items-center justify-between rounded-lg border border-white/[0.04] bg-midnight/40 px-3.5 py-2.5 hover:border-white/[0.08] transition-colors"
+                className="group flex items-center justify-between rounded-lg border border-white/[0.04] bg-background/40 px-3.5 py-2.5 hover:border-white/[0.08] transition-colors"
               >
                 {editingId === m.id ? (
                   <div className="flex flex-1 flex-wrap items-center gap-2">
@@ -149,7 +149,7 @@ export function PresetMilestoneManager({ initialMilestones }: { initialMilestone
                       value={editLevel}
                       onChange={(e) => setEditLevel(e.target.value)}
                       placeholder="Lv"
-                      className="w-16 rounded border border-brass/40 bg-midnight px-2 py-1 text-xs text-white font-mono focus:outline-none"
+                      className="w-16 rounded border border-brass/40 bg-background px-2 py-1 text-xs text-white font-mono focus:outline-none"
                     />
                     <input
                       type="number"
@@ -157,25 +157,25 @@ export function PresetMilestoneManager({ initialMilestones }: { initialMilestone
                       value={editPrice}
                       onChange={(e) => setEditPrice(e.target.value)}
                       placeholder="Tiền"
-                      className="w-20 rounded border border-brass/40 bg-midnight px-2 py-1 text-xs text-white font-mono focus:outline-none"
+                      className="w-20 rounded border border-brass/40 bg-background px-2 py-1 text-xs text-white font-mono focus:outline-none"
                     />
                     <input
                       type="text"
                       value={editNote}
                       onChange={(e) => setEditNote(e.target.value)}
                       placeholder="Ghi chú"
-                      className="flex-1 rounded border border-brass/40 bg-midnight px-2 py-1 text-xs text-white focus:outline-none"
+                      className="flex-1 rounded border border-brass/40 bg-background px-2 py-1 text-xs text-white focus:outline-none"
                     />
                     <button
                       onClick={() => void handleSaveEdit(m.id)}
                       disabled={loading === `edit-${m.id}`}
-                      className="rounded bg-brass px-2.5 py-1 text-xs font-medium text-midnight hover:bg-brass/90 disabled:opacity-50"
+                      className="rounded bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                     >
                       Lưu
                     </button>
                     <button
                       onClick={() => setEditingId(null)}
-                      className="rounded border border-white/[0.06] px-2.5 py-1 text-xs text-ash hover:text-white"
+                      className="rounded border border-white/[0.06] px-2.5 py-1 text-xs text-muted-foreground hover:text-white"
                     >
                       Hủy
                     </button>
@@ -183,15 +183,15 @@ export function PresetMilestoneManager({ initialMilestones }: { initialMilestone
                 ) : (
                   <>
                     <div className="flex items-center gap-3">
-                      <div className="rounded bg-brass/15 border border-brass/20 px-2.5 py-1">
+                      <div className="rounded bg-primary/15 border border-brass/20 px-2.5 py-1">
                         <span className="text-brass font-mono font-bold text-xs">
                           LV{m.level}-{m.price}M
                         </span>
                       </div>
                       {m.note ? (
-                        <span className="text-xs text-ash/80">📝 {m.note}</span>
+                        <span className="text-xs text-muted-foreground/80">📝 {m.note}</span>
                       ) : (
-                        <span className="text-xs text-ash/30 italic">Không có ghi chú</span>
+                        <span className="text-xs text-muted-foreground/30 italic">Không có ghi chú</span>
                       )}
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -202,7 +202,7 @@ export function PresetMilestoneManager({ initialMilestones }: { initialMilestone
                           setEditPrice(m.price);
                           setEditNote(m.note ?? '');
                         }}
-                        className="rounded p-1 text-ash hover:text-white transition-colors"
+                        className="rounded p-1 text-muted-foreground hover:text-white transition-colors"
                         title="Sửa"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,7 +211,7 @@ export function PresetMilestoneManager({ initialMilestones }: { initialMilestone
                       </button>
                       <button
                         onClick={() => setDeletingId(m.id)}
-                        className="rounded p-1 text-ash hover:text-signal-red transition-colors"
+                        className="rounded p-1 text-muted-foreground hover:text-signal-red transition-colors"
                         title="Xóa"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,11 +233,11 @@ export function PresetMilestoneManager({ initialMilestones }: { initialMilestone
           <div className="absolute inset-0 bg-black/70" onClick={() => setDeletingId(null)} />
           <div className="relative z-10 w-full max-w-sm rounded-xl border border-white/[0.08] bg-gunmetal p-5 shadow-2xl space-y-4">
             <h3 className="font-display font-semibold text-white text-base">Xóa mốc này?</h3>
-            <p className="text-xs text-ash">Hành động này sẽ xóa mốc khỏi danh sách mốc cố định.</p>
+            <p className="text-xs text-muted-foreground">Hành động này sẽ xóa mốc khỏi danh sách mốc cố định.</p>
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setDeletingId(null)}
-                className="rounded-lg border border-white/[0.06] bg-midnight px-3.5 py-1.5 text-xs text-ash hover:text-white transition-colors"
+                className="rounded-lg border border-white/[0.06] bg-background px-3.5 py-1.5 text-xs text-muted-foreground hover:text-white transition-colors"
               >
                 Hủy
               </button>

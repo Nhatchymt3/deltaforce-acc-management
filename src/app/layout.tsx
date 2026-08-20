@@ -1,6 +1,9 @@
-import { Inter, Rajdhani, JetBrains_Mono } from 'next/font/google';
+import { Inter, Rajdhani, JetBrains_Mono, Geist } from 'next/font/google';
 import './globals.css';
 import { AppShell } from '@/components/layout/app-shell';
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const inter = Inter({ subsets: ['latin', 'vietnamese'], variable: '--font-inter' });
 const rajdhani = Rajdhani({ weight: ['400', '500', '600', '700'], subsets: ['latin'], variable: '--font-rajdhani' });
@@ -16,8 +19,8 @@ export const metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="vi">
-      <body className={`${inter.className} ${rajdhani.variable} ${jetbrains.variable} h-screen overflow-hidden bg-midnight text-gray-200`}>
+    <html lang="vi" className={cn("font-sans", geist.variable)}>
+      <body className={`${inter.className} ${rajdhani.variable} ${jetbrains.variable} h-screen overflow-hidden bg-background text-foreground`}>
         <AppShell>{children}</AppShell>
       </body>
     </html>

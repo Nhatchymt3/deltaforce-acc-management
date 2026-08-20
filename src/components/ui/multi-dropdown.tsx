@@ -101,13 +101,13 @@ export function MultiDropdown({
         aria-expanded={open}
         aria-label={ariaLabel}
         onClick={() => setOpen((o) => !o)}
-        className="relative flex w-full items-center justify-between gap-2 rounded-lg border border-white/[0.06] bg-gunmetal/80 text-left text-white cursor-pointer hover:border-brass/30 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all px-4 py-2.5"
+        className="relative flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-card/80 text-left text-foreground cursor-pointer hover:border-primary/30 focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all px-4 py-2.5"
       >
-        <span className="truncate text-sm text-white">
+        <span className="truncate text-sm text-foreground">
           {labelText}
         </span>
         <svg
-          className={`h-4 w-4 flex-shrink-0 text-ash transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -123,19 +123,19 @@ export function MultiDropdown({
             role="listbox"
             id={listId}
             style={{ position: 'fixed', top: coords.top, left: coords.left, minWidth: coords.width, zIndex: 9999 }}
-            className="max-h-64 overflow-auto rounded-lg border border-white/[0.06] bg-gunmetal p-1 shadow-2xl shadow-black/60 scrollbar-thin"
+            className="max-h-64 overflow-auto rounded-lg border border-border bg-card p-1 shadow-2xl shadow-black/60 scrollbar-thin"
           >
             {/* Option: Tất cả */}
             <button
               type="button"
               onClick={() => toggleOption('all')}
-              className={`flex w-full items-center gap-2.5 rounded px-3 py-1.5 text-left text-sm transition-colors hover:bg-brass/10 text-gray-300 ${
-                isAll ? 'font-semibold text-brass' : ''
+              className={`flex w-full items-center gap-2.5 rounded px-3 py-1.5 text-left text-sm transition-colors hover:bg-primary/10 text-muted-foreground ${
+                isAll ? 'font-semibold text-primary' : ''
               }`}
             >
               <div
                 className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${
-                  isAll ? 'border-brass bg-brass text-midnight' : 'border-white/20 bg-midnight'
+                  isAll ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background'
                 }`}
               >
                 {isAll && (
@@ -147,7 +147,7 @@ export function MultiDropdown({
               <span>Tất cả AE</span>
             </button>
 
-            <div className="my-1 h-px bg-white/[0.06]" />
+            <div className="my-1 h-px bg-border" />
 
             {options.map((opt) => {
               const isChecked = selectedValues.includes(opt.value);
@@ -156,13 +156,13 @@ export function MultiDropdown({
                   key={opt.value}
                   type="button"
                   onClick={() => toggleOption(opt.value)}
-                  className={`flex w-full items-center gap-2.5 rounded px-3 py-1.5 text-left text-sm transition-colors hover:bg-brass/10 text-gray-300 ${
+                  className={`flex w-full items-center gap-2.5 rounded px-3 py-1.5 text-left text-sm transition-colors hover:bg-primary/10 text-muted-foreground ${
                     isChecked ? 'font-semibold' : ''
                   }`}
                 >
                   <div
                     className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${
-                      isChecked ? 'border-brass bg-brass text-midnight' : 'border-white/20 bg-midnight'
+                      isChecked ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background'
                     }`}
                   >
                     {isChecked && (

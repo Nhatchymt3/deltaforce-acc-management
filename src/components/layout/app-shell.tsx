@@ -51,22 +51,22 @@ export function AppShell({ children }: AppShellProps) {
   }, [router]);
 
   return (
-    <div className="relative h-screen flex flex-col overflow-hidden text-gray-200 bg-midnight">
+    <div className="relative h-screen flex flex-col overflow-hidden text-foreground bg-background">
       {/* Background Star Effect */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-midnight" />
+        <div className="absolute inset-0 bg-background" />
         <div className="stars-bg absolute inset-0" />
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brass/30 to-transparent" />
       </div>
 
       {/* Global Top Bar */}
-      <header className="shrink-0 mx-auto flex w-full items-center justify-between gap-4 px-6 pt-3 pb-2 border-b border-white/[0.04] bg-midnight/40 backdrop-blur-md">
+      <header className="shrink-0 mx-auto flex w-full items-center justify-between gap-4 px-6 pt-3 pb-2 border-b border-white/[0.04] bg-background/40 backdrop-blur-md">
         <div className="flex items-center gap-3 shrink-0">
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
             <h1 className="font-display text-xl font-bold tracking-wide text-white">
               DF<span className="text-brass">△</span>
             </h1>
-            <span className="text-[11px] font-display font-medium uppercase tracking-[0.2em] text-ash/60 hidden sm:inline">
+            <span className="text-[11px] font-display font-medium uppercase tracking-[0.2em] text-muted-foreground/60 hidden sm:inline">
               Acc Management
             </span>
           </Link>
@@ -87,8 +87,8 @@ export function AppShell({ children }: AppShellProps) {
           href="/"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/'
-              ? 'border-brass bg-brass text-midnight shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
+              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-white hover:border-primary/30'
           }`}
           title="Board Acc (Trang chủ)"
           aria-label="Trang chủ Board Acc"
@@ -103,8 +103,8 @@ export function AppShell({ children }: AppShellProps) {
           href="/finance"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/finance'
-              ? 'border-brass bg-brass text-midnight shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-brass hover:border-brass/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
+              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-brass hover:border-primary/30'
           }`}
           title="Tài chính"
           aria-label="Quản lý Tài chính"
@@ -119,8 +119,8 @@ export function AppShell({ children }: AppShellProps) {
           href="/farmers"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/farmers'
-              ? 'border-brass bg-brass text-midnight shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
+              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-white hover:border-primary/30'
           }`}
           title="Quản lý AE"
           aria-label="Quản lý AE"
@@ -135,8 +135,8 @@ export function AppShell({ children }: AppShellProps) {
           href="/milestones"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/milestones'
-              ? 'border-brass bg-brass text-midnight shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
+              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-white hover:border-primary/30'
           }`}
           title="Quản lý Mốc cày"
           aria-label="Quản lý Mốc cày"
@@ -151,8 +151,8 @@ export function AppShell({ children }: AppShellProps) {
           href="/sources"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/sources'
-              ? 'border-brass bg-brass text-midnight shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
+              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-white hover:border-primary/30'
           }`}
           title="Nguồn"
           aria-label="Quản lý Nguồn"
@@ -167,8 +167,8 @@ export function AppShell({ children }: AppShellProps) {
           href="/archive"
           className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
             pathname === '/archive'
-              ? 'border-brass bg-brass text-midnight shadow-md shadow-brass/30'
-              : 'border-white/[0.06] bg-midnight/60 text-ash hover:text-white hover:border-brass/30'
+              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-brass/30'
+              : 'border-white/[0.06] bg-background/60 text-muted-foreground hover:text-white hover:border-primary/30'
           }`}
           title="Kho lưu trữ"
           aria-label="Kho lưu trữ"
@@ -185,7 +185,7 @@ export function AppShell({ children }: AppShellProps) {
         <form action={signOut}>
           <button
             type="submit"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-midnight/60 text-ash hover:text-signal-red hover:border-signal-red/30 hover:bg-signal-red/10 transition-all"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.06] bg-background/60 text-muted-foreground hover:text-signal-red hover:border-signal-red/30 hover:bg-signal-red/10 transition-all"
             title="Đăng xuất"
             aria-label="Đăng xuất"
           >
@@ -202,7 +202,7 @@ export function AppShell({ children }: AppShellProps) {
       </main>
 
       {/* Footer */}
-      <footer className="shrink-0 border-t border-white/[0.04] bg-midnight/90 py-2 px-6 text-center text-[10px] text-ash/50 font-mono flex items-center justify-between z-30">
+      <footer className="shrink-0 border-t border-white/[0.04] bg-background/90 py-2 px-6 text-center text-[10px] text-muted-foreground/50 font-mono flex items-center justify-between z-30">
         <span>DF△ ACC MANAGEMENT SYSTEM</span>
         <span>Delta Force Farming & Allocation Platform</span>
       </footer>

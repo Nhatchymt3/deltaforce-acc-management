@@ -136,13 +136,13 @@ export function Dropdown({
         aria-label={ariaLabel}
         onClick={() => !disabled && setOpen((o) => !o)}
         onKeyDown={onKeyDown}
-        className={`relative flex w-full items-center justify-between gap-2 rounded-lg border border-white/[0.06] bg-gunmetal/80 text-left text-white cursor-pointer hover:border-brass/30 focus:border-brass/40 focus:outline-none focus:ring-1 focus:ring-brass/20 transition-all disabled:cursor-not-allowed disabled:opacity-50 ${sizeCls} ${buttonClassName}`}
+        className={`relative flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-card/80 text-left text-foreground cursor-pointer hover:border-primary/30 focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/20 transition-all disabled:cursor-not-allowed disabled:opacity-50 ${sizeCls} ${buttonClassName}`}
       >
-        <span className={`truncate text-sm ${selected ? 'text-white' : 'text-ash'}`}>
+        <span className={`truncate text-sm ${selected ? 'text-foreground' : 'text-muted-foreground'}`}>
           {selected ? selected.label : placeholder}
         </span>
         <svg
-          className={`h-4 w-4 flex-shrink-0 text-ash transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -158,10 +158,10 @@ export function Dropdown({
             role="listbox"
             id={listId}
             style={{ position: 'fixed', top: coords.top, left: coords.left, minWidth: coords.width, zIndex: 9999 }}
-            className="max-h-64 overflow-auto rounded-lg border border-white/[0.06] bg-gunmetal p-1 shadow-2xl shadow-black/60 scrollbar-thin"
+            className="max-h-64 overflow-auto rounded-lg border border-border bg-card p-1 shadow-2xl shadow-black/60 scrollbar-thin"
           >
             {options.length === 0 && (
-              <div className="px-3 py-2 text-sm text-ash/50">Không có lựa chọn</div>
+              <div className="px-3 py-2 text-sm text-muted-foreground/50">Không có lựa chọn</div>
             )}
             {options.map((opt, i) => {
               const isSelected = opt.value === value;
@@ -176,12 +176,12 @@ export function Dropdown({
                   onMouseEnter={() => setActiveIndex(i)}
                   onClick={() => commit(opt)}
                   className={`flex w-full items-center justify-between gap-2 rounded px-3 py-1.5 text-left text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                    isActive ? 'bg-brass/10 text-white' : 'text-gray-300'
+                    isActive ? 'bg-primary/10 text-foreground' : 'text-muted-foreground'
                   } ${isSelected ? 'font-semibold' : 'font-normal'}`}
                 >
                   <span className="truncate">{opt.label}</span>
                   {isSelected && (
-                    <svg className="h-4 w-4 flex-shrink-0 text-brass" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 flex-shrink-0 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   )}

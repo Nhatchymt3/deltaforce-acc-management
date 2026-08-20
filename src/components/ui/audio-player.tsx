@@ -145,8 +145,8 @@ export function AudioPlayer() {
         }}
         className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
           isPlaying
-            ? 'border-brass bg-brass/20 text-brass shadow-md shadow-brass/20 animate-pulse'
-            : 'border-white/[0.06] bg-midnight/60 text-brass hover:border-brass/40 hover:bg-brass/10'
+            ? 'border-primary bg-primary/20 text-primary shadow-md shadow-brass/20 animate-pulse'
+            : 'border-border bg-background/60 text-primary hover:border-primary/40 hover:bg-primary/10'
         }`}
         title={isPlaying ? `Đang phát: ${currentTrack?.name} (Click phải để xem ds nhạc)` : 'Phát nhạc nền (Click phải để xem ds nhạc)'}
       >
@@ -163,13 +163,13 @@ export function AudioPlayer() {
 
       {/* Playlist Popover */}
       {showPlaylist && (
-        <div className="absolute right-14 bottom-0 z-50 w-64 rounded-xl border border-white/[0.08] bg-gunmetal/95 p-3 shadow-2xl backdrop-blur-xl">
-          <div className="flex items-center justify-between border-b border-white/[0.06] pb-2 mb-2">
-            <span className="text-xs font-display font-semibold text-brass">Danh sách nhạc ({tracks.length})</span>
-            <button onClick={() => setShowPlaylist(false)} className="text-ash hover:text-white text-xs">✕</button>
+        <div className="absolute right-14 bottom-0 z-50 w-64 rounded-xl border border-border bg-card/95 p-3 shadow-2xl backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b border-border pb-2 mb-2">
+            <span className="text-xs font-display font-semibold text-primary">Danh sách nhạc ({tracks.length})</span>
+            <button onClick={() => setShowPlaylist(false)} className="text-muted-foreground hover:text-foreground text-xs">✕</button>
           </div>
           <div className="mb-2">
-            <label className="text-[10px] text-ash block mb-1">Âm lượng: {Math.round(volume * 100)}%</label>
+            <label className="text-[10px] text-muted-foreground block mb-1">Âm lượng: {Math.round(volume * 100)}%</label>
             <input
               type="range"
               min="0"
@@ -189,8 +189,8 @@ export function AudioPlayer() {
                   onClick={() => playTrack(idx)}
                   className={`w-full text-left flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
                     isSelected
-                      ? 'bg-brass/20 text-brass font-semibold'
-                      : 'text-ash hover:bg-white/[0.04] hover:text-white'
+                      ? 'bg-primary/20 text-primary font-semibold'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
                 >
                   <span className="truncate pr-2">{idx + 1}. {track.name}</span>

@@ -37,11 +37,11 @@ export default async function FinancePage() {
   });
 
   return (
-    <div className="h-full flex flex-col px-6 py-8 text-gray-200 pr-16 max-w-5xl mx-auto overflow-hidden">
+    <div className="h-full flex flex-col px-6 py-8 text-foreground pr-16 max-w-5xl mx-auto overflow-hidden">
       <div className="mb-6 flex items-center justify-between shrink-0">
         <div>
-          <h1 className="font-display text-xl font-bold text-white tracking-wide">Tài chính</h1>
-          <p className="text-xs text-ash">Theo dõi thu nhập AE</p>
+          <h1 className="font-display text-xl font-bold text-foreground tracking-wide">Tài chính</h1>
+          <p className="text-xs text-muted-foreground">Theo dõi thu nhập AE</p>
         </div>
       </div>
 
