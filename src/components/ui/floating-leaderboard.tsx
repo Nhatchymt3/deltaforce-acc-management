@@ -49,7 +49,8 @@ export function FloatingLeaderboard() {
           username,
           amount_received,
           holder_sessions (
-            holder_name
+            holder_name,
+            ended_at
           )
         `)
         .eq('status', 'da_nhan_tien');
@@ -70,11 +71,17 @@ export function FloatingLeaderboard() {
           accountCounts[h] = (accountCounts[h] || 0) + 1;
         });
 
+        const sessions = acc.holder_sessions || [];
+        const lastSession = sessions.length > 0
+          ? [...sessions].sort((a: any, b: any) => new Date(b.ended_at || 0).getTime() - new Date(a.ended_at || 0).getTime())[0]
+          : null;
+
         return {
           id: acc.id,
           username: acc.username,
           amount_received: String(acc.amount_received || 0),
           holders: uniqueHolders,
+          lastHolder: lastSession?.holder_name || null,
         };
       });
 

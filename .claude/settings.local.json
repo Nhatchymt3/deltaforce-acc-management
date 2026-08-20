@@ -13,7 +13,8 @@
       "Bash(npm run *)",
       "Bash(git commit -m 'refactor: optimize UI/UX, performance, and security *)",
       "Bash(npm install *)",
-      "Bash(npm audit *)"
+      "Bash(npm audit *)",
+      "Bash(npm approve-scripts *)"
     ]
   }
 }
