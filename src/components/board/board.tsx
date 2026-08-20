@@ -223,11 +223,11 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
           const now = Date.now();
           if (expires <= now) return null;
 
-          const totalDurationMs = account.tag_created_at
-            ? expires - new Date(account.tag_created_at).getTime()
+          const totalDurationMs = account.created_at
+            ? expires - new Date(account.created_at).getTime()
             : expires - now; // Fallback if no creation date
 
-          const elapsedMs = now - (account.tag_created_at ? new Date(account.tag_created_at).getTime() : now);
+          const elapsedMs = now - (account.created_at ? new Date(account.created_at).getTime() : now);
           const progressPercent = Math.min(100, Math.max(0, (elapsedMs / totalDurationMs) * 100));
 
           const remainingDays = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
