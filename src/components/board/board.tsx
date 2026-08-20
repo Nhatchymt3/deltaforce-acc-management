@@ -222,20 +222,36 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
           const expires = new Date(account.tag_expires_at).getTime();
           const now = Date.now();
           if (expires <= now) return null;
+
+          const totalDurationMs = account.tag_created_at
+            ? expires - new Date(account.tag_created_at).getTime()
+            : expires - now; // Fallback if no creation date
+
+          const elapsedMs = now - (account.tag_created_at ? new Date(account.tag_created_at).getTime() : now);
+          const progressPercent = Math.min(100, Math.max(0, (elapsedMs / totalDurationMs) * 100));
+
           const remainingDays = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
           const labelLower = account.tag_label.toLowerCase();
           const isBanParty = labelLower.includes('ban party');
           const isBan = labelLower.includes('ban') && !isBanParty && !labelLower.includes('cấm');
-          
+
           if (isBan || isBanParty) {
             return (
-              <div className={`hazard-stripes mt-3 flex items-center gap-1.5 rounded-sm border px-2 py-1.5 ${
-                isBan 
-                  ? 'hazard-danger border-danger/50 bg-danger/10 text-danger' 
-                  : 'hazard-warning border-gold/50 bg-gold/10 text-gold'
+              <div className={`relative mt-3 flex items-center gap-1.5 rounded-sm border px-2 py-1.5 overflow-hidden ${
+                isBan
+                  ? 'border-danger/50 bg-danger/5 text-danger'
+                  : 'border-gold/50 bg-gold/5 text-gold'
               }`}>
-                <ShieldAlert className="size-3.5 shrink-0" />
-                <span className="text-[11px] font-semibold uppercase tracking-wide">
+                {/* Progress bar background */}
+                <div
+                  className={`absolute inset-0 hazard-stripes opacity-20 ${
+                    isBan ? 'hazard-danger' : 'hazard-warning'
+                  }`}
+                  style={{ width: `${progressPercent}%`, transition: 'width 1s linear' }}
+                />
+
+                <ShieldAlert className="size-3.5 shrink-0 relative z-10" />
+                <span className="text-[11px] font-semibold uppercase tracking-wide relative z-10">
                   {account.tag_label} [{remainingDays}]
                 </span>
               </div>
