@@ -181,7 +181,7 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
       role="button"
       tabIndex={0}
       aria-label={`Account ${account.username}`}
-      className={`group relative overflow-hidden rounded-md transition-all duration-200 select-none cursor-pointer shrink-0 ${
+      className={`group relative  rounded-md transition-all duration-200 select-none cursor-pointer shrink-0 ${
         isDragging
           ? 'opacity-60 scale-105 rotate-1'
           : disabled
