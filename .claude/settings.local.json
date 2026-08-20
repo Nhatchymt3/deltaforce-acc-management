@@ -11,7 +11,9 @@
       "Bash(npx supabase *)",
       "Bash(del \"C:\\\\Users\\\\Nhatchymte\\\\Documents\\\\webmanagerdelta\\\\supabase\\\\migrations\\\\011_revert_status.sql\")",
       "Bash(npm run *)",
-      "Bash(git commit -m 'refactor: optimize UI/UX, performance, and security *)"
+      "Bash(git commit -m 'refactor: optimize UI/UX, performance, and security *)",
+      "Bash(npm install *)",
+      "Bash(npm audit *)"
     ]
   }
 }

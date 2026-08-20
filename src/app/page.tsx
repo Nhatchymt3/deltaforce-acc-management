@@ -18,7 +18,7 @@ export default async function HomePage() {
   ] = await Promise.all([
     supabase
       .from('accounts')
-      .select('id, source, username, password, status, position, current_holder, version, current_level, target_milestone_id, added_by, tag_label, tag_expires_at, created_at, result_image_path, game_uuid, image_url, image_expires_at, completed_at, delivered_at, paid_at, amount_received')
+      .select('*')
       .neq('status', 'da_nhan_tien')
       .order('position'),
     supabase
