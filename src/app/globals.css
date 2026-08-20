@@ -129,11 +129,17 @@
   .hazard-stripes {
     background-image: repeating-linear-gradient(
       -45deg,
-      oklch(0.66 0.2 25 / 22%) 0px,
-      oklch(0.66 0.2 25 / 22%) 8px,
+      var(--hazard-color, oklch(0.66 0.2 25 / 22%)) 0px,
+      var(--hazard-color, oklch(0.66 0.2 25 / 22%)) 8px,
       transparent 8px,
       transparent 16px
     );
+  }
+  .hazard-danger {
+    --hazard-color: oklch(0.66 0.2 25 / 22%);
+  }
+  .hazard-warning {
+    --hazard-color: oklch(0.74 0.16 58 / 22%); /* Using primary/amber/gold color */
   }
 
   .hud-frame {

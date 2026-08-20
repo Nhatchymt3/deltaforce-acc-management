@@ -21,7 +21,7 @@ import {
 } from '@dnd-kit/core';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Search, ShieldAlert } from 'lucide-react';
 import { moveAccount } from '@/app/actions/accounts';
 import { signOut } from '@/app/actions/auth';
 import type { Account, HolderSession, Milestone, Source, Farmer } from '@/lib/types';
@@ -223,13 +223,28 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
           const now = Date.now();
           if (expires <= now) return null;
           const remainingDays = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
-          const isBan = account.tag_label.toLowerCase().includes('ban') && !account.tag_label.toLowerCase().includes('cấm');
+          const labelLower = account.tag_label.toLowerCase();
+          const isBanParty = labelLower.includes('ban party');
+          const isBan = labelLower.includes('ban') && !isBanParty && !labelLower.includes('cấm');
+          
+          if (isBan || isBanParty) {
+            return (
+              <div className={`hazard-stripes mt-3 flex items-center gap-1.5 rounded-sm border px-2 py-1.5 ${
+                isBan 
+                  ? 'hazard-danger border-danger/50 bg-danger/10 text-danger' 
+                  : 'hazard-warning border-gold/50 bg-gold/10 text-gold'
+              }`}>
+                <ShieldAlert className="size-3.5 shrink-0" />
+                <span className="text-[11px] font-semibold uppercase tracking-wide">
+                  {account.tag_label} [{remainingDays}]
+                </span>
+              </div>
+            );
+          }
+
+          // Normal tags
           return (
-            <div className={`mt-1.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-              isBan
-                ? 'bg-destructive/15 text-red-300 border border-signal-red/30'
-                : 'bg-amber-500/10 text-amber-500 border border-amber-500/25'
-            }`}>
+            <div className="mt-1.5 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold bg-primary/10 text-primary border border-primary/25">
               <span>{account.tag_label}</span>
               <span className="opacity-60">({remainingDays}d)</span>
             </div>
