@@ -53,10 +53,9 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="relative h-screen flex flex-col overflow-hidden text-foreground bg-background">
-      <FloatingLeaderboard />
 
       {/* cinematic command banner */}
-      <header className="relative shrink-0 overflow-hidden border-b border-panel-border">
+      <header className="relative z-10 shrink-0 overflow-hidden border-b border-panel-border">
         <Image
           src="/df-hero.png"
           alt=""
@@ -229,8 +228,10 @@ export function AppShell({ children }: AppShellProps) {
           <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-cyan" />
           DFA ACC MANAGEMENT SYSTEM · ONLINE
         </span>
-        <span>Delta Force Farming & Allocation Platform</span>
+        <span>Delta Force Farming & Allocation</span>
       </footer>
+
+      <FloatingLeaderboard />
     </div>
   );
 }

@@ -67,11 +67,11 @@ function formatTimeAgo(iso: string | null | undefined): string {
   const diffYear = Math.floor(diffDay / 365);
 
   if (diffSec < 60) return 'vừa xong';
-  if (diffMin < 60) return `${diffMin}m trước`;
-  if (diffHour < 24) return `${diffHour}h trước`;
-  if (diffDay < 30) return `${diffDay}d trước`;
-  if (diffMonth < 12) return `${diffMonth} tháng trước`;
-  return `${diffYear} năm trước`;
+  if (diffMin < 60) return `${diffMin}m`;
+  if (diffHour < 24) return `${diffHour}h`;
+  if (diffDay < 30) return `${diffDay}d`;
+  if (diffMonth < 12) return `${diffMonth}th`;
+  return `${diffYear}y`;
 }
 
 function isLocked(status: Account['status']): boolean {
@@ -163,12 +163,12 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
       role="button"
       tabIndex={0}
       aria-label={`Account ${account.username}`}
-      className={`group relative overflow-hidden rounded-lg border transition-all duration-200 select-none cursor-pointer shrink-0 hover:border-primary/30 hover:bg-primary/10 border-primary/40 ${
+      className={`group relative overflow-hidden rounded-md transition-all duration-200 select-none cursor-pointer shrink-0 ${
         isDragging
-          ? 'border-primary/50 bg-card opacity-60 scale-105 rotate-1'
+          ? 'opacity-60 scale-105 rotate-1'
           : disabled
-          ? 'border-border/50 glass-panel opacity-80'
-          : 'glass-panel cursor-grab active:cursor-grabbing'
+          ? 'opacity-80'
+          : 'cursor-grab active:cursor-grabbing'
       }`}
       style={{ ...style, animationDelay: `${index * 40}ms` }}
     >
@@ -178,7 +178,7 @@ const Card = memo(function Card({ account, targetMilestone, onOpen, index }: Car
         className={`absolute left-0 top-2 bottom-2 z-10 w-[3px] rounded-full ${colors.bar} opacity-80 group-hover:opacity-100`}
       />
 
-      <div className={`hud-frame relative overflow-hidden rounded-md border border-panel-border bg-card px-4 py-3 pl-5 transition-all before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:opacity-60 group-hover:bg-card/90 ${colors.glow} ${colors.ring}`}>
+      <div className={`hud-frame relative overflow-hidden rounded-md border border-panel-border bg-card px-4 py-3 transition-all before:absolute before:inset-x-0 before:top-0 before:h-[2px] before:opacity-60 group-hover:bg-card/90 ${colors.glow} ${colors.ring}`}>
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <h3 className="font-mono font-semibold text-foreground text-sm truncate">{account.username}</h3>
@@ -341,7 +341,7 @@ function Column({ id, label, accounts, milestonesByAccount, onOpen, isKho, onRem
       ) : null}
 
       {/* Card list */}
-      <div className="flex flex-col gap-2.5 p-3 overflow-y-auto min-h-0 flex-1 scrollbar-thin pb-6">
+      <div className="flex flex-col gap-2.5 overflow-y-auto pr-1 min-h-0 flex-1 scrollbar-thin pb-6">
         {displayedAccounts.length === 0 && (
           <div className="flex items-center justify-center py-12 text-muted-foreground/30">
             <span className="text-xs font-mono">{isKho && khoSearch.trim() ? 'Không tìm thấy acc' : '—'}</span>
